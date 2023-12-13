@@ -1,5 +1,5 @@
 {% extends 'main_list/base.html' %}
-
+{% load static %}
 {% block title %}
 Anastasia Romancha
 {% endblock %}
@@ -7,6 +7,6 @@ Anastasia Romancha
 
 {% block content %}
 <div class="MainSection-container">
-    Сайт Настюшки Романчи! Ага
+    <img src="{% static 'media/main_photo.jpg' %}" alt="img">
 </div>
 {% endblock content %}
