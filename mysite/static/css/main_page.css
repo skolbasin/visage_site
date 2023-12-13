@@ -1,13 +1,9 @@
-
-   * {
-    background-color: #fff7ef;;
-  }
-
   body {
     background-color: #968e8e0f;
   }
 
   .HeaderSection-container {
+   font-family: Helvetica, Arial, sans-serif;
    display: flex;
    align-items: center;
    height: 100px;
@@ -22,7 +18,7 @@
   color: #ebd61e;
   background-color: black;
   margin: 0;
-  padding: 10px;
+  padding: 25px;
   text-decoration: none;
   }
 
@@ -33,7 +29,7 @@
   .MainSection-container {
    border: 1px solid rgb(102, 93, 93);
    max-width: 1000px;
-   height: 100%;
+   height: 400px;
    margin-left: auto;
    margin-right: auto;
    background-color: white
@@ -42,7 +38,7 @@
    .FooterSection-container {
    border: 1px solid rgb(102, 93, 93);
    max-width: 1000px;
-   height: 100%;
+   height: 50px;
    margin-left: auto;
    margin-right: auto;
    background-color: white
