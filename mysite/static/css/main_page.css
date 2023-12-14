@@ -4,32 +4,40 @@
   }
 
   .HeaderSection-container {
-   font-family: Times New Roman,  sans-serif;
+   border: 1px solid rgb(102, 93, 93);
+   font-family: 'Lobster', sans-serif;
    font-size: 1.3rem;
    display: flex;
    align-items: center;
    height: 90px;
-   justify-content: space-between;
+   gap: 200px;
    margin-left: auto;
    margin-right: auto;
-   background-color: black;
-   color: #ebd61e;
+   background-color: white;
+   color: black;
    }
 
+  .HeaderSection-container > div{
+  margin: 10px;
+  }
+
   .HeaderSection-container > div > a {
-  color: #ebd61e;
-  background-color: black;
+  color: black;
+  background-color: white;
   margin: 0;
   padding: 25px;
   text-decoration: none;
   }
 
   .HeaderSection-container > div > a:hover {
-   color: red;
+   color: #FFD700;
   }
 
   .MainSection-container {
-   border: 1px solid rgb(102, 93, 93);
+   border-left: 1px solid black;
+   border-right: 1px solid black;
+   border-top: none;
+   border-bottom: none;
    max-width: 1000px;
    height: 761px;
    margin-left: auto;
@@ -46,7 +54,7 @@
    height: 90px;
    margin-left: auto;
    margin-right: auto;
-   background-color: black;
+   background-color: white;
    color: #ebd61e;
    display: flex;
    justify-content: center;

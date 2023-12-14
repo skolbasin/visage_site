@@ -2,12 +2,15 @@
 {% load static %}
 <html>
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
     <link rel='stylesheet' type="text/css" href="{% static 'css/main_page.css' %}">
 
 </head>
 <body>
     <div class="HeaderSection-container">
-            <div>Логотип</div>
+            <div><img src="{% static 'media/log.jpg' %}" alt="img"></div>
             <div>
                 <a href="{% url 'main_list:main' %}">Главная</a>
                 <a href='#'>Портфолио</a>
@@ -15,7 +18,7 @@
                 <a href='#'>Макияж для себя</a>
                 <a href='#'>Отзывы</a>
             </div>
-            <div>
+            <div style="margin-left: 200px">
                 <a href='#'> Контакты</a>
             </div>
 
