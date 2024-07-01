@@ -3,4 +3,4 @@ from django.shortcuts import render
 
 
 def main_list_view(request: HttpRequest) -> HttpResponse:
-    return render(request, "main_list/landing.html", )
+    return render(request, "account/landing.html", )

@@ -3,4 +3,4 @@ from django.apps import AppConfig
 
 class MainListConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'main_list'
+    name = 'account'
