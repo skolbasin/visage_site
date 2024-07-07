@@ -6,3 +6,8 @@
 - [ColorCode](https://www.toptal.com/designers/colourcode)
 - [ColorHunter](https://www.colorhunter.com/)
 - [ColrD](http://colrd.com/)
+
+Инструменты подбора шрифта:
+- [Google Fonts](https://fonts.google.com/)
+- [Font Space](https://www.fontspace.com/)
+- [1001 free fonts](https://www.1001freefonts.com/)
