@@ -17,3 +17,4 @@
 - [Pexels](https://www.pexels.com/en-en/) (VPN)
 - [Stock Up](https://stockup.sitebuilderreport.com/)
 - [Gratisography](https://gratisography.com/)
+- [Lory](https://lori.ru/)
