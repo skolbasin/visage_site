@@ -11,3 +11,9 @@
 - [Google Fonts](https://fonts.google.com/)
 - [Font Space](https://www.fontspace.com/)
 - [1001 free fonts](https://www.1001freefonts.com/)
+
+Инструменты подбора картинок:
+- [Burst](https://www.shopify.com/stock-photos)
+- [Pexels](https://www.pexels.com/en-en/) (VPN)
+- [Stock Up](https://stockup.sitebuilderreport.com/)
+- [Gratisography](https://gratisography.com/)
