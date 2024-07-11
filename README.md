@@ -21,5 +21,5 @@
 
 Инструменты для конструирования макета сайта:
 - [Wilda](https://wilda.ru/)
-- [Justinmind]((https://www.justinmind.com/free-wireframe-tool)
+- [Justinmind](https://www.justinmind.com/free-wireframe-tool)
 
