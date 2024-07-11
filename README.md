@@ -18,3 +18,8 @@
 - [Stock Up](https://stockup.sitebuilderreport.com/)
 - [Gratisography](https://gratisography.com/)
 - [Lory](https://lori.ru/)
+
+Инструменты для конструирования макета сайта:
+- [Wilda](https://wilda.ru/)
+- [Justinmind]((https://www.justinmind.com/free-wireframe-tool)
+
