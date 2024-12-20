@@ -1,5 +1,3 @@
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
 
@@ -13,4 +11,4 @@ class AccountLogin(LoginView):
 
 
 class AccountLogout(LogoutView):
-    next_page = reverse_lazy('main:main')
+    next_page = reverse_lazy('account:login')
