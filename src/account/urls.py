@@ -1,9 +1,9 @@
 from django.urls import path
 
-from main_list.views import main_list_view
+from .views import AccountLogin
 
 app_name = "account"
 
 urlpatterns = [
-    path("", main_list_view, name="main"),
+    path('login/', AccountLogin.as_view(), name='login'),
 ]
