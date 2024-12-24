@@ -4,16 +4,18 @@ from django.utils.translation import gettext_lazy as _
 
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, email, code_word):
+
+    def create_user(self, email, password=None, **extra_fields):
         if not email:
-            raise ValueError('А ну-ка введите пароль"')
+            raise ValueError('Users must have an email address')
         email = self.normalize_email(email)
-        user = self.model(email=email, code_word=code_word)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, code_word):
-        user = self.create_user(email, code_word)
+    def create_superuser(self, email, password=None, **extra_fields):
+        user = self.create_user(email, password, **extra_fields)
         user.is_superuser = True
         user.is_staff = True
         user.save(using=self._db)
@@ -34,6 +36,16 @@ class CustomUser(AbstractBaseUser):
         null=False,
         blank=False,
     )
+
+    # 2 поля и 2 метода нужны, чтоб корректно работал кастомный класс.
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+
+    def has_perm(self, perm, obj=None):
+        return self.is_superuser
+
+    def has_module_perms(self, app_label):
+        return self.is_superuser
 
     objects = CustomUserManager()
 
