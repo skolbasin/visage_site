@@ -16,6 +16,11 @@ Django-проект представляет из себя удобный тре
 
 Инструменты подбора иконок:
 - [SVGRepo](https://www.svgrepo.com/)
+- [Flaticon](https://www.flaticon.com/ru/)
+
+Инструменты тестирования верстки:
+- [CodaPen](https://codepen.io/) 
+- [CodeSandbox](https://codesandbox.io/)
 
 Инструменты подбора шрифта:
 - [Google Fonts](https://fonts.google.com/)
@@ -34,4 +39,5 @@ Django-проект представляет из себя удобный тре
 - [Wilda](https://wilda.ru/)
 - [Justinmind](https://www.justinmind.com/free-wireframe-tool)
 - [Figma](https://www.figma.com/)
+
 
