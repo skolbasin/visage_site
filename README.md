@@ -18,7 +18,7 @@ Django-проект представляет из себя удобный тре
 - [SVGRepo](https://www.svgrepo.com/)
 - [Flaticon](https://www.flaticon.com/ru/)
 
-Инструменты тестирования верстки:
+Инструменты тестирования интерфейса:
 - [CodaPen](https://codepen.io/) 
 - [CodeSandbox](https://codesandbox.io/)
 
