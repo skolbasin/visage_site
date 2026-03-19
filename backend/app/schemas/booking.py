@@ -1,6 +1,8 @@
-from pydantic import BaseModel, EmailStr, validator
 from datetime import datetime
 from typing import Optional
+
+from pydantic import BaseModel, EmailStr, validator
+
 from app.models.booking import BookingStatus
 
 
@@ -32,3 +34,12 @@ class BookingOut(BookingBase):
 
     class Config:
         from_attributes = True
+
+
+class BookingUpdateStatus(BaseModel):
+    status: BookingStatus
+
+
+class BookingAdminOut(BookingOut):
+    promo_code_id: Optional[int]
+    # можно добавить информацию о пользователе

@@ -1,19 +1,40 @@
+from fastapi_mail import ConnectionConfig, FastMail, MessageSchema
+
 from app.core.config import settings
 
+conf = ConnectionConfig(
+    MAIL_USERNAME=settings.SMTP_USER,
+    MAIL_PASSWORD=settings.SMTP_PASSWORD,
+    MAIL_FROM=settings.EMAILS_FROM_EMAIL,
+    MAIL_PORT=settings.SMTP_PORT,
+    MAIL_SERVER=settings.SMTP_HOST,
+    MAIL_STARTTLS=True,
+    MAIL_SSL_TLS=False,
+    USE_CREDENTIALS=True,
+    VALIDATE_CERTS=True,
+)
 
-def send_email(to: str, subject: str, body: str):
-    # Пока просто печатаем в консоль
-    print(f"Sending email to {to}: {subject}\n{body}")
-    # Здесь будет реальная отправка через SMTP или сторонний сервис
-    # Например, используя aiosmtplib или fastapi-mail
-    pass
 
-
-def send_booking_notification(booking_data: dict):
-    # Отправка уведомления визажисту
-    send_email(
-        to=settings.EMAILS_FROM_EMAIL,  # допустим, email мастера
+async def send_booking_notification(booking):
+    message = MessageSchema(
         subject="Новая запись",
-        body=f"Новая запись от {booking_data['name']}\nДата: {booking_data['appointment_date']}",
+        recipients=[settings.EMAILS_FROM_EMAIL],  # мастеру
+        body=f"Новая запись от {booking.name}\nДата: {booking.appointment_date}",
+        subtype="plain",
     )
-    # Можно также отправить подтверждение клиенту
+    fm = FastMail(conf)
+    await fm.send_message(message)
+
+
+async def send_certificate_email(certificate):
+    # Формируем письмо с кодом сертификата
+    body = f"Ваш подарочный сертификат: {certificate.code}\n"
+    body += f"Для {certificate.recipient_name} от {certificate.buyer_name}"
+    message = MessageSchema(
+        subject="Подарочный сертификат",
+        recipients=[certificate.buyer_email],
+        body=body,
+        subtype="plain",
+    )
+    fm = FastMail(conf)
+    await fm.send_message(message)

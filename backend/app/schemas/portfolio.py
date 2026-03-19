@@ -1,15 +1,9 @@
-from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
 
+from pydantic import BaseModel
 
-class CategoryBase(BaseModel):
-    name: str
-    slug: str
-
-
-class CategoryOut(CategoryBase):
-    id: int
+from app.schemas.category import CategoryBase, CategoryOut
 
 
 class PortfolioItemBase(BaseModel):
@@ -32,3 +26,21 @@ class PortfolioItemOut(PortfolioItemBase):
 
     class Config:
         from_attributes = True
+
+
+class CategoryCreate(CategoryBase):
+    pass
+
+
+class CategoryUpdate(BaseModel):
+    name: Optional[str] = None
+    slug: Optional[str] = None
+
+
+class PortfolioItemUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    image_url: Optional[str] = None
+    category_id: Optional[int] = None
+    is_published: Optional[bool] = None
+    order: Optional[int] = None

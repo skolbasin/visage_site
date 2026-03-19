@@ -1,20 +1,19 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from datetime import timedelta
-from app.core.dependencies import get_db, get_current_user
+
+from app.core.dependencies import get_current_active_user, get_current_user, get_db
 from app.core.security import (
-    verify_password,
-    get_password_hash,
     create_access_token,
     create_refresh_token,
+    get_password_hash,
+    verify_password,
+    verify_refresh_token,
 )
-from app.core.config import settings
-from app.models.user import User
 from app.models.promo import PromoCode
-from app.schemas.user import UserCreate, UserLogin, Token, UserOut
-from app.services.promo_service import generate_promo_code  # создадим позже
-import random
-import string
+from app.models.user import User
+from app.schemas.user import Token, UserCreate, UserLogin, UserOut
+from app.services.promo_service import generate_promo_code
+from backend.app.schemas.user import RefreshToken
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 
@@ -76,3 +75,28 @@ def refresh(
 @router.get("/me", response_model=UserOut)
 def get_me(current_user: User = Depends(get_current_active_user)):
     return current_user
+
+
+@router.post("/refresh", response_model=Token)
+def refresh_token(refresh_data: RefreshToken, db: Session = Depends(get_db)):
+    """
+    Получение новой пары токенов по refresh token.
+    Refresh token должен быть действительным и не истекшим.
+    """
+    user_id = verify_refresh_token(refresh_data.refresh_token)
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user or not user.is_active:
+        raise HTTPException(status_code=401, detail="User not found or inactive")
+
+    # Создаём новую пару
+    access_token = create_access_token(user.id)
+    refresh_token = create_refresh_token(user.id)
+
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+    }

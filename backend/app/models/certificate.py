@@ -1,18 +1,19 @@
+import enum
+
 from sqlalchemy import (
     Column,
-    Integer,
-    String,
-    ForeignKey,
-    Enum,
     DateTime,
+    Enum,
+    ForeignKey,
+    Integer,
     Numeric,
-    Boolean,
+    String,
     Text,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+
 from app.db.base import Base
-import enum
 
 
 class CertificateType(str, enum.Enum):

@@ -1,7 +1,10 @@
-from passlib.context import CryptContext
 from datetime import datetime, timedelta
-from typing import Union, Any
+from typing import Any, Optional, Union
+
 from jose import jwt
+from jwt import JWTError
+from passlib.context import CryptContext
+
 from app.core.config import settings
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -38,3 +41,17 @@ def create_refresh_token(subject: Union[str, Any]) -> str:
         to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
     )
     return encoded_jwt
+
+
+def verify_refresh_token(token: str) -> Optional[int]:
+    try:
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
+        user_id: int = int(payload.get("sub"))
+        token_type = payload.get("type")
+        if token_type != "refresh":
+            return None
+        return user_id
+    except (JWTError, ValueError, TypeError):
+        return None

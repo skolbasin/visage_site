@@ -1,18 +1,35 @@
 from fastapi import FastAPI
+
+from app.api import (
+    ai,
+    articles,
+    auth,
+    booking,
+    certificates,
+    portfolio,
+    posts,
+    promo,
+    reviews,
+)
 from app.core.config import settings
-from app.api import auth  # импортируем роутер
-# ... другие импорты позже
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json"
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
 )
 
-# Подключаем роутер аутентификации
+# Подключаем роутеры
 app.include_router(auth.router, prefix=settings.API_V1_STR)
+app.include_router(portfolio.router, prefix=settings.API_V1_STR)
+app.include_router(posts.router, prefix=settings.API_V1_STR)
+app.include_router(reviews.router, prefix=settings.API_V1_STR)
+app.include_router(articles.router, prefix=settings.API_V1_STR)
+app.include_router(booking.router, prefix=settings.API_V1_STR)
+app.include_router(promo.router, prefix=settings.API_V1_STR)
+app.include_router(certificates.router, prefix=settings.API_V1_STR)
+app.include_router(ai.router, prefix=settings.API_V1_STR)
 
-# Позже добавим другие роутеры
 
 @app.get("/")
 def root():

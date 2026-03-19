@@ -1,7 +1,9 @@
-from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, Enum
-from sqlalchemy.sql import func
-from app.db.base import Base
 import enum
+
+from sqlalchemy import Boolean, Column, DateTime, Enum, Integer, String, Text
+from sqlalchemy.sql import func
+
+from app.db.base import Base
 
 
 class PostType(str, enum.Enum):
