@@ -5,7 +5,7 @@ export default function Layout() {
   return (
     <div className="min-h-screen bg-dark">
       <Header />
-      <main className="pt-16">
+      <main style={{ paddingTop: 'var(--header-height)' }}>
         <Outlet />
       </main>
     </div>

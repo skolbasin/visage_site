@@ -2,7 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===== Глобальные переменные ===== */
 :root {
+  --header-height: 64px;
   --text: #6b6375;
   --text-h: #08060d;
   --bg: #fff;
@@ -52,22 +54,33 @@
   }
 }
 
-body {
+/* ===== Базовые сбросы ===== */
+* {
   margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #111111;
+}
+
+/* ===== Корневой контейнер (лента) ===== */
 #root {
   width: 1126px;
   max-width: 100%;
   margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
+  position: relative;
+  background: #111111;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
+/* ===== Типографика ===== */
 h1,
 h2 {
   font-family: var(--heading);
@@ -79,20 +92,15 @@ h1 {
   font-size: 56px;
   letter-spacing: -1.68px;
   margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
 }
+
 h2 {
   font-size: 24px;
   line-height: 118%;
   letter-spacing: -0.24px;
   margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
 }
+
 p {
   margin: 0;
 }
@@ -112,14 +120,58 @@ code {
   background: var(--code-bg);
 }
 
-body {
-  @apply bg-dark text-gray-100;
+/* ===== Адаптивность ===== */
+@media (max-width: 1024px) {
+  h1 {
+    font-size: 36px;
+    margin: 20px 0;
+  }
+  h2 {
+    font-size: 20px;
+  }
 }
 
+/* ===== Кастомные классы ===== */
 .btn-primary {
   @apply bg-gold text-black font-bold py-2 px-4 rounded-lg hover:bg-yellow-500 transition;
 }
 
 .btn-secondary {
   @apply border-2 border-gold text-gold font-bold py-2 px-4 rounded-lg hover:bg-gold hover:text-black transition;
+}
+
+/* ===== Стили для хедера ===== */
+header {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  font-size: 18px;
+}
+
+/* ===== Стили для ссылок ===== */
+a {
+  transition: all 0.2s ease;
+}
+
+/* ===== Утилиты для скролла ===== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ffd700;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #e6c300;
+}
+
+html {
+  scroll-behavior: smooth;
 }

@@ -1,52 +1,78 @@
-import { Link, useLocation } from 'react-router-dom';
-import { Instagram, Send, User } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-
-const navigation = [
-  { name: 'О себе', href: '/#about' },
-  { name: 'Работы', href: '/portfolio' },
-  { name: 'Услуги', href: '/#services' },
-  { name: 'Макияж для себя', href: '/articles' },
-  { name: 'Лента', href: '/feed' },
-  { name: 'Отзывы', href: '/reviews' },
-  { name: 'Подарочный сертификат', href: '/certificates' },
-];
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 export default function Header() {
-  const { user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleScroll = (id) => {
+    if (location.pathname !== '/') {
+      navigate('/');
+      setTimeout(() => {
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
-    <header className="bg-darkgray/95 backdrop-blur-sm border-b border-gray-800 fixed top-0 left-0 right-0 z-50">
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Навигация слева */}
+    <header
+      className="bg-darkgray/95 backdrop-blur-sm border-b border-gray-800 fixed top-0 z-50"
+      style={{
+        width: '1126px',
+        maxWidth: '100%',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        height: '64px'
+      }}
+    >
+      <div className="w-full px-4 sm:px-6 lg:px-8 h-full">
+        <div className="flex justify-between items-center h-full">
+
+          {/* Навигация */}
           <div className="flex space-x-6 overflow-x-auto">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={`text-gray-300 hover:text-gold transition whitespace-nowrap ${
-                  location.pathname === item.href ? 'text-gold' : ''
-                }`}
-              >
-                {item.name}
-              </Link>
-            ))}
+
+            <button onClick={() => handleScroll('about')} className="text-gray-300 hover:text-gold">
+              О себе
+            </button>
+
+            <Link to="/portfolio" className="text-gray-300 hover:text-gold">
+              Работы
+            </Link>
+
+            <button onClick={() => handleScroll('services')} className="text-gray-300 hover:text-gold">
+              Услуги
+            </button>
+
+            <Link to="/articles" className="text-gray-300 hover:text-gold">
+              Макияж для себя
+            </Link>
+
+            <Link to="/feed" className="text-gray-300 hover:text-gold">
+              Лента
+            </Link>
+
+            <Link to="/reviews" className="text-gray-300 hover:text-gold">
+              Отзывы
+            </Link>
+
+            <Link to="/certificates" className="text-gray-300 hover:text-gold">
+              Сертификат
+            </Link>
+
+            <button onClick={() => handleScroll('contacts')} className="text-gray-300 hover:text-gold">
+              Контакты
+            </button>
+
           </div>
 
-          {/* Иконки справа */}
-          <div className="flex items-center space-x-4 flex-shrink-0">
+          {/* Иконки */}
+          <div className="flex items-center space-x-4">
             <Link to="/profile" className="text-gray-300 hover:text-gold">
-              <User className="w-5 h-5" />
+              👤
             </Link>
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
-              <Instagram className="w-5 h-5 text-gray-300 hover:text-gold" />
-            </a>
-            <a href="https://t.me" target="_blank" rel="noopener noreferrer">
-              <Send className="w-5 h-5 text-gray-300 hover:text-gold" />
-            </a>
           </div>
+
         </div>
       </div>
     </header>

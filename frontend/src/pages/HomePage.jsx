@@ -1,118 +1,146 @@
-// src/pages/HomePage.jsx
 import { Link } from 'react-router-dom';
 
 export default function HomePage() {
+  const services = [
+    {
+      name: 'Свадебный макияж',
+      price: 'от 5000 ₽',
+      desc: 'Стойкий образ на весь день + фотосессия',
+      highlight: true
+    },
+    {
+      name: 'Вечерний макияж',
+      price: 'от 4000 ₽',
+      desc: 'Идеален для мероприятий и фотосессий'
+    },
+    {
+      name: 'Дневной макияж',
+      price: 'от 3000 ₽',
+      desc: 'Лёгкий и естественный образ'
+    }
+  ];
+
   return (
     <>
-      {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        {/* Затемняющий градиент слева */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent z-10" />
+      {/* HERO */}
+      <section
+        className="relative flex items-center bg-cover bg-right"
+        style={{
+          height: '100vh',
+          backgroundImage: "url('/IMG_4177.JPG')"
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
 
-        {/* Фото визажиста (справа) */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src="/IMG_4177.JPG"
-            alt="Визажист"
-            className="w-full h-full object-cover object-right"
-          />
-        </div>
-
-        {/* Контент слева */}
-        <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
           <div className="max-w-xl">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight">
-              Создаю образы, которые подчеркивают твою уникальность
+            <h1 className="text-5xl font-bold text-white leading-tight">
+              Подчеркну твою естественную красоту
             </h1>
-            <p className="mt-4 text-gray-200 text-lg">
-              Профессиональный визажист с опытом 8+ лет. Индивидуальный подход,
-              качественная косметика и безупречный результат для любого события.
+
+            <p className="mt-4 text-gray-300 text-lg">
+              Макияж, который выглядит дорого и держится весь день
             </p>
-            <div className="mt-8 flex space-x-4">
-              <Link
-                to="/booking"
-                className="bg-gold text-black font-bold py-3 px-6 rounded-lg hover:bg-yellow-500 transition shadow-lg"
-              >
+
+            <div className="mt-8 flex gap-4">
+              <Link to="/booking" className="btn-primary">
                 Записаться
               </Link>
-              <Link
-                to="/portfolio"
-                className="border-2 border-gold text-gold font-bold py-3 px-6 rounded-lg hover:bg-gold hover:text-black transition"
-              >
-                Мои работы
+
+              <Link to="/portfolio" className="btn-secondary">
+                Портфолио
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Блок "О себе" */}
-      <section id="about" className="py-20 bg-darkgray">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl font-bold text-gold mb-4">О себе</h2>
-              <p className="text-gray-300 leading-relaxed">
-                Меня зовут Анастасия, я профессиональный визажист с дипломом международного образца.
-                Работаю в индустрии красоты более 8 лет, постоянно повышаю квалификацию
-                и слежу за трендами. Моя философия – подчеркнуть естественную красоту
-                каждой девушки, создавая образ, в котором она чувствует себя уверенно.
-              </p>
-              <p className="mt-4 text-gray-300">
-                Специализируюсь на свадебном, вечернем и дневном макияже.
-                Использую только профессиональную косметику премиум-брендов.
-              </p>
-            </div>
-            <div className="flex justify-center">
-              <div className="w-64 h-64 rounded-full overflow-hidden border-4 border-gold shadow-xl">
-                <img
-                  src="/IMG_4327.JPEG"
-                  alt="Анастасия, визажист"
-                  className="w-full h-full object-cover"
-                />
-              </div>
+      {/* ABOUT */}
+      <section id="about" className="py-24 bg-darkgray">
+        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+
+          <div>
+            <h2 className="text-3xl text-gold font-bold mb-6">О себе</h2>
+            <p className="text-gray-300 leading-relaxed">
+              Я визажист с опытом более 8 лет. Работаю с невестами, моделями и клиентами,
+              которым важен безупречный результат.
+            </p>
+          </div>
+
+          <div className="flex justify-center">
+            <div className="w-72 h-72 rounded-full overflow-hidden border-4 border-gold shadow-2xl">
+              <img src="/IMG_4327.JPEG" className="w-full h-full object-cover" />
             </div>
           </div>
+
         </div>
       </section>
 
-      {/* Блок "Услуги" */}
-      <section id="services" className="py-20 bg-dark">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-gold mb-12">Услуги</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { name: 'Свадебный макияж', price: 'от 5 000 ₽', desc: 'Образ на весь день, стойкий и нежный' },
-              { name: 'Вечерний макияж', price: 'от 4 000 ₽', desc: 'Для особых случаев и торжеств' },
-              { name: 'Дневной макияж', price: 'от 3 000 ₽', desc: 'Естественный образ для повседневности' }
-            ].map((service, idx) => (
-              <div key={idx} className="bg-darkgray p-6 rounded-lg border border-gray-700 hover:border-gold transition">
-                <h3 className="text-xl font-bold text-white mb-2">{service.name}</h3>
-                <p className="text-gold text-lg font-semibold mb-3">{service.price}</p>
-                <p className="text-gray-400">{service.desc}</p>
+      {/* SERVICES */}
+      <section id="services" className="py-24 bg-dark">
+        <div className="max-w-7xl mx-auto px-6">
+
+          <h2 className="text-3xl text-gold text-center mb-16">
+            Услуги
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-8">
+
+            {services.map((s, i) => (
+              <div
+                key={i}
+                className={`
+                  relative p-8 rounded-2xl border transition duration-300
+                  ${s.highlight
+                    ? 'border-gold bg-darkgray scale-105 shadow-2xl'
+                    : 'border-gray-700 bg-darkgray hover:border-gold hover:-translate-y-2'}
+                `}
+              >
+                {/* бейдж */}
+                {s.highlight && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold text-black text-sm px-3 py-1 rounded-full font-bold">
+                    Популярно
+                  </div>
+                )}
+
+                <h3 className="text-white text-2xl mb-4">{s.name}</h3>
+
+                <p className="text-gray-400 mb-6">{s.desc}</p>
+
+                <p className="text-gold text-2xl font-bold mb-6">
+                  {s.price}
+                </p>
+
+                <Link
+                  to="/booking"
+                  className="block text-center border border-gold text-gold py-2 rounded-lg hover:bg-gold hover:text-black transition"
+                >
+                  Записаться
+                </Link>
               </div>
             ))}
+
           </div>
         </div>
       </section>
 
-      {/* Блок "Контакты" */}
-      <section id="contacts" className="py-20 bg-darkgray">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-gold mb-6">Контакты</h2>
-          <p className="text-gray-300 text-lg mb-4">
-            📍 Москва, студия на Арбате<br />
-            📞 +7 (999) 123-45-67<br />
-            ✉️ anna@makeup.ru
-          </p>
-          <div className="flex justify-center space-x-6 mt-8">
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-gold hover:text-yellow-500">
-              Instagram
-            </a>
-            <a href="https://t.me" target="_blank" rel="noopener noreferrer" className="text-gold hover:text-yellow-500">
-              Telegram
-            </a>
-          </div>
+      {/* CONTACTS */}
+      <section id="contacts" className="py-24 bg-darkgray text-center">
+        <h2 className="text-3xl text-gold mb-6">Контакты</h2>
+
+        <p className="text-gray-300 leading-relaxed">
+          📍 Москва, Арбат <br />
+          📞 +7 (999) 123-45-67 <br />
+          ✉️ anna@makeup.ru
+        </p>
+
+        <div className="mt-8 flex justify-center gap-6">
+          <a href="https://instagram.com" className="text-gold hover:underline">
+            Instagram
+          </a>
+          <a href="https://t.me" className="text-gold hover:underline">
+            Telegram
+          </a>
         </div>
       </section>
     </>
