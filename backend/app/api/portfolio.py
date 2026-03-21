@@ -4,7 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_current_admin_user, get_db
-from app.models.portfolio import Category, PortfolioItem
+from app.models.portfolio import PortfolioItem
+from app.models.category import Category
 from app.schemas.portfolio import (
     CategoryCreate,
     CategoryOut,

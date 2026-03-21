@@ -1,0 +1,52 @@
+import { Link, useLocation } from 'react-router-dom';
+import { Instagram, Send, User } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+
+const navigation = [
+  { name: 'О себе', href: '/#about' },
+  { name: 'Работы', href: '/portfolio' },
+  { name: 'Услуги', href: '/#services' },
+  { name: 'Макияж для себя', href: '/articles' },
+  { name: 'Лента', href: '/feed' },
+  { name: 'Отзывы', href: '/reviews' },
+  { name: 'Подарочный сертификат', href: '/certificates' },
+  { name: 'Контакты', href: '/#contacts' },
+];
+
+export default function Header() {
+  const { user, logout, isAuthenticated } = useAuth();
+  const location = useLocation();
+
+  return (
+    <header className="bg-darkgray/95 backdrop-blur-sm border-b border-gray-800 fixed w-full top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex space-x-6 overflow-x-auto">
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={`text-gray-300 hover:text-gold transition whitespace-nowrap ${
+                  location.pathname === item.href ? 'text-gold' : ''
+                }`}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </div>
+          <div className="flex items-center space-x-4">
+            <Link to="/profile" className="text-gray-300 hover:text-gold">
+              <User className="w-5 h-5" />
+            </Link>
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+              <Instagram className="w-5 h-5 text-gray-300 hover:text-gold" />
+            </a>
+            <a href="https://t.me" target="_blank" rel="noopener noreferrer">
+              <Send className="w-5 h-5 text-gray-300 hover:text-gold" />
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}

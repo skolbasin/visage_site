@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import List, Optional
 
@@ -16,6 +17,7 @@ from app.schemas.booking import BookingCreate, BookingOut, BookingUpdateStatus
 from app.services.email_service import send_booking_notification
 
 router = APIRouter(prefix="/booking", tags=["booking"])
+logger = logging.getLogger(__name__)
 
 
 @router.post("/", response_model=BookingOut)
@@ -27,9 +29,11 @@ def create_booking(
     """Публичный: создание заявки на запись"""
     # Проверка промокода, если указан
     promo_code_id = None
+
     if booking.promo_code:
         promo = db.query(PromoCode).filter(PromoCode.code == booking.promo_code).first()
         if not promo or promo.is_used:
+            logger.warning(f"Invalid promo code attempted: {booking.promo_code}")
             raise HTTPException(
                 status_code=400, detail="Invalid or already used promo code"
             )
@@ -53,6 +57,7 @@ def create_booking(
     db.add(db_booking)
     db.commit()
     db.refresh(db_booking)
+    logger.info(f"Booking created: id={db_booking.id}, name={db_booking.name}, email={db_booking.email}, date={db_booking.appointment_date}")
 
     # Отправляем уведомление визажисту
     send_booking_notification(db_booking)

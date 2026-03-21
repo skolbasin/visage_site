@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import List, Optional
 
@@ -15,6 +16,7 @@ from app.schemas.certificate import CertificateCheck, CertificateCreate, Certifi
 from app.services.certificate_service import create_certificate
 
 router = APIRouter(prefix="/certificates", tags=["certificates"])
+logger = logging.getLogger(__name__)
 
 
 @router.post("/", response_model=CertificateOut)
@@ -29,6 +31,7 @@ def purchase_certificate(
 
     # Отправка email с сертификатом
     # send_certificate_email(cert)
+    logger.info(f"Certificate purchased: code={cert.code}, buyer={cert.buyer_email}, recipient={cert.recipient_name}")
 
     return cert
 
@@ -72,4 +75,5 @@ def mark_certificate_used(cert_id: int, db: Session = Depends(get_db)):
     cert.used_at = datetime.utcnow()
     db.commit()
     db.refresh(cert)
+
     return cert

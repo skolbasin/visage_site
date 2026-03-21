@@ -1,3 +1,4 @@
+import logging
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -13,6 +14,7 @@ from app.models.user import User
 from app.schemas.review import ReviewApprove, ReviewCreate, ReviewOut
 
 router = APIRouter(prefix="/reviews", tags=["reviews"])
+logger = logging.getLogger(__name__)
 
 
 @router.get("/", response_model=List[ReviewOut])
@@ -60,6 +62,8 @@ def create_review(
     db.add(db_review)
     db.commit()
     db.refresh(db_review)
+    logger.info(f"New review added: id={db_review.id}, user={db_review.name}, rating={db_review.rating}")
+
     return db_review
 
 
