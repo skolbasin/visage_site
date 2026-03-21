@@ -66,7 +66,7 @@ export default function HomePage() {
             <div className="flex justify-center">
               <div className="w-64 h-64 rounded-full overflow-hidden border-4 border-gold shadow-xl">
                 <img
-                  src="/about-photo.jpg" // фото для блока "о себе"
+                  src="/IMG_4327.JPEG"
                   alt="Анастасия, визажист"
                   className="w-full h-full object-cover"
                 />
