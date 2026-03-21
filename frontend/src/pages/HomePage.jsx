@@ -5,18 +5,18 @@ export default function HomePage() {
     {
       name: 'Свадебный макияж',
       price: 'от 5000 ₽',
-      desc: 'Стойкий образ на весь день + фотосессия',
+      desc: 'Стойкий образ на весь день',
       highlight: true
     },
     {
       name: 'Вечерний макияж',
       price: 'от 4000 ₽',
-      desc: 'Идеален для мероприятий и фотосессий'
+      desc: 'Идеален для мероприятий'
     },
     {
       name: 'Дневной макияж',
       price: 'от 3000 ₽',
-      desc: 'Лёгкий и естественный образ'
+      desc: 'Лёгкий и естественный'
     }
   ];
 
@@ -32,14 +32,19 @@ export default function HomePage() {
       >
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
+        <div className="relative z-10 max-w-7xl mx-auto px-6">
           <div className="max-w-xl">
             <h1 className="text-5xl font-bold text-white leading-tight">
-              Подчеркну твою естественную красоту
+              Профессиональный макияж, который держится весь день
             </h1>
 
             <p className="mt-4 text-gray-300 text-lg">
-              Макияж, который выглядит дорого и держится весь день
+              Свадебный, вечерний и повседневный макияж
+            </p>
+
+            {/* доверие */}
+            <p className="mt-3 text-gray-400 text-sm">
+              8+ лет опыта • 200+ клиентов • премиум косметика
             </p>
 
             <div className="mt-8 flex gap-4">
@@ -55,24 +60,41 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ABOUT */}
-      <section id="about" className="py-24 bg-darkgray">
-        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
-
+      {/* SOCIAL PROOF */}
+      <section className="py-16 bg-dark text-center">
+        <div className="max-w-5xl mx-auto px-6 grid grid-cols-3 gap-6">
           <div>
-            <h2 className="text-3xl text-gold font-bold mb-6">О себе</h2>
-            <p className="text-gray-300 leading-relaxed">
-              Я визажист с опытом более 8 лет. Работаю с невестами, моделями и клиентами,
-              которым важен безупречный результат.
-            </p>
+            <p className="text-3xl text-gold font-bold">8+</p>
+            <p className="text-gray-400">лет опыта</p>
           </div>
-
-          <div className="flex justify-center">
-            <div className="w-72 h-72 rounded-full overflow-hidden border-4 border-gold shadow-2xl">
-              <img src="/IMG_4327.JPEG" className="w-full h-full object-cover" />
-            </div>
+          <div>
+            <p className="text-3xl text-gold font-bold">200+</p>
+            <p className="text-gray-400">клиентов</p>
           </div>
+          <div>
+            <p className="text-3xl text-gold font-bold">100%</p>
+            <p className="text-gray-400">довольных</p>
+          </div>
+        </div>
+      </section>
 
+      {/* PORTFOLIO */}
+      <section id="portfolio" className="py-24 bg-darkgray">
+        <div className="max-w-7xl mx-auto px-6">
+          <h2 className="text-3xl text-gold text-center mb-12">
+            Мои работы
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {['/IMG_4177.JPG','/IMG_4327.JPEG','/IMG_4177.JPG'].map((img, i) => (
+              <div key={i} className="overflow-hidden rounded-xl">
+                <img
+                  src={img}
+                  className="w-full h-80 object-cover hover:scale-110 transition duration-500"
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -85,62 +107,110 @@ export default function HomePage() {
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8">
-
             {services.map((s, i) => (
               <div
                 key={i}
                 className={`
-                  relative p-8 rounded-2xl border transition duration-300
+                  p-8 rounded-2xl border transition
                   ${s.highlight
-                    ? 'border-gold bg-darkgray scale-105 shadow-2xl'
+                    ? 'border-gold bg-darkgray scale-105 shadow-xl'
                     : 'border-gray-700 bg-darkgray hover:border-gold hover:-translate-y-2'}
                 `}
               >
-                {/* бейдж */}
-                {s.highlight && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold text-black text-sm px-3 py-1 rounded-full font-bold">
-                    Популярно
-                  </div>
-                )}
+                <h3 className="text-white text-xl mb-3">{s.name}</h3>
 
-                <h3 className="text-white text-2xl mb-4">{s.name}</h3>
+                <p className="text-gray-400 mb-4">{s.desc}</p>
 
-                <p className="text-gray-400 mb-6">{s.desc}</p>
+                <ul className="text-gray-400 text-sm mb-6 space-y-1">
+                  <li>• Подбор образа</li>
+                  <li>• Премиум косметика</li>
+                  <li>• Стойкость весь день</li>
+                </ul>
 
-                <p className="text-gold text-2xl font-bold mb-6">
+                <p className="text-gold text-xl font-bold mb-6">
                   {s.price}
                 </p>
 
-                <Link
-                  to="/booking"
-                  className="block text-center border border-gold text-gold py-2 rounded-lg hover:bg-gold hover:text-black transition"
-                >
+                <Link to="/booking" className="btn-secondary block text-center">
                   Записаться
                 </Link>
               </div>
             ))}
-
           </div>
         </div>
       </section>
 
+      {/* ABOUT */}
+      <section id="about" className="py-24 bg-darkgray">
+        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+
+          <div>
+            <h2 className="text-3xl text-gold mb-6">Обо мне</h2>
+
+            <p className="text-gray-300 mb-4">
+              Я визажист с опытом более 8 лет. Работаю с невестами, моделями и клиентами,
+              которым важен дорогой результат.
+            </p>
+
+            <ul className="text-gray-400 space-y-2">
+              <li>• 8+ лет опыта</li>
+              <li>• 200+ клиентов</li>
+              <li>• Премиум косметика</li>
+            </ul>
+          </div>
+
+          <div className="flex justify-center">
+            <img src="/IMG_4327.JPEG" className="w-72 h-72 object-cover rounded-full border-4 border-gold" />
+          </div>
+
+        </div>
+      </section>
+
+      {/* REVIEWS */}
+      <section className="py-24 bg-dark text-center">
+        <h2 className="text-3xl text-gold mb-12">Отзывы</h2>
+
+        <div className="max-w-3xl mx-auto space-y-8">
+          <div>
+            <p className="text-gray-300 italic">
+              "Лучший макияж в моей жизни!"
+            </p>
+            <p className="text-gray-500 mt-2">— Анна</p>
+          </div>
+
+          <div>
+            <p className="text-gray-300 italic">
+              "Очень стойко и красиво, рекомендую!"
+            </p>
+            <p className="text-gray-500 mt-2">— Мария</p>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-24 bg-darkgray text-center">
+        <h2 className="text-3xl text-gold mb-6">
+          Готова записаться?
+        </h2>
+
+        <Link to="/booking" className="btn-primary">
+          Записаться сейчас
+        </Link>
+      </section>
+
       {/* CONTACTS */}
-      <section id="contacts" className="py-24 bg-darkgray text-center">
+      <section id="contacts" className="py-24 bg-dark text-center">
         <h2 className="text-3xl text-gold mb-6">Контакты</h2>
 
-        <p className="text-gray-300 leading-relaxed">
-          📍 Москва, Арбат <br />
+        <p className="text-gray-300">
+          📍 Москва <br />
           📞 +7 (999) 123-45-67 <br />
           ✉️ anna@makeup.ru
         </p>
 
-        <div className="mt-8 flex justify-center gap-6">
-          <a href="https://instagram.com" className="text-gold hover:underline">
-            Instagram
-          </a>
-          <a href="https://t.me" className="text-gold hover:underline">
-            Telegram
-          </a>
+        <div className="mt-6 flex justify-center gap-6">
+          <a href="https://instagram.com" className="text-gold">Instagram</a>
+          <a href="https://t.me" className="text-gold">Telegram</a>
         </div>
       </section>
     </>
