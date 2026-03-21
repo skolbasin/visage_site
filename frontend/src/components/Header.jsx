@@ -8,10 +8,27 @@ export default function Header() {
     if (location.pathname !== '/') {
       navigate('/');
       setTimeout(() => {
-        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
       }, 100);
     } else {
-      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
+  const goToHomePage = () => {
+    if (location.pathname !== '/') {
+      navigate('/');
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 100);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -29,46 +46,52 @@ export default function Header() {
       <div className="w-full px-4 sm:px-6 lg:px-8 h-full">
         <div className="flex justify-between items-center h-full">
 
-          {/* Навигация */}
-          <div className="flex space-x-6 overflow-x-auto">
+          {/* ЛЕВО — ГЛАВНАЯ (переход на главную + скролл наверх) */}
+          <button
+            onClick={goToHomePage}
+            className="text-gold font-bold text-lg hover:opacity-80 transition"
+          >
+            ANASTASIA
+          </button>
 
-            <button onClick={() => handleScroll('about')} className="text-gray-300 hover:text-gold">
+          {/* НАВИГАЦИЯ */}
+          <div className="flex space-x-6 overflow-x-auto">
+            <button onClick={() => handleScroll('about')} className="text-gray-300 hover:text-gold whitespace-nowrap text-base">
               О себе
             </button>
 
-            <Link to="/portfolio" className="text-gray-300 hover:text-gold">
+            <Link to="/portfolio" className="text-gray-300 hover:text-gold whitespace-nowrap text-base">
               Работы
             </Link>
 
-            <button onClick={() => handleScroll('services')} className="text-gray-300 hover:text-gold">
+            <button onClick={() => handleScroll('services')} className="text-gray-300 hover:text-gold whitespace-nowrap text-base">
               Услуги
             </button>
 
-            <Link to="/articles" className="text-gray-300 hover:text-gold">
-              Макияж для себя
-            </Link>
-
-            <Link to="/feed" className="text-gray-300 hover:text-gold">
+            <Link to="/feed" className="text-gray-300 hover:text-gold whitespace-nowrap text-base">
               Лента
             </Link>
 
-            <Link to="/reviews" className="text-gray-300 hover:text-gold">
+            <Link to="/reviews" className="text-gray-300 hover:text-gold whitespace-nowrap text-base">
               Отзывы
             </Link>
 
-            <Link to="/certificates" className="text-gray-300 hover:text-gold">
-              Сертификат
+            <Link to="/articles" className="text-gray-300 hover:text-gold whitespace-nowrap text-base">
+              Обучение
             </Link>
 
-            <button onClick={() => handleScroll('contacts')} className="text-gray-300 hover:text-gold">
+            <Link to="/certificates" className="text-gray-300 hover:text-gold whitespace-nowrap text-base">
+              Сертификаты
+            </Link>
+
+            <button onClick={() => handleScroll('contacts')} className="text-gray-300 hover:text-gold whitespace-nowrap text-base">
               Контакты
             </button>
-
           </div>
 
-          {/* Иконки */}
+          {/* ПРАВО */}
           <div className="flex items-center space-x-4">
-            <Link to="/profile" className="text-gray-300 hover:text-gold">
+            <Link to="/profile" className="text-gray-300 hover:text-gold text-xl">
               👤
             </Link>
           </div>
