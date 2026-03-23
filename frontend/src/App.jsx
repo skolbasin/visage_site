@@ -8,7 +8,6 @@ import BookingPage from './pages/BookingPage';
 import ProfilePage from './pages/ProfilePage';
 import ArticlesPage from './pages/ArticlesPage';
 import ArticleDetailPage from './pages/ArticleDetailPage';
-import ReviewsPage from './pages/ReviewsPage';
 import CertificatesPage from './pages/CertificatesPage';
 
 function App() {
@@ -23,7 +22,6 @@ function App() {
           <Route path="profile" element={<ProfilePage />} />
           <Route path="articles" element={<ArticlesPage />} />
           <Route path="articles/:slug" element={<ArticleDetailPage />} />
-          <Route path="reviews" element={<ReviewsPage />} />
           <Route path="certificates" element={<CertificatesPage />} />
         </Route>
       </Routes>

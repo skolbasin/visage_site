@@ -32,6 +32,7 @@ export default function CertificatesPage() {
       };
       const { data } = await api.post('/certificates', payload);
       setResult({ success: true, code: data.code });
+      setCertificateCode(data.code);
     } catch (error) {
       setResult({ success: false, error: error.response?.data?.detail || 'Ошибка оформления' });
     } finally {

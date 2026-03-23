@@ -37,7 +37,6 @@ class Settings(BaseSettings):
     RATE_LIMIT_ENABLED: bool = True
     RATE_LIMIT_DEFAULT: str = "100/minute"   # общий лимит на все эндпоинты
     RATE_LIMIT_AUTH: str = "5/minute"        # для логина и регистрации
-    RATE_LIMIT_REVIEW: str = "3/hour"        # для создания отзывов
     RATE_LIMIT_BOOKING: str = "10/hour"      # для создания заявок
 
     # === Логирование ===

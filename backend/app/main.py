@@ -10,7 +10,6 @@ from app.api import (
     portfolio,
     posts,
     promo,
-    reviews,
 )
 from app.core.config import settings
 from app.core.logging_settings import setup_logging
@@ -53,7 +52,6 @@ if settings.RATE_LIMIT_ENABLED:
 app.include_router(auth.router, prefix=settings.API_V1_STR)
 app.include_router(portfolio.router, prefix=settings.API_V1_STR)
 app.include_router(posts.router, prefix=settings.API_V1_STR)
-app.include_router(reviews.router, prefix=settings.API_V1_STR)
 app.include_router(articles.router, prefix=settings.API_V1_STR)
 app.include_router(booking.router, prefix=settings.API_V1_STR)
 app.include_router(promo.router, prefix=settings.API_V1_STR)

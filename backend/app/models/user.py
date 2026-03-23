@@ -19,5 +19,4 @@ class User(Base):
     # Связи
     promo_codes = relationship("PromoCode", back_populates="owner")
     bookings = relationship("Booking", back_populates="user")
-    reviews = relationship("Review", back_populates="user")
     certificates = relationship("Certificate", back_populates="owner")
