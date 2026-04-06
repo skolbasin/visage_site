@@ -145,3 +145,30 @@ h1, h2, h3, h4 {
     padding: 0 16px;
   }
 }
+
+/* Стили для содержимого статей */
+.prose {
+  color: #4a5568;
+  line-height: 1.75;
+}
+
+.prose h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: #2c2c2c;
+}
+
+.prose p {
+  margin-bottom: 1.25rem;
+}
+
+.prose ul {
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+}
+
+.prose li {
+  margin-bottom: 0.5rem;
+}

@@ -48,14 +48,15 @@ export default function Header() {
 
   return (
     <header className="bg-white/95 backdrop-blur-sm border-b border-gray-100 fixed top-0 z-50 w-full">
-      <div className="container-custom h-16 flex items-center justify-between">
-        {/* Логотип */}
+      <div className="w-full px-6 md:px-12 lg:px-20 h-16 flex items-center justify-between">
+
+        {/* Логотип слева */}
         <button onClick={goToHomePage} className="text-2xl font-serif font-semibold text-[#2c2c2c] hover:opacity-80 transition">
           Anastasia Romancha
         </button>
 
-        {/* Десктопная навигация */}
-        <nav className="hidden md:flex items-center space-x-8">
+        {/* Десктопная навигация по центру */}
+        <nav className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
           <button onClick={() => handleScroll('services')} className="nav-link">Услуги</button>
           <button onClick={() => handleScroll('portfolio')} className="nav-link">Мои работы</button>
           <button onClick={() => handleScroll('about')} className="nav-link">О себе</button>
@@ -66,7 +67,7 @@ export default function Header() {
           <Link to="/articles" className="nav-link">Обучение</Link>
         </nav>
 
-        {/* Соцсети и бургер */}
+        {/* Иконки справа + бургер */}
         <div className="flex items-center space-x-4">
           <div className="hidden md:flex items-center space-x-3">
             <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="icon-btn"><Instagram size={20} /></a>

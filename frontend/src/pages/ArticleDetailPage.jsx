@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import api from '../services/api';
 
 export default function ArticleDetailPage() {
@@ -22,18 +23,33 @@ export default function ArticleDetailPage() {
     fetchArticle();
   }, [slug]);
 
-  if (loading) return <div className="text-center py-20">Загрузка...</div>;
-  if (error) return <div className="text-center py-20 text-red-500">{error}</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="w-12 h-12 border-2 border-[#4a7c59] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <Link to="/articles" className="text-gold hover:underline mb-4 inline-block">&larr; Назад к списку</Link>
-      <h1 className="text-3xl font-bold text-gold mb-4">{article.title}</h1>
-      <div className="text-gray-400 mb-6">{new Date(article.created_at).toLocaleDateString()}</div>
-      {article.image_url && (
-        <img src={article.image_url} alt={article.title} className="w-full rounded-lg mb-6" />
-      )}
-      <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: article.content }} />
+    <div className="min-h-screen bg-white py-12">
+      <div className="max-w-3xl mx-auto px-6">
+        <Link to="/articles" className="inline-flex items-center gap-2 text-[#4a7c59] hover:text-[#2d5a3b] transition mb-6">
+          <ArrowLeft size={18} /> Назад к списку
+        </Link>
+        <h1 className="text-3xl md:text-4xl font-serif text-[#2c2c2c] mb-4">{article.title}</h1>
+        <div className="text-gray-400 mb-6">{new Date(article.created_at).toLocaleDateString()}</div>
+        {article.image_url && <img src={article.image_url} alt={article.title} className="w-full rounded-2xl mb-8" />}
+        <div className="prose prose-gray max-w-none" dangerouslySetInnerHTML={{ __html: article.content }} />
+      </div>
     </div>
   );
 }

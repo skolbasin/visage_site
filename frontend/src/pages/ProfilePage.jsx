@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Mail, Lock, User, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function ProfilePage() {
@@ -31,89 +33,76 @@ export default function ProfilePage() {
     }
   };
 
-  if (loading) return <div className="text-center py-20">Загрузка...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="w-12 h-12 border-2 border-[#4a7c59] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (isAuthenticated && user) {
-    // Личный кабинет авторизованного пользователя
     return (
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <h1 className="text-3xl font-bold text-gold mb-6">Личный кабинет</h1>
-        <div className="bg-darkgray p-6 rounded-lg">
-          <p><strong>Email:</strong> {user.email}</p>
-          <p><strong>Имя:</strong> {user.full_name || 'Не указано'}</p>
-          <p><strong>Дата регистрации:</strong> {new Date(user.created_at).toLocaleDateString()}</p>
-          <button
-            onClick={logout}
-            className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-          >
-            Выйти
-          </button>
+      <div className="min-h-screen bg-white py-12">
+        <div className="max-w-2xl mx-auto px-6">
+          <h1 className="text-4xl font-serif text-[#2c2c2c] text-center mb-8">Личный кабинет</h1>
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
+            <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100">
+              <div className="w-16 h-16 rounded-full bg-[#4a7c59]/20 flex items-center justify-center text-2xl text-[#4a7c59] font-semibold">
+                {user.full_name?.charAt(0) || user.email.charAt(0)}
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-[#2c2c2c]">{user.full_name || 'Пользователь'}</h2>
+                <p className="text-gray-500">{user.email}</p>
+              </div>
+            </div>
+            <div className="space-y-3 text-gray-600">
+              <p><span className="font-medium">Дата регистрации:</span> {new Date(user.created_at).toLocaleDateString()}</p>
+            </div>
+            <button onClick={logout} className="mt-6 flex items-center gap-2 text-red-500 hover:text-red-600 transition">
+              <LogOut size={18} /> Выйти
+            </button>
+          </div>
         </div>
-        {/* Здесь позже добавим историю записей и промокоды */}
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-md">
-      <div className="bg-darkgray p-6 rounded-lg">
-        <div className="flex mb-6">
-          <button
-            className={`flex-1 py-2 ${isLogin ? 'border-b-2 border-gold text-gold' : 'text-gray-400'}`}
-            onClick={() => setIsLogin(true)}
-          >
-            Вход
-          </button>
-          <button
-            className={`flex-1 py-2 ${!isLogin ? 'border-b-2 border-gold text-gold' : 'text-gray-400'}`}
-            onClick={() => setIsLogin(false)}
-          >
-            Регистрация
-          </button>
-        </div>
-
-        {error && <div className="mb-4 p-2 bg-red-900 text-red-200 rounded">{error}</div>}
-        {success && <div className="mb-4 p-2 bg-green-900 text-green-200 rounded">{success}</div>}
-
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-300 mb-1">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full p-2 bg-dark border border-gray-700 rounded text-white focus:border-gold outline-none"
-            />
+    <div className="min-h-screen bg-white py-12">
+      <div className="max-w-md mx-auto px-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
+          <div className="flex mb-6 border-b border-gray-100">
+            <button className={`flex-1 py-2 text-center font-medium transition ${isLogin ? 'text-[#4a7c59] border-b-2 border-[#4a7c59]' : 'text-gray-400'}`} onClick={() => setIsLogin(true)}>Вход</button>
+            <button className={`flex-1 py-2 text-center font-medium transition ${!isLogin ? 'text-[#4a7c59] border-b-2 border-[#4a7c59]' : 'text-gray-400'}`} onClick={() => setIsLogin(false)}>Регистрация</button>
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-300 mb-1">Пароль</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full p-2 bg-dark border border-gray-700 rounded text-white focus:border-gold outline-none"
-            />
-          </div>
-          {!isLogin && (
-            <div className="mb-4">
-              <label className="block text-gray-300 mb-1">Имя (опционально)</label>
-              <input
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="w-full p-2 bg-dark border border-gray-700 rounded text-white focus:border-gold outline-none"
-              />
+
+          {error && <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-xl text-sm">{error}</div>}
+          {success && <div className="mb-4 p-3 bg-green-50 text-green-600 rounded-xl text-sm">{success}</div>}
+
+          <form onSubmit={handleSubmit}>
+            <div className="relative mb-4">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Email"
+                className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:border-[#4a7c59] focus:ring-1 focus:ring-[#4a7c59] outline-none transition" />
             </div>
-          )}
-          <button
-            type="submit"
-            className="w-full bg-gold text-black font-bold py-2 rounded hover:bg-yellow-500 transition"
-          >
-            {isLogin ? 'Войти' : 'Зарегистрироваться'}
-          </button>
-        </form>
+            <div className="relative mb-4">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Пароль"
+                className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:border-[#4a7c59] focus:ring-1 focus:ring-[#4a7c59] outline-none transition" />
+            </div>
+            {!isLogin && (
+              <div className="relative mb-4">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Ваше имя"
+                  className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:border-[#4a7c59] focus:ring-1 focus:ring-[#4a7c59] outline-none transition" />
+              </div>
+            )}
+            <button type="submit" className="w-full btn-primary py-3">
+              {isLogin ? 'Войти' : 'Зарегистрироваться'}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
