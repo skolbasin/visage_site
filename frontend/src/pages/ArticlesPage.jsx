@@ -54,24 +54,16 @@ export default function ArticlesPage() {
                 <span className="text-gray-400">₽</span>
               </div>
               <div className="space-y-3 mb-6">
-                <div className="flex items-center gap-2 text-gray-500 text-sm">
-                  <Clock className="w-4 h-4 text-[#4a7c59]" /> Длительность 2,5–3 часа
-                </div>
-                <div className="flex items-center gap-2 text-gray-500 text-sm">
-                  <Gift className="w-4 h-4 text-[#4a7c59]" /> 2 гайда в подарок
-                </div>
+                <div className="flex items-center gap-2 text-gray-500 text-sm"><Clock className="w-4 h-4 text-[#4a7c59]" /> Длительность 2,5–3 часа</div>
+                <div className="flex items-center gap-2 text-gray-500 text-sm"><Gift className="w-4 h-4 text-[#4a7c59]" /> 2 гайда в подарок</div>
               </div>
-              <Link to="/booking" className="block w-full text-center btn-primary">
-                Записаться
-              </Link>
+              <Link to="/booking" className="block w-full text-center btn-primary">Записаться</Link>
             </div>
           </div>
 
           {/* Два урока */}
           <div className="bg-white rounded-2xl border-2 border-[#4a7c59] shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden">
-            <div className="bg-[#4a7c59]/10 p-2 text-center">
-              <span className="text-[#4a7c59] text-sm font-semibold">ПОПУЛЯРНЫЙ ВЫБОР</span>
-            </div>
+            <div className="bg-[#4a7c59]/10 p-2 text-center"><span className="text-[#4a7c59] text-sm font-semibold">ПОПУЛЯРНЫЙ ВЫБОР</span></div>
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-2xl font-bold text-[#2c2c2c]">Два урока</h3>
@@ -83,16 +75,10 @@ export default function ArticlesPage() {
                 <span className="text-gray-400">₽</span>
               </div>
               <div className="space-y-3 mb-6">
-                <div className="flex items-center gap-2 text-gray-500 text-sm">
-                  <Clock className="w-4 h-4 text-[#4a7c59]" /> 2 занятия по 2,5–3 часа
-                </div>
-                <div className="flex items-center gap-2 text-gray-500 text-sm">
-                  <Gift className="w-4 h-4 text-[#4a7c59]" /> Укладка в подарок + 2 гайда
-                </div>
+                <div className="flex items-center gap-2 text-gray-500 text-sm"><Clock className="w-4 h-4 text-[#4a7c59]" /> 2 занятия по 2,5–3 часа</div>
+                <div className="flex items-center gap-2 text-gray-500 text-sm"><Gift className="w-4 h-4 text-[#4a7c59]" /> Укладка в подарок + 2 гайда</div>
               </div>
-              <Link to="/booking" className="block w-full text-center btn-primary">
-                Записаться
-              </Link>
+              <Link to="/booking" className="block w-full text-center btn-primary">Записаться</Link>
             </div>
           </div>
         </div>
@@ -101,20 +87,17 @@ export default function ArticlesPage() {
         <div className="bg-[#faf8f6] rounded-2xl p-6 text-center border border-gray-100 mb-12">
           <h3 className="text-xl font-serif text-[#2c2c2c] mb-2">Подарки для всех участниц</h3>
           <div className="flex flex-wrap justify-center gap-6 mt-4">
-            <div className="flex items-center gap-2 text-gray-600">
-              <Gift className="w-5 h-5 text-[#4a7c59]" /> 2 гайда: 200+ продуктов и кисти
-            </div>
-            <div className="flex items-center gap-2 text-gray-600">
-              <Clock className="w-5 h-5 text-[#4a7c59]" /> Гибкий график занятий
-            </div>
+            <div className="flex items-center gap-2 text-gray-600"><Gift className="w-5 h-5 text-[#4a7c59]" /> 2 гайда: 200+ продуктов и кисти</div>
+            <div className="flex items-center gap-2 text-gray-600"><Clock className="w-5 h-5 text-[#4a7c59]" /> Гибкий график занятий</div>
           </div>
         </div>
 
         {/* CTA */}
         <div className="text-center">
-          <Link to="/booking" className="inline-flex items-center gap-2 btn-primary">
-            Записаться на обучение <ArrowRight size={18} />
+          <Link to="/booking" className="inline-flex items-center gap-2 btn-primary text-lg py-3 px-8">
+            Записаться на урок <ArrowRight className="w-5 h-5" />
           </Link>
+          <p className="text-gray-400 text-sm mt-4">Остались вопросы? Напишите в Telegram или Instagram</p>
         </div>
       </div>
     </div>

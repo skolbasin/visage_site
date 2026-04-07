@@ -22,20 +22,6 @@ export default function Header() {
     };
   }, [isMenuOpen]);
 
-  const handleScroll = (id) => {
-    setIsMenuOpen(false);
-    if (location.pathname !== '/') {
-      navigate('/');
-      setTimeout(() => {
-        const element = document.getElementById(id);
-        if (element) element.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    } else {
-      const element = document.getElementById(id);
-      if (element) element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   const goToHomePage = () => {
     setIsMenuOpen(false);
     if (location.pathname !== '/') {
@@ -57,10 +43,7 @@ export default function Header() {
 
         {/* Десктопная навигация по центру */}
         <nav className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
-          <button onClick={() => handleScroll('services')} className="nav-link">Услуги</button>
-          <button onClick={() => handleScroll('portfolio')} className="nav-link">Мои работы</button>
-          <button onClick={() => handleScroll('about')} className="nav-link">О себе</button>
-          <button onClick={() => handleScroll('contacts')} className="nav-link">Контакты</button>
+          <button onClick={goToHomePage} className="nav-link">Главная</button>
           <Link to="/portfolio" className="nav-link">Портфолио</Link>
           <Link to="/feed" className="nav-link">Бьюти-лента</Link>
           <Link to="/certificates" className="nav-link">Сертификаты</Link>
@@ -81,15 +64,12 @@ export default function Header() {
             </button>
             {isMenuOpen && (
               <div className="absolute right-0 top-12 w-56 bg-white shadow-xl rounded-xl border border-gray-100 py-2 animate-fadeIn">
-                <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="dropdown-item">Личный кабинет</Link>
-                <button onClick={() => handleScroll('services')} className="dropdown-item w-full text-left">Услуги</button>
-                <button onClick={() => handleScroll('portfolio')} className="dropdown-item w-full text-left">Мои работы</button>
-                <button onClick={() => handleScroll('about')} className="dropdown-item w-full text-left">О себе</button>
-                <button onClick={() => handleScroll('contacts')} className="dropdown-item w-full text-left">Контакты</button>
+                <button onClick={goToHomePage} className="dropdown-item w-full text-left">Главная</button>
                 <Link to="/portfolio" onClick={() => setIsMenuOpen(false)} className="dropdown-item">Портфолио</Link>
                 <Link to="/feed" onClick={() => setIsMenuOpen(false)} className="dropdown-item">Бьюти-лента</Link>
                 <Link to="/certificates" onClick={() => setIsMenuOpen(false)} className="dropdown-item">Сертификаты</Link>
                 <Link to="/articles" onClick={() => setIsMenuOpen(false)} className="dropdown-item">Обучение</Link>
+                <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="dropdown-item">Личный кабинет</Link>
                 <div className="border-t border-gray-100 my-2"></div>
                 <a href="https://instagram.com" target="_blank" className="dropdown-item">Instagram</a>
                 <a href="https://t.me" target="_blank" className="dropdown-item">Telegram</a>
