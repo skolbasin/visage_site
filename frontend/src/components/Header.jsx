@@ -48,9 +48,10 @@ export default function Header() {
           <Link to="/feed" className="nav-link">Бьюти-лента</Link>
           <Link to="/certificates" className="nav-link">Сертификаты</Link>
           <Link to="/articles" className="nav-link">Обучение</Link>
+          <Link to="/faq" className="nav-link">FAQ</Link>
         </nav>
 
-        {/* Иконки справа + бургер */}
+        {/* Иконки справа + кнопка "Записаться" */}
         <div className="flex items-center space-x-4">
           <div className="hidden md:flex items-center space-x-3">
             <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="icon-btn"><Instagram size={20} /></a>
@@ -58,6 +59,12 @@ export default function Header() {
             <Link to="/profile" className="icon-btn"><User size={20} /></Link>
           </div>
 
+          {/* Липкая кнопка "Записаться" */}
+          <Link to="/booking" className="hidden md:block bg-[#4a7c59] text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-[#2d5a3b] transition">
+            Записаться
+          </Link>
+
+          {/* Бургер-меню для мобильных */}
           <div className="relative md:hidden" ref={menuRef}>
             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="icon-btn">
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -69,7 +76,9 @@ export default function Header() {
                 <Link to="/feed" onClick={() => setIsMenuOpen(false)} className="dropdown-item">Бьюти-лента</Link>
                 <Link to="/certificates" onClick={() => setIsMenuOpen(false)} className="dropdown-item">Сертификаты</Link>
                 <Link to="/articles" onClick={() => setIsMenuOpen(false)} className="dropdown-item">Обучение</Link>
+                <Link to="/faq" onClick={() => setIsMenuOpen(false)} className="dropdown-item">FAQ</Link>
                 <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="dropdown-item">Личный кабинет</Link>
+                <Link to="/booking" onClick={() => setIsMenuOpen(false)} className="dropdown-item text-[#4a7c59] font-medium">Записаться</Link>
                 <div className="border-t border-gray-100 my-2"></div>
                 <a href="https://instagram.com" target="_blank" className="dropdown-item">Instagram</a>
                 <a href="https://t.me" target="_blank" className="dropdown-item">Telegram</a>

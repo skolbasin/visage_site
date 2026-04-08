@@ -375,3 +375,16 @@ h1, h2, h3, h4 {
 .animate-image-reveal {
   animation: imageReveal 1.2s ease-out forwards;
 }
+
+@keyframes bounceSlow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-bounce-slow {
+  animation: bounceSlow 2s ease-in-out infinite;
+}

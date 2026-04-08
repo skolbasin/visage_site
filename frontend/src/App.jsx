@@ -9,6 +9,7 @@ import ProfilePage from './pages/ProfilePage';
 import ArticlesPage from './pages/ArticlesPage';
 import ArticleDetailPage from './pages/ArticleDetailPage';
 import CertificatesPage from './pages/CertificatesPage';
+import FAQPage from './pages/FAQPage';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="articles" element={<ArticlesPage />} />
           <Route path="articles/:slug" element={<ArticleDetailPage />} />
           <Route path="certificates" element={<CertificatesPage />} />
+          <Route path="/faq" element={<FAQPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

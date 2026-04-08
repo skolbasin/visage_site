@@ -52,6 +52,9 @@ export default function Footer() {
           </div>
         </div>
         <div className="divider-light mt-8" />
+        <p className="text-xs text-gray-400 mt-2">
+  * Instagram и Telegram принадлежат Meta, признанной экстремистской в РФ.
+</p>
         <div className="text-center text-gray-400 text-xs pt-6">
           <p>© 2025 Anastasia Romancha. Сделано с <Heart size={12} className="inline text-[#4a7c59]" /> для вас</p>
         </div>

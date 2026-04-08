@@ -4,21 +4,18 @@ import { Heart, Star, Sparkles } from 'lucide-react';
 const services = [
   {
     name: 'Макияж/прическа в студии',
-    price: 'от 5000 ₽',
-    desc: 'Стойкий образ на весь день. Идеально подходит для фотосессий, свиданий и повседневного образа.',
-    fullDesc: 'Включено: консультация, подбор тона, макияж глаз, бровей, губ, укладка, фиксация спреем.'
+    price: '5000 ₽',
+    desc: 'Стойкий образ на весь день. Идеально подходит для фотосессий, свиданий и повседневного образа.'
   },
   {
-    name: 'Полный образ в студии',
-    price: 'от 8000 ₽',
-    desc: 'Комплексное преображение для особых мероприятий. Включает макияж, прическу и подбор аксессуаров.',
-    fullDesc: 'Включено: всё из предыдущего пакета + сложная укладка, наращивание ресниц (опционально), подвеска или ободок.'
+    name: 'Полный образ (макияж и прическа) в студии',
+    price: '8000 ₽',
+    desc: 'Комплексное преображение для особых мероприятий. Включает макияж, прическу и подбор аксессуаров.'
   },
   {
     name: 'Макияж/прическа с выездом',
-    price: 'от 7000 ₽',
-    desc: 'Выезд к вам домой или в студию. Экономит ваше время и создаёт комфортную атмосферу.',
-    fullDesc: 'Включено: услуги макияжа и/или прически на вашей территории. Работаю с любыми условиями.'
+    price: '7000 ₽',
+    desc: 'Выезд к вам домой или в студию. Экономит ваше время и создаёт комфортную атмосферу.'
   },
 ];
 
@@ -39,21 +36,30 @@ export default function ServicesSection() {
             <p className="text-gray-500 text-center">Выберите идеальный вариант для вашего образа</p>
           </div>
         </div>
+
         <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
           {services.map((s, i) => (
-            <div key={i} className="group p-6 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-500">
-              <h3 className="text-2xl font-bold text-[#2c2c2c] mb-3 group-hover:text-[#4a7c59] transition-colors">
-                {s.name}
-              </h3>
-              <p className="text-gray-600 text-base mb-3">{s.desc}</p>
-              <p className="text-gray-500 text-sm mb-4 leading-relaxed">{s.fullDesc}</p>
-              <ul className="text-gray-500 text-sm mb-6 space-y-2">
-                <li className="flex items-center gap-2"><Heart className="w-4 h-4 text-[#4a7c59]" /> Подбор образа</li>
-                <li className="flex items-center gap-2"><Star className="w-4 h-4 text-[#4a7c59]" /> Премиум косметика</li>
-                <li className="flex items-center gap-2"><Sparkles className="w-4 h-4 text-[#4a7c59]" /> Стойкость весь день</li>
-              </ul>
-              <p className="text-[#4a7c59] text-2xl font-bold mb-6">{s.price}</p>
-              <Link to="/booking" className="block text-center btn-primary">Записаться</Link>
+            <div key={i} className="group p-6 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-500 flex flex-col justify-between min-h-[420px]">
+              <div>
+                <h3 className="text-2xl font-bold text-[#2c2c2c] mb-3 group-hover:text-[#4a7c59] transition-colors">
+                  {s.name}
+                </h3>
+                <p className="text-gray-600 text-base mb-4 leading-relaxed">{s.desc}</p>
+
+                {/* Возвращённые списки */}
+                <div className="mb-6">
+                  <p className="text-[#4a7c59] font-semibold mb-2">Включено:</p>
+                  <ul className="text-gray-500 text-sm space-y-2">
+                    <li className="flex items-center gap-2"><Heart className="w-4 h-4 text-[#4a7c59]" /> Подбор образа</li>
+                    <li className="flex items-center gap-2"><Star className="w-4 h-4 text-[#4a7c59]" /> Премиум косметика</li>
+                    <li className="flex items-center gap-2"><Sparkles className="w-4 h-4 text-[#4a7c59]" /> Стойкость весь день</li>
+                  </ul>
+                </div>
+              </div>
+              <div>
+                <p className="text-[#4a7c59] text-2xl font-bold mb-6">{s.price}</p>
+                <Link to="/booking" className="block text-center btn-primary">Записаться</Link>
+              </div>
             </div>
           ))}
         </div>

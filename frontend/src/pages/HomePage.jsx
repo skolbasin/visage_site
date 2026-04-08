@@ -8,6 +8,7 @@ import ReviewsSection from '../components/sections/ReviewsSection';
 import CTASection from '../components/sections/CTASection';
 import ContactsSection from '../components/sections/ContactsSection';
 import ImageModal from '../components/ImageModal';
+import MapSection from '../components/sections/MapSection';
 
 export default function HomePage() {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -43,6 +44,7 @@ export default function HomePage() {
       <AboutSection />
       <ReviewsSection />
       <CTASection />
+      <MapSection />
       <ContactsSection />
       <ImageModal isOpen={isModalOpen} image={selectedImage} onClose={closeModal} />
     </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { X } from 'lucide-react';
 import api from '../services/api';
 
@@ -6,6 +7,7 @@ export default function PortfolioPage() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [activeCategory, setActiveCategory] = useState('all');
 
   const localImages = [
     '/IMG_8514.JPG',
@@ -25,7 +27,10 @@ export default function PortfolioPage() {
     { id: 'day', name: 'Дневной' },
   ];
 
-  const [activeCategory, setActiveCategory] = useState('all');
+  // Исправление скролла: прокручиваем вверх при загрузке страницы
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
   useEffect(() => {
     fetchPortfolio();
@@ -76,10 +81,8 @@ export default function PortfolioPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-2 border-[#4a7c59] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-500">Загрузка портфолио...</p>
-        </div>
+        <div className="w-12 h-12 border-2 border-[#4a7c59] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-gray-500">Загрузка портфолио...</p>
       </div>
     );
   }
@@ -92,7 +95,6 @@ export default function PortfolioPage() {
           Мои работы, вдохновение и любимые образы. Каждая фотография — это история, созданная с любовью
         </p>
 
-        {/* Фильтры */}
         <div className="flex flex-wrap justify-center gap-3 mb-12">
           {filterTags.map((tag) => (
             <button
@@ -109,11 +111,8 @@ export default function PortfolioPage() {
           ))}
         </div>
 
-        {/* Галерея */}
         {filteredItems.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-gray-400">Нет работ в этой категории</p>
-          </div>
+          <div className="text-center py-20"><p className="text-gray-400">Нет работ в этой категории</p></div>
         ) : (
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -124,12 +123,8 @@ export default function PortfolioPage() {
                   onClick={() => setSelectedItem(item)}
                 >
                   <div className="relative overflow-hidden">
-                    <img
-                      src={item.image_url}
-                      alt={item.title}
-                      className="w-full h-96 object-cover transition duration-500 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition duration-300" />
+                    <img src={item.image_url} alt={item.title} className="w-full h-96 object-cover transition duration-700 group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-500" />
                     {item.category && (
                       <span className="absolute bottom-3 left-3 bg-white/90 text-[#4a7c59] text-xs px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition duration-300">
                         {item.category.name}
@@ -138,9 +133,7 @@ export default function PortfolioPage() {
                   </div>
                   <div className="p-4">
                     <h3 className="text-lg font-semibold text-[#2c2c2c]">{item.title}</h3>
-                    {item.description && (
-                      <p className="text-gray-500 text-sm mt-1 line-clamp-2">{item.description}</p>
-                    )}
+                    {item.description && <p className="text-gray-500 text-sm mt-1 line-clamp-2">{item.description}</p>}
                   </div>
                 </div>
               ))}
@@ -149,26 +142,15 @@ export default function PortfolioPage() {
         )}
       </div>
 
-      {/* Модальное окно */}
       {selectedItem && (
-        <div
-          className="fixed inset-0 bg-white/95 z-50 flex items-center justify-center p-4"
-          onClick={() => setSelectedItem(null)}
-        >
+        <div className="fixed inset-0 bg-white/95 z-50 flex items-center justify-center p-4" onClick={() => setSelectedItem(null)}>
           <div className="relative max-w-5xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl">
-            <button
-              onClick={() => setSelectedItem(null)}
-              className="absolute top-4 right-4 z-10 bg-white rounded-full p-2 shadow-md text-gray-600 hover:text-[#4a7c59] transition"
-            >
+            <button onClick={() => setSelectedItem(null)} className="absolute top-4 right-4 z-10 bg-white rounded-full p-2 shadow-md text-gray-600 hover:text-[#4a7c59] transition">
               <X size={24} />
             </button>
             <div className="flex flex-col md:flex-row">
               <div className="md:w-2/3">
-                <img
-                  src={selectedItem.image_url}
-                  alt={selectedItem.title}
-                  className="w-full h-auto object-contain max-h-[70vh] md:max-h-[85vh]"
-                />
+                <img src={selectedItem.image_url} alt={selectedItem.title} className="w-full h-auto object-contain max-h-[70vh] md:max-h-[85vh]" />
               </div>
               <div className="md:w-1/3 p-6">
                 <h2 className="text-2xl font-serif font-bold text-[#2c2c2c] mb-3">{selectedItem.title}</h2>
@@ -177,9 +159,7 @@ export default function PortfolioPage() {
                     {selectedItem.category.name}
                   </span>
                 )}
-                {selectedItem.description && (
-                  <p className="text-gray-600 leading-relaxed">{selectedItem.description}</p>
-                )}
+                {selectedItem.description && <p className="text-gray-600 leading-relaxed">{selectedItem.description}</p>}
                 <div className="mt-6 pt-6 border-t border-gray-100">
                   <Link to="/booking" className="btn-primary block text-center">Записаться на такой же образ</Link>
                 </div>

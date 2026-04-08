@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Gift, Sparkles, Calendar, Mail, User, MessageSquare, Tag, CreditCard, CheckCircle } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import PaymentModal from '../components/PaymentModal';
 
 export default function CertificatesPage() {
   const { user } = useAuth();
@@ -17,6 +18,7 @@ export default function CertificatesPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [certificateCode, setCertificateCode] = useState('');
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -147,6 +149,15 @@ export default function CertificatesPage() {
               className="w-full btn-primary py-4 text-lg">
               {loading ? 'Оформление...' : 'Оформить сертификат'}
             </button>
+
+            {/* Кнопка онлайн-оплаты (заглушка) */}
+            <button
+              type="button"
+              onClick={() => setIsPaymentOpen(true)}
+              className="w-full border-2 border-[#4a7c59] text-[#4a7c59] font-bold py-3 rounded-xl hover:bg-[#4a7c59] hover:text-white transition"
+            >
+              Оплатить онлайн
+            </button>
           </div>
         </form>
 
@@ -157,6 +168,8 @@ export default function CertificatesPage() {
           <div className="p-4 bg-[#faf8f6] rounded-xl"><Gift className="w-6 h-6 text-[#4a7c59] mx-auto mb-2" /><p className="text-gray-500 text-sm">Идеальный подарок</p></div>
         </div>
       </div>
+
+      <PaymentModal isOpen={isPaymentOpen} onClose={() => setIsPaymentOpen(false)} />
     </div>
   );
 }

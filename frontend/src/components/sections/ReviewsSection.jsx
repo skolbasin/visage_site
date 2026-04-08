@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import { X } from 'lucide-react';
+
 const reviewImages = [
   '/IMG_8861.png',
   '/IMG_8864.png',
@@ -9,6 +12,25 @@ const reviewImages = [
 ];
 
 export default function ReviewsSection() {
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModal = (img) => {
+    setSelectedImage(img);
+    setIsModalOpen(true);
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedImage(null);
+    document.body.style.overflow = '';
+  };
+
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) closeModal();
+  };
+
   return (
     <section className="py-16 md:py-20 bg-[#faf8f6] text-center w-full relative overflow-hidden">
       <div className="px-6 md:px-12 lg:px-20 relative z-10">
@@ -28,21 +50,83 @@ export default function ReviewsSection() {
         <div className="max-w-5xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
             {reviewImages.slice(0, 4).map((img, idx) => (
-              <div key={idx} className="group overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2">
+              <div
+                key={idx}
+                className="group relative overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 cursor-pointer"
+                onClick={() => openModal(img)}
+              >
                 <img src={img} alt={`Отзыв ${idx + 1}`} className="w-full h-auto object-cover transition duration-700 group-hover:scale-105" loading="lazy" />
+                <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                  <span className="text-white text-sm font-medium bg-white/20 px-3 py-1 rounded-full">Посмотреть ДО/ПОСЛЕ</span>
+                </div>
               </div>
             ))}
           </div>
           <div className="flex justify-center gap-4">
             {reviewImages.slice(4, 7).map((img, idx) => (
-              <div key={idx + 4} className="w-1/3 max-w-xs group overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2">
+              <div
+                key={idx + 4}
+                className="w-1/3 max-w-xs group relative overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 cursor-pointer"
+                onClick={() => openModal(img)}
+              >
                 <img src={img} alt={`Отзыв ${idx + 5}`} className="w-full h-auto object-cover transition duration-700 group-hover:scale-105" loading="lazy" />
+                <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                  <span className="text-white text-sm font-medium bg-white/20 px-3 py-1 rounded-full">Посмотреть ДО/ПОСЛЕ</span>
+                </div>
               </div>
             ))}
           </div>
-          <p className="text-center text-gray-400 text-sm mt-8">*Более 50+ отзывов в Instagram и Telegram</p>
+
+          {/* Ссылки с учётом РФ */}
+          <p className="text-center text-gray-400 text-sm mt-8">
+            *Более 50+ отзывов в{' '}
+            <a
+              href="#"
+              className="text-[#4a7c59] hover:text-[#2d5a3b] transition underline decoration-transparent hover:decoration-[#4a7c59]"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Instagram
+            </a>
+            {' и '}
+            <a
+              href="#"
+              className="text-[#4a7c59] hover:text-[#2d5a3b] transition underline decoration-transparent hover:decoration-[#4a7c59]"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Telegram
+            </a>
+          </p>
         </div>
       </div>
+
+      {/* Модальное окно ДО/ПОСЛЕ */}
+      {isModalOpen && selectedImage && (
+        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={handleBackdropClick}>
+          <div className="relative max-w-4xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl">
+            <button
+              onClick={closeModal}
+              className="absolute top-4 right-4 z-10 bg-white rounded-full p-2 shadow-md text-gray-600 hover:text-[#4a7c59] transition"
+            >
+              <X size={24} />
+            </button>
+            <div className="flex flex-col md:flex-row">
+              <div className="md:w-1/2 p-4 text-center">
+                <p className="text-sm text-gray-500 mb-2">ДО</p>
+                <img src={selectedImage} alt="ДО" className="w-full h-auto object-contain rounded-xl" />
+              </div>
+              <div className="md:w-1/2 p-4 text-center">
+                <p className="text-sm text-gray-500 mb-2">ПОСЛЕ</p>
+                <img src={selectedImage} alt="ПОСЛЕ" className="w-full h-auto object-contain rounded-xl" />
+              </div>
+            </div>
+            <div className="p-4 text-center border-t border-gray-100">
+              <p className="text-gray-600">Результат работы над образом клиента</p>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

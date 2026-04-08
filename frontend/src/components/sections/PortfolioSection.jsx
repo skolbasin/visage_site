@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 export default function PortfolioSection({ images, onImageClick }) {
   const [visibleCards, setVisibleCards] = useState([]);
@@ -17,8 +18,10 @@ export default function PortfolioSection({ images, onImageClick }) {
       },
       { threshold: 0.1 }
     );
+
     const elements = document.querySelectorAll('.animate-on-scroll-portfolio');
     elements.forEach((el) => observer.observe(el));
+
     return () => {
       elements.forEach((el) => observer.unobserve(el));
     };
@@ -62,6 +65,15 @@ export default function PortfolioSection({ images, onImageClick }) {
                 </div>
               </div>
             ))}
+          </div>
+          {/* Кнопка "Смотреть все работы" */}
+          <div className="text-center mt-12">
+            <Link
+              to="/portfolio"
+              className="inline-block border-2 border-[#4a7c59] text-[#4a7c59] font-semibold py-3 px-8 rounded-full hover:bg-[#4a7c59] hover:text-white transition duration-300"
+            >
+              Смотреть все работы →
+            </Link>
           </div>
         </div>
       </div>
