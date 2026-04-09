@@ -80,8 +80,8 @@ export default function Header() {
                 <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="dropdown-item">Личный кабинет</Link>
                 <Link to="/booking" onClick={() => setIsMenuOpen(false)} className="dropdown-item text-[#4a7c59] font-medium">Записаться</Link>
                 <div className="border-t border-gray-100 my-2"></div>
-                <a href="https://instagram.com" target="_blank" className="dropdown-item">Instagram</a>
-                <a href="https://t.me" target="_blank" className="dropdown-item">Telegram</a>
+                <a href="https://instagram.com/anastasia.romancha" target="_blank" className="dropdown-item">Instagram</a>
+                <a href="https://t.me/anastasia_romancha" target="_blank" className="dropdown-item">Telegram</a>
               </div>
             )}
           </div>

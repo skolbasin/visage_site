@@ -97,7 +97,26 @@ export default function ArticlesPage() {
           <Link to="/booking" className="inline-flex items-center gap-2 btn-primary text-lg py-3 px-8">
             Записаться на урок <ArrowRight className="w-5 h-5" />
           </Link>
-          <p className="text-gray-400 text-sm mt-4">Остались вопросы? Напишите в Telegram или Instagram</p>
+<p className="text-gray-400 text-sm mt-4">
+  Остались вопросы? Напишите в{' '}
+  <a
+    href="https://t.me/anastasia_romancha"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-[#4a7c59] hover:text-[#2d5a3b] underline decoration-transparent hover:decoration-[#4a7c59] transition"
+  >
+    Telegram
+  </a>
+  {' или '}
+  <a
+    href="https://instagram.com/anastasia.romancha"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-[#4a7c59] hover:text-[#2d5a3b] underline decoration-transparent hover:decoration-[#4a7c59] transition"
+  >
+    Instagram
+  </a>
+</p>
         </div>
       </div>
     </div>

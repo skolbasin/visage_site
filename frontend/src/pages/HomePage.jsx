@@ -6,7 +6,6 @@ import StatsSection from '../components/sections/StatsSection';
 import AboutSection from '../components/sections/AboutSection';
 import ReviewsSection from '../components/sections/ReviewsSection';
 import CTASection from '../components/sections/CTASection';
-import ContactsSection from '../components/sections/ContactsSection';
 import ImageModal from '../components/ImageModal';
 import MapSection from '../components/sections/MapSection';
 
@@ -43,9 +42,8 @@ export default function HomePage() {
       <StatsSection />
       <AboutSection />
       <ReviewsSection />
-      <CTASection />
       <MapSection />
-      <ContactsSection />
+      <CTASection />
       <ImageModal isOpen={isModalOpen} image={selectedImage} onClose={closeModal} />
     </div>
   );

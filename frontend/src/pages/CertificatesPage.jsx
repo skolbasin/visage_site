@@ -141,7 +141,7 @@ export default function CertificatesPage() {
             </div>
 
             <div className="relative"><MessageSquare className="absolute left-3 top-4 w-5 h-5 text-gray-400" />
-              <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows="3" placeholder="Напишите поздравление (опционально)"
+              <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows="3" placeholder="Дополнительные пожелания (опционально)"
                 className="w-full pl-10 p-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:border-[#4a7c59] focus:ring-1 focus:ring-[#4a7c59] outline-none transition resize-none" />
             </div>
 

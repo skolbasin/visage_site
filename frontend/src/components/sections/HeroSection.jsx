@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 export default function HeroSection() {
   return (
     <section className="relative flex items-center min-h-screen w-full overflow-hidden">
+      {/* Фоновое изображение с анимацией появления */}
       <div
         className="absolute inset-0 z-0 animate-image-reveal"
         style={{
@@ -20,13 +21,12 @@ export default function HeroSection() {
 
           <div className="mb-4 animate-fade-in-up">
             <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold text-[#4a7c59] tracking-tight uppercase">
-              Профессиональный<br />
-              визажист-стилист
+              ПРОФЕССИОНАЛЬНЫЙ ВИЗАЖИСТ-СТИЛИСТ
             </h2>
           </div>
 
-          {/* Уменьшен шрифт: text-2xl md:text-3xl lg:text-4xl */}
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif text-black leading-tight mt-4 animate-slide-in-left max-w-3xl">
+          {/* Более строгий стиль: увеличенный межбуквенный интервал, нормальный вес, без курсива */}
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-sans font-normal text-black leading-relaxed tracking-wide mt-4 animate-slide-in-left max-w-3xl">
             Создаю эстетичные выразительные образы, в которых ты остаешься собой
           </h1>
 

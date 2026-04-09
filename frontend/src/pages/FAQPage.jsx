@@ -71,7 +71,26 @@ export default function FAQPage() {
         {/* Если остались вопросы */}
         <div className="mt-12 text-center p-6 bg-[#faf8f6] rounded-2xl">
           <p className="text-gray-600 mb-3">Не нашли ответ на свой вопрос?</p>
-          <button className="text-[#4a7c59] hover:underline">Напишите мне в Telegram или Instagram</button>
+          <p className="text-gray-400 text-sm mt-4">
+  Напишите в{' '}
+  <a
+    href="https://t.me/anastasia_romancha"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-[#4a7c59] hover:text-[#2d5a3b] underline decoration-transparent hover:decoration-[#4a7c59] transition"
+  >
+    Telegram
+  </a>
+  {' или '}
+  <a
+    href="https://instagram.com/anastasia.romancha"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-[#4a7c59] hover:text-[#2d5a3b] underline decoration-transparent hover:decoration-[#4a7c59] transition"
+  >
+    Instagram
+  </a>
+</p>
         </div>
       </div>
     </div>

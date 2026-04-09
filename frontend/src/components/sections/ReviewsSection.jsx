@@ -90,7 +90,7 @@ export default function ReviewsSection() {
             </a>
             {' и '}
             <a
-              href="#"
+              href="https://t.me/anastasia_romancha"
               className="text-[#4a7c59] hover:text-[#2d5a3b] transition underline decoration-transparent hover:decoration-[#4a7c59]"
               target="_blank"
               rel="noopener noreferrer"

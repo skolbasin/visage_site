@@ -69,12 +69,22 @@ export default function FeedPage() {
       <div className="max-w-2xl mx-auto px-6">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-serif text-[#2c2c2c]">Бьюти-лента</h1>
-          <button
-            className="p-2 rounded-full bg-[#faf8f6] text-[#4a7c59] hover:bg-[#4a7c59] hover:text-white transition"
-            onClick={() => alert('Это бьюти-лента — здесь публикуются свежие работы, советы и вдохновение')}
-          >
-            <Info size={20} />
-          </button>
+
+          {/* Кнопка "i" с всплывающей подсказкой при наведении */}
+          <div className="relative group">
+            <button
+              className="p-2 rounded-full bg-[#faf8f6] text-[#4a7c59] hover:bg-[#4a7c59] hover:text-white transition cursor-help"
+              aria-label="Информация"
+            >
+              <Info size={20} />
+            </button>
+            {/* Всплывающее окно при наведении */}
+            <div className="absolute right-0 top-full mt-2 w-64 bg-gray-800 text-white text-sm rounded-lg p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 shadow-lg pointer-events-none">
+              <p className="text-center">Это бьюти-лента — здесь публикуются свежие работы, советы и вдохновение</p>
+              {/* Треугольничек сверху */}
+              <div className="absolute -top-1 right-3 w-2 h-2 bg-gray-800 rotate-45"></div>
+            </div>
+          </div>
         </div>
 
         <div className="space-y-6">

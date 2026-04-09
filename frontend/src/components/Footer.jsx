@@ -46,8 +46,8 @@ export default function Footer() {
           <div>
             <h4 className="font-medium text-[#2c2c2c] mb-4">Соцсети</h4>
             <div className="flex space-x-4">
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#4a7c59] transition"><Instagram size={24} /></a>
-              <a href="https://t.me" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#4a7c59] transition"><Send size={24} /></a>
+              <a href="https://instagram.com/anastasia.romancha" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#4a7c59] transition"><Instagram size={24} /></a>
+              <a href="https://t.me/anastasia_romancha" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#4a7c59] transition"><Send size={24} /></a>
             </div>
           </div>
         </div>
