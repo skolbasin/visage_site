@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 
+// 7 фото-превью (отзывы)
 const reviewImages = [
   '/IMG_8861.png',
   '/IMG_8864.png',
@@ -11,19 +12,30 @@ const reviewImages = [
   '/IMG_8866.png',
 ];
 
+// Пары ДО/ПОСЛЕ для каждого отзыва (в том же порядке, что и превью)
+const beforeAfterPairs = [
+  { before: '/IMG_20260412_123957_999.jpg', after: '/IMG_20260412_123958_004.jpg' },      // для 1-го отзыва
+  { before: '/IMG_20260412_123945_194.jpg', after: '/IMG_20260412_123945_182.jpg' },  // для 2-го
+  { before: '/IMG_20260412_124209_629.jpg', after: '/IMG_20260412_123942_222.jpg' },    // для 3-го
+  { before: '/IMG_20260412_123932_322.jpg', after: '/IMG_20260412_123932_327.jpg' },      // для 4-го
+  { before: '/IMG_20260412_123957_999.jpg', after: '/IMG_20260412_123958_004.jpg' },      // для 5-го
+  { before: '/IMG_20260412_123945_194.jpg', after: '/IMG_20260412_123945_182.jpg' },      // для 6-го
+  { before: '/IMG_20260412_124209_629.jpg', after: '/IMG_20260412_123942_222.jpg' },      // для 7-го
+];
+
 export default function ReviewsSection() {
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedPair, setSelectedPair] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const openModal = (img) => {
-    setSelectedImage(img);
+  const openModal = (index) => {
+    setSelectedPair(beforeAfterPairs[index]);
     setIsModalOpen(true);
     document.body.style.overflow = 'hidden';
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setSelectedImage(null);
+    setSelectedPair(null);
     document.body.style.overflow = '';
   };
 
@@ -53,7 +65,7 @@ export default function ReviewsSection() {
               <div
                 key={idx}
                 className="group relative overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 cursor-pointer"
-                onClick={() => openModal(img)}
+                onClick={() => openModal(idx)}
               >
                 <img src={img} alt={`Отзыв ${idx + 1}`} className="w-full h-auto object-cover transition duration-700 group-hover:scale-105" loading="lazy" />
                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
@@ -67,7 +79,7 @@ export default function ReviewsSection() {
               <div
                 key={idx + 4}
                 className="w-1/3 max-w-xs group relative overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 cursor-pointer"
-                onClick={() => openModal(img)}
+                onClick={() => openModal(idx + 4)}
               >
                 <img src={img} alt={`Отзыв ${idx + 5}`} className="w-full h-auto object-cover transition duration-700 group-hover:scale-105" loading="lazy" />
                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
@@ -102,9 +114,9 @@ export default function ReviewsSection() {
       </div>
 
       {/* Модальное окно ДО/ПОСЛЕ */}
-      {isModalOpen && selectedImage && (
+      {isModalOpen && selectedPair && (
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={handleBackdropClick}>
-          <div className="relative max-w-4xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl">
+          <div className="relative max-w-5xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl">
             <button
               onClick={closeModal}
               className="absolute top-4 right-4 z-10 bg-white rounded-full p-2 shadow-md text-gray-600 hover:text-[#4a7c59] transition"
@@ -114,11 +126,11 @@ export default function ReviewsSection() {
             <div className="flex flex-col md:flex-row">
               <div className="md:w-1/2 p-4 text-center">
                 <p className="text-sm text-gray-500 mb-2">ДО</p>
-                <img src={selectedImage} alt="ДО" className="w-full h-auto object-contain rounded-xl" />
+                <img src={selectedPair.before} alt="ДО" className="w-full h-auto max-h-[500px] object-contain rounded-xl" />
               </div>
               <div className="md:w-1/2 p-4 text-center">
                 <p className="text-sm text-gray-500 mb-2">ПОСЛЕ</p>
-                <img src={selectedImage} alt="ПОСЛЕ" className="w-full h-auto object-contain rounded-xl" />
+                <img src={selectedPair.after} alt="ПОСЛЕ" className="w-full h-auto max-h-[500px] object-contain rounded-xl" />
               </div>
             </div>
             <div className="p-4 text-center border-t border-gray-100">

@@ -1,10 +1,12 @@
 export default function MapSection() {
-  // Координаты: Санкт-Петербург, ул. Достоевского, 9
+  // Координаты: Санкт-Петербург, Невский пр., 67
+  // Примерные координаты: 59.9355, 30.3287
+
   // Яндекс.Карты (работает в РФ)
-  const yandexMapUrl = "https://yandex.ru/maps/?text=%D1%83%D0%BB.%20%D0%94%D0%BE%D1%81%D1%82%D0%BE%D0%B5%D0%B2%D1%81%D0%BA%D0%BE%D0%B3%D0%BE%209%20%D0%A1%D0%B0%D0%BD%D0%BA%D1%82-%D0%9F%D0%B5%D1%82%D0%B5%D1%80%D0%B1%D1%83%D1%80%D0%B3&mode=search&ll=30.3613,59.9283&z=17";
+  const yandexMapUrl = "https://yandex.ru/maps/?text=%D0%9D%D0%B5%D0%B2%D1%81%D0%BA%D0%B8%D0%B9%20%D0%BF%D1%80.%2067%20%D0%A1%D0%B0%D0%BD%D0%BA%D1%82-%D0%9F%D0%B5%D1%82%D0%B5%D1%80%D0%B1%D1%83%D1%80%D0%B3&mode=search&ll=30.3287,59.9355&z=17";
 
   // OpenStreetMap (альтернатива, работает везде)
-  const osmMapUrl = "https://www.openstreetmap.org/export/embed.html?bbox=30.3553,59.9243,30.3673,59.9323&layer=mapnik&marker=59.9283,30.3613";
+  const osmMapUrl = "https://www.openstreetmap.org/export/embed.html?bbox=30.3227,59.9315,30.3347,59.9395&layer=mapnik&marker=59.9355,30.3287";
 
   return (
     <section className="py-16 md:py-20 bg-white w-full">
@@ -17,7 +19,7 @@ export default function MapSection() {
             </span>
           </h2>
           <p className="text-gray-500 text-center mt-4">
-            Санкт-Петербург, ул. Достоевского, 9
+            Санкт-Петербург, Невский пр., 67
           </p>
         </div>
 

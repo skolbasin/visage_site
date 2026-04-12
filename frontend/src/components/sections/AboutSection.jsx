@@ -48,12 +48,12 @@ export default function AboutSection() {
           <div className="relative flex justify-center items-center min-h-[520px]">
             {/* Фото 1 - верхнее левое */}
             <div className="absolute left-0 top-0 w-56 h-56 rounded-2xl overflow-hidden shadow-lg rotate-[-8deg] z-0 animate-float-slow hover:scale-110 hover:rotate-0 transition-all duration-500 cursor-pointer">
-              <img src="/IMG_8514.JPG" alt="Работа 1" className="w-full h-full object-cover" />
+              <img src="/IMG_20260411_232456_858.jpg" alt="Работа 1" className="w-full h-full object-cover" />
             </div>
 
             {/* Фото 2 - верхнее правое */}
             <div className="absolute right-0 top-0 w-48 h-64 rounded-2xl overflow-hidden shadow-lg rotate-[5deg] z-10 animate-float-medium hover:scale-110 hover:rotate-0 transition-all duration-500 cursor-pointer">
-              <img src="/IMG_5405.JPG" alt="Работа 2" className="w-full h-full object-cover" />
+              <img src="/IMG_20260411_232456_868-1.jpg" alt="Работа 2" className="w-full h-full object-cover" />
             </div>
 
             {/* Фото 3 - центральное (поднято выше: top: 35% вместо 42%) */}
@@ -65,17 +65,17 @@ export default function AboutSection() {
                 transform: 'translate(-50%, -50%)'
               }}
             >
-              <img src="/IMG_4327.JPEG" alt="Настя" className="w-full h-full object-cover object-[50%_25%]" />
+              <img src="/IMG_20260411_232456_872-1.jpg" alt="Настя" className="w-full h-full object-cover object-[50%_25%]" />
             </div>
 
             {/* Фото 4 - нижнее левое */}
             <div className="absolute left-8 bottom-0 w-48 h-48 rounded-2xl overflow-hidden shadow-md rotate-[12deg] z-15 animate-float-slower hover:scale-110 hover:rotate-0 transition-all duration-500 cursor-pointer">
-              <img src="/IMG_6428.PNG" alt="Работа 4" className="w-full h-full object-cover" />
+              <img src="/IMG_20260411_232456_875.jpg" alt="Работа 4" className="w-full h-full object-cover" />
             </div>
 
             {/* Фото 5 - нижнее правое */}
             <div className="absolute right-8 bottom-0 w-56 h-44 rounded-2xl overflow-hidden shadow-md rotate-[-10deg] z-15 animate-float-medium-delay hover:scale-110 hover:rotate-0 transition-all duration-500 cursor-pointer">
-              <img src="/IMG_7913.PNG" alt="Работа 5" className="w-full h-full object-cover" />
+              <img src="/IMG_20260411_232456_880-1.jpg" alt="Работа 5" className="w-full h-full object-cover" />
             </div>
           </div>
         </div>

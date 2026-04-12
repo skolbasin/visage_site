@@ -53,12 +53,20 @@ export default function PortfolioSection({ images, onImageClick }) {
                 className={`group cursor-pointer overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-all duration-500 animate-on-scroll-portfolio ${
                   visibleCards.includes(String(idx)) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
                 }`}
-                style={{ transition: 'all 0.5s ease-out', transitionDelay: `${idx * 100}ms` }}
+                style={{
+                  transition: 'all 0.5s ease-out',
+                  transitionDelay: `${idx * 100}ms`
+                }}
                 onClick={() => onImageClick(img)}
               >
-                <div className="relative overflow-hidden">
-                  <img src={img} alt={`Работа ${idx + 1}`} className="w-full h-96 object-cover transition duration-700 group-hover:scale-110" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-500" />
+                {/* Увеличил высоту блока с 450px до 550px */}
+                <div className="relative w-full" style={{ height: '550px' }}>
+                  <img
+                    src={img}
+                    alt={`Работа ${idx + 1}`}
+                    className="w-full h-full object-cover rounded-2xl transition duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-500 rounded-2xl" />
                   <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition duration-500">
                     <span className="bg-white/90 text-[#4a7c59] text-sm px-3 py-1 rounded-full">Смотреть</span>
                   </div>
