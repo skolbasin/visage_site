@@ -1,158 +1,175 @@
 import { useState, useEffect } from 'react';
-import { Heart, MessageCircle, Share2, MoreHorizontal, Info } from 'lucide-react';
-import api from '../services/api';
+import { Heart, MessageCircle, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import AnimatedStars from '../components/AnimatedStars';
 
-export default function FeedPage() {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [skip, setSkip] = useState(0);
-  const limit = 6;
+const feedPosts = [
+  {
+    id: 1,
+    image: '/IMG_8514.JPG',
+    title: 'Свадебный макияж "Bridal Glow"',
+    description: 'Сияющий свадебный образ с эффектом влажной кожи. Невеста была в восторге! 💍✨',
+    likes: 234,
+    comments: 12,
+    date: '2 дня назад',
+  },
+  {
+    id: 2,
+    image: '/IMG_7913.PNG',
+    title: 'Классический смоки-айс',
+    description: 'Вечерний образ с выразительным дымчатым макияжем глаз. Идеален для особого случая.',
+    likes: 189,
+    comments: 8,
+    date: '5 дней назад',
+  },
+  {
+    id: 3,
+    image: '/IMG_9246.JPG',
+    title: 'Natural Glow',
+    description: 'Естественное сияние и здоровый вид кожи. Макияж без эффекта маски.',
+    likes: 156,
+    comments: 5,
+    date: '1 неделя назад',
+  },
+  {
+    id: 4,
+    image: '/IMG_20260412_000019_273.jpg',
+    title: 'Нюдовый макияж для фотосессии',
+    description: 'Нежный образ с акцентом на скульптурирование лица. Фотогенично и элегантно.',
+    likes: 278,
+    comments: 15,
+    date: '1 неделя назад',
+  },
+  {
+    id: 5,
+    image: '/IMG_20260412_000019_281.jpg',
+    title: 'Графические стрелки',
+    description: 'Чёткие графические стрелки — тренд сезона. Современный и дерзкий образ.',
+    likes: 312,
+    comments: 23,
+    date: '2 недели назад',
+  },
+  {
+    id: 6,
+    image: '/IMG_20260412_000029_877.jpg',
+    title: 'Instagram-perfect макияж',
+    description: 'Трендовый макияж, который собирает лайки в соцсетях. Попробуйте и вы!',
+    likes: 445,
+    comments: 31,
+    date: '2 недели назад',
+  },
+];
 
-  const mockPosts = [
-    {
-      id: 1,
-      type: 'photo',
-      media_url: '/IMG_8514.JPG',
-      content: 'Свежий образ для вечернего выхода! 🖤✨',
-      created_at: new Date().toISOString(),
-      author: { name: 'Анастасия', avatar: '/avatar.jpg' }
-    },
-    {
-      id: 2,
-      type: 'text',
-      content: 'Совет дня: используйте праймер перед тональным — макияж будет держаться дольше и выглядеть свежее. 💄',
-      created_at: new Date(Date.now() - 86400000).toISOString(),
-      author: { name: 'Анастасия', avatar: '/avatar.jpg' }
-    }
-  ];
+export default function BeautyFeedPage() {
+  const [likedPosts, setLikedPosts] = useState([]);
+  const [localLikes, setLocalLikes] = useState({});
 
-  const fetchPosts = async () => {
-    if (loading || !hasMore) return;
-    setLoading(true);
-    try {
-      const { data } = await api.get('/posts', { params: { skip, limit, published_only: true } });
-      if (data.length < limit) setHasMore(false);
-      setPosts((prev) => [...prev, ...data]);
-      setSkip((prev) => prev + limit);
-    } catch (error) {
-      console.error('Error fetching posts:', error);
-      if (posts.length === 0) {
-        setPosts(mockPosts);
-        setHasMore(false);
-      }
-    } finally {
-      setLoading(false);
+  const toggleLike = (id, currentLikes) => {
+    if (likedPosts.includes(id)) {
+      setLikedPosts(prev => prev.filter(item => item !== id));
+      setLocalLikes(prev => ({ ...prev, [id]: currentLikes - 1 }));
+    } else {
+      setLikedPosts(prev => [...prev, id]);
+      setLocalLikes(prev => ({ ...prev, [id]: currentLikes + 1 }));
     }
   };
 
-  useEffect(() => {
-    fetchPosts();
-  }, []);
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diff = now - date;
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
-
-    if (minutes < 1) return 'только что';
-    if (minutes < 60) return `${minutes} мин назад`;
-    if (hours < 24) return `${hours} ч назад`;
-    return `${days} д назад`;
+  const getLikeCount = (post) => {
+    if (localLikes[post.id] !== undefined) {
+      return localLikes[post.id];
+    }
+    return post.likes;
   };
 
   return (
-    <div className="min-h-screen bg-white py-12">
-      <div className="max-w-2xl mx-auto px-6">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-serif text-[#2c2c2c]">Бьюти-лента</h1>
+    <div className="min-h-screen bg-white py-12 relative overflow-hidden">
+      <AnimatedStars />
 
-          {/* Кнопка "i" с всплывающей подсказкой при наведении */}
-          <div className="relative group">
-            <button
-              className="p-2 rounded-full bg-[#faf8f6] text-[#4a7c59] hover:bg-[#4a7c59] hover:text-white transition cursor-help"
-              aria-label="Информация"
-            >
-              <Info size={20} />
-            </button>
-            {/* Всплывающее окно при наведении */}
-            <div className="absolute right-0 top-full mt-2 w-64 bg-gray-800 text-white text-sm rounded-lg p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 shadow-lg pointer-events-none">
-              <p className="text-center">Это бьюти-лента — здесь публикуются свежие работы, советы и вдохновение</p>
-              {/* Треугольничек сверху */}
-              <div className="absolute -top-1 right-3 w-2 h-2 bg-gray-800 rotate-45"></div>
-            </div>
+      <div className="max-w-[600px] mx-auto px-4 relative z-10">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-[#4a7c59]/10 rounded-full mb-4">
+            <Sparkles className="w-8 h-8 text-[#4a7c59]" />
           </div>
+          <h1 className="text-4xl md:text-5xl font-serif text-[#2c2c2c] mb-4">Бьюти-лента</h1>
+          <p className="text-gray-500 text-lg max-w-2xl mx-auto">
+            Свежие работы, вдохновение и моменты из моей профессиональной жизни
+          </p>
         </div>
 
-        <div className="space-y-6">
-          {posts.map((post) => (
-            <div key={post.id} className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
-              <div className="flex items-center justify-between p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#4a7c59]/20 flex items-center justify-center text-[#4a7c59] font-semibold">
-                    {post.author?.name?.charAt(0) || 'А'}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-[#2c2c2c]">{post.author?.name || 'Анастасия'}</h3>
-                    <p className="text-xs text-gray-400">{formatDate(post.created_at)}</p>
-                  </div>
+        <div className="space-y-8">
+          {feedPosts.map((post, idx) => (
+            <div
+              key={post.id}
+              className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
+              style={{ animationDelay: `${idx * 100}ms` }}
+            >
+              {/* Шапка поста */}
+              <div className="p-3 flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-to-r from-[#4a7c59] to-[#8bbd9b] rounded-full flex items-center justify-center text-white text-sm font-bold">
+                  А
                 </div>
-                <button className="text-gray-400 hover:text-[#4a7c59]">
-                  <MoreHorizontal size={20} />
-                </button>
+                <div>
+                  <h3 className="font-semibold text-sm text-[#2c2c2c]">Анастасия Романча</h3>
+                  <p className="text-xs text-gray-400">{post.date}</p>
+                </div>
               </div>
 
-              {post.content && (
-                <div className="px-4 pb-2">
-                  <p className="text-gray-600 whitespace-pre-wrap">{post.content}</p>
-                </div>
-              )}
+              {/* Изображение - квадратное, как в Instagram */}
+              <div className="relative overflow-hidden bg-gray-100 aspect-square">
+                <img
+                  src={post.image}
+                  alt={post.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
 
-              {post.type !== 'text' && post.media_url && (
-                <div className="w-full">
-                  <img src={post.media_url} alt="post media" className="w-full max-h-96 object-cover" />
+              {/* Действия - только лайк и комментарий */}
+              <div className="p-3">
+                <div className="flex items-center gap-4 mb-2">
+                  <button
+                    onClick={() => toggleLike(post.id, getLikeCount(post))}
+                    className="flex items-center gap-1 text-gray-500 hover:text-red-500 transition"
+                  >
+                    <Heart
+                      size={24}
+                      className={likedPosts.includes(post.id) ? 'fill-red-500 text-red-500' : ''}
+                    />
+                    <span className="text-sm">{getLikeCount(post)}</span>
+                  </button>
+                  <button className="flex items-center gap-1 text-gray-500 hover:text-[#4a7c59] transition">
+                    <MessageCircle size={24} />
+                    <span className="text-sm">{post.comments}</span>
+                  </button>
                 </div>
-              )}
 
-              <div className="flex items-center justify-between p-4 border-t border-gray-100">
-                <div className="flex gap-6">
-                  <button className="flex items-center gap-1 text-gray-400 hover:text-red-500 transition">
-                    <Heart size={20} />
-                    <span className="text-sm">0</span>
-                  </button>
-                  <button className="flex items-center gap-1 text-gray-400 hover:text-[#4a7c59] transition">
-                    <MessageCircle size={20} />
-                    <span className="text-sm">0</span>
-                  </button>
-                  <button className="flex items-center gap-1 text-gray-400 hover:text-[#4a7c59] transition">
-                    <Share2 size={20} />
-                  </button>
+                {/* Подпись */}
+                <div className="mt-2">
+                  <p className="text-sm">
+                    <span className="font-semibold text-[#2c2c2c] mr-2">Анастасия Романча</span>
+                    <span className="text-gray-700">{post.description}</span>
+                  </p>
                 </div>
+
+                {/* Ссылка на запись */}
+                <Link
+                  to="/booking"
+                  className="inline-block mt-3 text-xs text-gray-400 hover:text-[#4a7c59] transition"
+                >
+                  Записаться на такой же образ →
+                </Link>
               </div>
             </div>
           ))}
         </div>
 
-        {hasMore && (
-          <div className="text-center mt-8">
-            <button
-              onClick={fetchPosts}
-              disabled={loading}
-              className="btn-primary"
-            >
-              {loading ? 'Загрузка...' : 'Загрузить ещё'}
-            </button>
-          </div>
-        )}
-
-        {!loading && posts.length === 0 && (
-          <div className="text-center py-12 text-gray-400">
-            <p>Пока нет постов. Загляните позже!</p>
-          </div>
-        )}
+        <div className="text-center mt-12">
+          <Link
+            to="/portfolio"
+            className="inline-flex items-center gap-2 text-[#4a7c59] hover:text-[#2d5a3b] transition"
+          >
+            Смотреть все работы в портфолио →
+          </Link>
+        </div>
       </div>
     </div>
   );

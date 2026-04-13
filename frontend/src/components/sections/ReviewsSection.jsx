@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 // 7 фото-превью (отзывы)
 const reviewImages = [
@@ -15,8 +15,8 @@ const reviewImages = [
 // Пары ДО/ПОСЛЕ для каждого отзыва (в том же порядке, что и превью)
 const beforeAfterPairs = [
   { before: '/IMG_20260412_123957_999.jpg', after: '/IMG_20260412_123958_004.jpg' },      // для 1-го отзыва
-  { before: '/IMG_20260412_123945_194.jpg', after: '/IMG_20260412_123945_182.jpg' },  // для 2-го
-  { before: '/IMG_20260412_124209_629.jpg', after: '/IMG_20260412_123942_222.jpg' },    // для 3-го
+  { before: '/IMG_20260412_123945_194.jpg', after: '/IMG_20260412_123945_182.jpg' },      // для 2-го
+  { before: '/IMG_20260412_124209_629.jpg', after: '/IMG_20260412_123942_222.jpg' },      // для 3-го
   { before: '/IMG_20260412_123932_322.jpg', after: '/IMG_20260412_123932_327.jpg' },      // для 4-го
   { before: '/IMG_20260412_123957_999.jpg', after: '/IMG_20260412_123958_004.jpg' },      // для 5-го
   { before: '/IMG_20260412_123945_194.jpg', after: '/IMG_20260412_123945_182.jpg' },      // для 6-го
@@ -26,9 +26,11 @@ const beforeAfterPairs = [
 export default function ReviewsSection() {
   const [selectedPair, setSelectedPair] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activePhotoIndex, setActivePhotoIndex] = useState(0); // 0 - ДО, 1 - ПОСЛЕ
 
   const openModal = (index) => {
     setSelectedPair(beforeAfterPairs[index]);
+    setActivePhotoIndex(0);
     setIsModalOpen(true);
     document.body.style.overflow = 'hidden';
   };
@@ -36,6 +38,7 @@ export default function ReviewsSection() {
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedPair(null);
+    setActivePhotoIndex(0);
     document.body.style.overflow = '';
   };
 
@@ -43,24 +46,33 @@ export default function ReviewsSection() {
     if (e.target === e.currentTarget) closeModal();
   };
 
+  const nextPhoto = () => {
+    setActivePhotoIndex(prev => prev === 0 ? 1 : 0);
+  };
+
+  const prevPhoto = () => {
+    setActivePhotoIndex(prev => prev === 0 ? 1 : 0);
+  };
+
   return (
     <section className="py-16 md:py-20 bg-[#faf8f6] text-center w-full relative overflow-hidden">
-      <div className="px-6 md:px-12 lg:px-20 relative z-10">
+      <div className="px-4 sm:px-6 md:px-12 lg:px-20 relative z-10">
         <div className="text-center mb-12">
-          <div className="inline-block bg-white rounded-2xl px-8 md:px-12 py-8 shadow-md border border-gray-100">
+          <div className="inline-block bg-white rounded-2xl px-6 sm:px-8 md:px-12 py-6 sm:py-8 shadow-md border border-gray-100">
             <div className="text-center mb-4">
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif text-[#2c2c2c] inline-block group">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif text-[#2c2c2c] inline-block group">
                 <span className="relative pb-3 inline-block">
                   Отзывы
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#4a7c59] to-[#8bbd9b] transition-all duration-500 group-hover:w-full"></span>
                 </span>
               </h2>
             </div>
-            <p className="text-gray-500 text-center">Что говорят мои клиенты</p>
+            <p className="text-gray-500 text-center text-sm sm:text-base">Что говорят мои клиенты</p>
           </div>
         </div>
         <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+          {/* Сетка отзывов - адаптивная */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-3 sm:mb-4">
             {reviewImages.slice(0, 4).map((img, idx) => (
               <div
                 key={idx}
@@ -69,12 +81,12 @@ export default function ReviewsSection() {
               >
                 <img src={img} alt={`Отзыв ${idx + 1}`} className="w-full h-auto object-cover transition duration-700 group-hover:scale-105" loading="lazy" />
                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
-                  <span className="text-white text-sm font-medium bg-white/20 px-3 py-1 rounded-full">Посмотреть ДО/ПОСЛЕ</span>
+                  <span className="text-white text-xs sm:text-sm font-medium bg-white/20 px-2 sm:px-3 py-1 rounded-full whitespace-nowrap">Посмотреть ДО/ПОСЛЕ</span>
                 </div>
               </div>
             ))}
           </div>
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-center gap-3 sm:gap-4">
             {reviewImages.slice(4, 7).map((img, idx) => (
               <div
                 key={idx + 4}
@@ -83,14 +95,14 @@ export default function ReviewsSection() {
               >
                 <img src={img} alt={`Отзыв ${idx + 5}`} className="w-full h-auto object-cover transition duration-700 group-hover:scale-105" loading="lazy" />
                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
-                  <span className="text-white text-sm font-medium bg-white/20 px-3 py-1 rounded-full">Посмотреть ДО/ПОСЛЕ</span>
+                  <span className="text-white text-xs sm:text-sm font-medium bg-white/20 px-2 sm:px-3 py-1 rounded-full whitespace-nowrap">Посмотреть ДО/ПОСЛЕ</span>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Ссылки с учётом РФ */}
-          <p className="text-center text-gray-400 text-sm mt-8">
+          {/* Ссылки */}
+          <p className="text-center text-gray-400 text-xs sm:text-sm mt-8">
             *Более 50+ отзывов в{' '}
             <a
               href="#"
@@ -113,17 +125,45 @@ export default function ReviewsSection() {
         </div>
       </div>
 
-      {/* Модальное окно ДО/ПОСЛЕ */}
+      {/* Модальное окно ДО/ПОСЛЕ - АДАПТИВНОЕ */}
       {isModalOpen && selectedPair && (
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={handleBackdropClick}>
           <div className="relative max-w-5xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl">
             <button
               onClick={closeModal}
-              className="absolute top-4 right-4 z-10 bg-white rounded-full p-2 shadow-md text-gray-600 hover:text-[#4a7c59] transition"
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 bg-white rounded-full p-1.5 sm:p-2 shadow-md text-gray-600 hover:text-[#4a7c59] transition"
             >
-              <X size={24} />
+              <X size={20} className="sm:w-6 sm:h-6" />
             </button>
-            <div className="flex flex-col md:flex-row">
+
+            {/* Навигационные стрелки для мобильных */}
+            <button
+              onClick={prevPhoto}
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow-md text-gray-600 hover:text-[#4a7c59] transition md:hidden"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button
+              onClick={nextPhoto}
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow-md text-gray-600 hover:text-[#4a7c59] transition md:hidden"
+            >
+              <ChevronRight size={20} />
+            </button>
+
+            {/* Индикатор текущего фото для мобильных */}
+            <div className="md:hidden flex justify-center gap-2 pt-3 pb-2">
+              <div
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${activePhotoIndex === 0 ? 'bg-[#4a7c59] w-4' : 'bg-gray-300'}`}
+                onClick={() => setActivePhotoIndex(0)}
+              />
+              <div
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${activePhotoIndex === 1 ? 'bg-[#4a7c59] w-4' : 'bg-gray-300'}`}
+                onClick={() => setActivePhotoIndex(1)}
+              />
+            </div>
+
+            {/* Десктопная версия - два фото рядом */}
+            <div className="hidden md:flex flex-row">
               <div className="md:w-1/2 p-4 text-center">
                 <p className="text-sm text-gray-500 mb-2">ДО</p>
                 <img src={selectedPair.before} alt="ДО" className="w-full h-auto max-h-[500px] object-contain rounded-xl" />
@@ -133,8 +173,23 @@ export default function ReviewsSection() {
                 <img src={selectedPair.after} alt="ПОСЛЕ" className="w-full h-auto max-h-[500px] object-contain rounded-xl" />
               </div>
             </div>
+
+            {/* Мобильная версия - одно фото с переключением */}
+            <div className="md:hidden">
+              <div className="p-4 text-center">
+                <p className="text-sm text-gray-500 mb-2">
+                  {activePhotoIndex === 0 ? 'ДО' : 'ПОСЛЕ'}
+                </p>
+                <img
+                  src={activePhotoIndex === 0 ? selectedPair.before : selectedPair.after}
+                  alt={activePhotoIndex === 0 ? 'ДО' : 'ПОСЛЕ'}
+                  className="w-full h-auto max-h-[60vh] object-contain rounded-xl"
+                />
+              </div>
+            </div>
+
             <div className="p-4 text-center border-t border-gray-100">
-              <p className="text-gray-600">Результат работы над образом клиента</p>
+              <p className="text-gray-600 text-sm sm:text-base">Результат работы над образом клиента</p>
             </div>
           </div>
         </div>

@@ -2,50 +2,29 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { X } from 'lucide-react';
 import api from '../services/api';
+import AnimatedStars from '../components/AnimatedStars';
 
-// Массив всех работ (22 фото)
 const portfolioItems = [
-  // СЕКЦИЯ 1: СВАДЕБНЫЙ МАКИЯЖ
   { id: 4, image_url: '/IMG_8514.JPG', title: 'Свадебный макияж "Bridal Glow"', description: 'Сияющий свадебный образ с эффектом влажной кожи.', category: { name: 'Свадебный' } },
-
-  // СЕКЦИЯ 2: ВЕЧЕРНИЙ МАКИЯЖ
   { id: 9, image_url: '/IMG_7913.PNG', title: 'Смоки-айс классический', description: 'Классический дымчатый макияж для выразительного взгляда.', category: { name: 'Вечерний' } },
-
-  // СЕКЦИЯ 3: ДНЕВНОЙ МАКИЯЖ
   { id: 15, image_url: '/IMG_9246.JPG', title: 'Макияж "Natural Glow"', description: 'Естественное сияние и здоровый вид кожи.', category: { name: 'Дневной' } },
-
-  // СЕКЦИЯ 4: ФОТОСЕССИЯ
   { id: 18, image_url: '/IMG_20260412_000019_273.jpg', title: 'Макияж для фотосессии "Nude"', description: 'Нюдовый макияж с акцентом на скульптурирование лица.', category: { name: 'Фотосессия' } },
-
-  // СЕКЦИЯ 5: ГРАФИЧЕСКИЙ МАКИЯЖ
   { id: 19, image_url: '/IMG_20260412_000019_281.jpg', title: 'Графический макияж "Стрелки"', description: 'Чёткие графические стрелки. Современный трендовый образ.', category: { name: 'Графический' } },
   { id: 20, image_url: '/IMG_20260412_000025_055.jpg', title: 'Графический макияж "Cut Crease"', description: 'Техника Cut Crease с чёткими линиями. Выразительный взгляд.', category: { name: 'Графический' } },
   { id: 21, image_url: '/IMG_20260412_000025_060.jpg', title: 'Графический макияж "Цветные акценты"', description: 'Яркие цветовые акценты в сочетании с графикой.', category: { name: 'Графический' } },
-
-  // СЕКЦИЯ 6: КОРРЕКЦИЯ ЛИЦА
   { id: 22, image_url: '/IMG_20260412_000029_843.jpg', title: 'Коррекция лица "Скульптурирование"', description: 'Профессиональная скульптурная коррекция лица. Идеальный овал.', category: { name: 'Коррекция' } },
   { id: 23, image_url: '/IMG_20260412_000029_866.jpg', title: 'Коррекция лица "Контуринг"', description: 'Мягкий контуринг для естественного скульптурирования.', category: { name: 'Коррекция' } },
   { id: 24, image_url: '/IMG_20260412_000029_876.jpg', title: 'Коррекция лица "Свечение"', description: 'Техника стробинга — здоровое сияние кожи.', category: { name: 'Коррекция' } },
-
-  // СЕКЦИЯ 7: ДОПОЛНИТЕЛЬНЫЕ РАБОТЫ (INSTAGRAM)
   { id: 25, image_url: '/IMG_20260412_000029_877.jpg', title: 'Макияж "Instagram-perfect"', description: 'Трендовый макияж, который собирает лайки в соцсетях.', category: { name: 'Instagram' } },
   { id: 26, image_url: '/IMG_20260412_000029_882.jpg', title: 'Макияж "Soft Pink"', description: 'Нежный розовый макияж. Мягкий и романтичный образ.', category: { name: 'Instagram' } },
   { id: 27, image_url: '/IMG_20260412_000029_885.jpg', title: 'Макияж "Peach Dream"', description: 'Персиковые оттенки для свежего и сияющего вида.', category: { name: 'Instagram' } },
   { id: 28, image_url: '/IMG_20260412_000029_890.jpg', title: 'Макияж "Berry Mood"', description: 'Ягодные оттенки в макияже. Яркий и сочный образ.', category: { name: 'Instagram' } },
   { id: 29, image_url: '/IMG_20260412_000029_891.jpg', title: 'Макияж "Chocolate Brown"', description: 'Шоколадные оттенки для тёплого цветотипа.', category: { name: 'Instagram' } },
-
-  // СЕКЦИЯ 8: ЭКСПРЕСС-МАКИЯЖ
   { id: 31, image_url: '/IMG_20260412_123932_327.jpg', title: 'Экспресс-макияж "На работу"', description: 'Сдержанный офисный макияж, который делается за 10 минут.', category: { name: 'Экспресс' } },
   { id: 32, image_url: '/IMG_20260412_123942_222.jpg', title: 'Экспресс-макияж "На свидание"', description: 'Быстрый романтичный образ с акцентом на глаза.', category: { name: 'Экспресс' } },
-
-  // СЕКЦИЯ 9: ОСОБЫЕ СЛУЧАИ
   { id: 33, image_url: '/IMG_20260412_123945_182.jpg', title: 'Выпускной макияж', description: 'Яркий и запоминающийся образ для выпускного вечера.', category: { name: 'Особый случай' } },
-
-  // СЕКЦИЯ 10: СЕЗОННЫЙ МАКИЯЖ
   { id: 36, image_url: '/IMG_20260412_123958_004.jpg', title: 'Макияж "Fresh Face"', description: 'Свежий минималистичный макияж для любого дня.', category: { name: 'Сезонный' } },
   { id: 38, image_url: '/IMG_5405.JPG', title: 'Макияж "Winter Berry"', description: 'Зимний ягодный макияж с насыщенными оттенками.', category: { name: 'Сезонный' } },
-
-  // СЕКЦИЯ 11: ДОПОЛНИТЕЛЬНЫЕ
   { id: 39, image_url: '/IMG_6428.PNG', title: 'Классический макияж', description: 'Вневременная классика, которая подходит всем.', category: { name: 'Классика' } },
   { id: 40, image_url: '/IMG_2578.JPG', title: 'Монохромный макияж', description: 'Монохромный образ в одном цветовом решении.', category: { name: 'Классика' } },
 ];
@@ -56,9 +35,8 @@ const filterTags = [
   { id: 'evening', name: 'Вечерний' },
   { id: 'day', name: 'Дневной' },
   { id: 'photosession', name: 'Фотосессия' },
-  { id: 'graphic', name: 'Графический' },
-  { id: 'correction', name: 'Коррекция' },
-  { id: 'express', name: 'Экспресс' },
+  { id: 'graphic', name: 'Графический' }
+
 ];
 
 export default function PortfolioPage() {
@@ -107,22 +85,26 @@ export default function PortfolioPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center">
-        <div className="w-12 h-12 border-2 border-[#4a7c59] border-t-transparent rounded-full animate-spin mb-4" />
-        <p className="text-gray-500">Загрузка портфолио...</p>
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center relative overflow-hidden">
+        <AnimatedStars />
+        <div className="relative z-10 flex flex-col items-center">
+          <div className="w-12 h-12 border-2 border-[#4a7c59] border-t-transparent rounded-full animate-spin mb-4" />
+          <p className="text-gray-500">Загрузка портфолио...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white py-12">
-      <div className="px-6 md:px-12 lg:px-20">
+    <div className="min-h-screen bg-white py-12 relative overflow-hidden">
+      <AnimatedStars />
+
+      <div className="px-6 md:px-12 lg:px-20 relative z-10">
         <h1 className="text-4xl md:text-5xl font-serif text-[#2c2c2c] text-center mb-4">Портфолио</h1>
         <p className="text-gray-500 text-center mb-12 max-w-2xl mx-auto">
           Мои работы, вдохновение и любимые образы. Каждая фотография — это история, созданная с любовью
         </p>
 
-        {/* Фильтр по категориям */}
         <div className="flex flex-wrap justify-center gap-3 mb-12">
           {filterTags.map((tag) => (
             <button
@@ -152,7 +134,6 @@ export default function PortfolioPage() {
                   className="group cursor-pointer overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 bg-white"
                   onClick={() => setSelectedItem(item)}
                 >
-                  {/* Увеличил высоту с 400px до 480px */}
                   <div className="relative overflow-hidden" style={{ height: '480px' }}>
                     <img
                       src={item.image_url}
@@ -179,7 +160,6 @@ export default function PortfolioPage() {
         )}
       </div>
 
-      {/* Модальное окно */}
       {selectedItem && (
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={() => setSelectedItem(null)}>
           <div className="relative max-w-6xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl">
