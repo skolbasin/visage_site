@@ -105,18 +105,6 @@ export default function FAQPage() {
           <h3 className="text-xl font-serif text-[#2c2c2c] mb-4">Остались вопросы?</h3>
           <p className="text-gray-500 mb-6">Свяжитесь со мной любым удобным способом, и я с радостью помогу</p>
           <div className="flex flex-wrap justify-center gap-6">
-            <div className="flex items-center gap-2 text-gray-600">
-              <Phone size={18} className="text-[#4a7c59]" />
-              <span>+7 (XXX) XXX-XX-XX</span>
-            </div>
-            <div className="flex items-center gap-2 text-gray-600">
-              <Mail size={18} className="text-[#4a7c59]" />
-              <span>info@example.com</span>
-            </div>
-            <div className="flex items-center gap-2 text-gray-600">
-              <MapPin size={18} className="text-[#4a7c59]" />
-              <span>Санкт-Петербург, Невский пр., 67</span>
-            </div>
           </div>
         </div>
       </div>
