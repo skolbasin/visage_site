@@ -14,13 +14,13 @@ const reviewImages = [
 
 // Пары ДО/ПОСЛЕ для каждого отзыва (в том же порядке, что и превью)
 const beforeAfterPairs = [
-  { before: '/IMG_20260412_123957_999.jpg', after: '/IMG_20260412_123958_004.jpg' },      // для 1-го отзыва
-  { before: '/IMG_20260412_123945_194.jpg', after: '/IMG_20260412_123945_182.jpg' },      // для 2-го
-  { before: '/IMG_20260412_124209_629.jpg', after: '/IMG_20260412_123942_222.jpg' },      // для 3-го
-  { before: '/IMG_20260412_123932_322.jpg', after: '/IMG_20260412_123932_327.jpg' },      // для 4-го
-  { before: '/IMG_20260412_123957_999.jpg', after: '/IMG_20260412_123958_004.jpg' },      // для 5-го
-  { before: '/IMG_20260412_123945_194.jpg', after: '/IMG_20260412_123945_182.jpg' },      // для 6-го
-  { before: '/IMG_20260412_124209_629.jpg', after: '/IMG_20260412_123942_222.jpg' },      // для 7-го
+  { before: '/IMG_20260412_123957_999.jpg', after: '/portfolio/4.jpg' },      // для 1-го отзыва
+  { before: '/IMG_20260412_123945_194.jpg', after: '/portfolio/2.jpg' },      // для 2-го
+  { before: '/IMG_20260412_124209_629.jpg', after: '/portfolio/12.jpg' },      // для 3-го
+  { before: '/IMG_20260412_123932_322.jpg', after: '/portfolio/16.jpg' },      // для 4-го
+  { before: '/IMG_20260416_230646_983.jpg', after: '/portfolio/26.jpg' },      // для 5-го
+  { before: '/IMG_20260412_123945_194.jpg', after: '/portfolio/2.jpg' },      // для 6-го
+  { before: '/IMG_20260412_124209_629.jpg', after: '/portfolio/12.jpg' },      // для 7-го
 ];
 
 export default function ReviewsSection() {

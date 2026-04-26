@@ -1,7 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-export default function PortfolioSection({ images, onImageClick }) {
+const portfolioImages = [
+  '/portfolio/1.JPG',
+  '/portfolio/3.JPG',
+  '/portfolio/7.jpg',
+  '/portfolio/10.jpg',
+  '/portfolio/34.PNG',
+  '/portfolio/19.jpg',
+];
+
+export default function PortfolioSection({ onImageClick }) {
   const [visibleCards, setVisibleCards] = useState([]);
 
   useEffect(() => {
@@ -46,7 +55,7 @@ export default function PortfolioSection({ images, onImageClick }) {
         </div>
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {images.map((img, idx) => (
+            {portfolioImages.map((img, idx) => (
               <div
                 key={idx}
                 data-index={idx}
@@ -59,7 +68,6 @@ export default function PortfolioSection({ images, onImageClick }) {
                 }}
                 onClick={() => onImageClick(img)}
               >
-                {/* Увеличил высоту блока с 450px до 550px */}
                 <div className="relative w-full" style={{ height: '550px' }}>
                   <img
                     src={img}

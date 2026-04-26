@@ -5,28 +5,237 @@ import api from '../services/api';
 import AnimatedStars from '../components/AnimatedStars';
 
 const portfolioItems = [
-  { id: 4, image_url: '/IMG_8514.JPG', title: 'Свадебный макияж "Bridal Glow"', description: 'Сияющий свадебный образ с эффектом влажной кожи.', category: { name: 'Свадебный' } },
-  { id: 9, image_url: '/IMG_7913.PNG', title: 'Смоки-айс классический', description: 'Классический дымчатый макияж для выразительного взгляда.', category: { name: 'Вечерний' } },
-  { id: 15, image_url: '/IMG_9246.JPG', title: 'Макияж "Natural Glow"', description: 'Естественное сияние и здоровый вид кожи.', category: { name: 'Дневной' } },
-  { id: 18, image_url: '/IMG_20260412_000019_273.jpg', title: 'Макияж для фотосессии "Nude"', description: 'Нюдовый макияж с акцентом на скульптурирование лица.', category: { name: 'Фотосессия' } },
-  { id: 19, image_url: '/IMG_20260412_000019_281.jpg', title: 'Графический макияж "Стрелки"', description: 'Чёткие графические стрелки. Современный трендовый образ.', category: { name: 'Графический' } },
-  { id: 20, image_url: '/IMG_20260412_000025_055.jpg', title: 'Графический макияж "Cut Crease"', description: 'Техника Cut Crease с чёткими линиями. Выразительный взгляд.', category: { name: 'Графический' } },
-  { id: 21, image_url: '/IMG_20260412_000025_060.jpg', title: 'Графический макияж "Цветные акценты"', description: 'Яркие цветовые акценты в сочетании с графикой.', category: { name: 'Графический' } },
-  { id: 22, image_url: '/IMG_20260412_000029_843.jpg', title: 'Коррекция лица "Скульптурирование"', description: 'Профессиональная скульптурная коррекция лица. Идеальный овал.', category: { name: 'Коррекция' } },
-  { id: 23, image_url: '/IMG_20260412_000029_866.jpg', title: 'Коррекция лица "Контуринг"', description: 'Мягкий контуринг для естественного скульптурирования.', category: { name: 'Коррекция' } },
-  { id: 24, image_url: '/IMG_20260412_000029_876.jpg', title: 'Коррекция лица "Свечение"', description: 'Техника стробинга — здоровое сияние кожи.', category: { name: 'Коррекция' } },
-  { id: 25, image_url: '/IMG_20260412_000029_877.jpg', title: 'Макияж "Instagram-perfect"', description: 'Трендовый макияж, который собирает лайки в соцсетях.', category: { name: 'Instagram' } },
-  { id: 26, image_url: '/IMG_20260412_000029_882.jpg', title: 'Макияж "Soft Pink"', description: 'Нежный розовый макияж. Мягкий и романтичный образ.', category: { name: 'Instagram' } },
-  { id: 27, image_url: '/IMG_20260412_000029_885.jpg', title: 'Макияж "Peach Dream"', description: 'Персиковые оттенки для свежего и сияющего вида.', category: { name: 'Instagram' } },
-  { id: 28, image_url: '/IMG_20260412_000029_890.jpg', title: 'Макияж "Berry Mood"', description: 'Ягодные оттенки в макияже. Яркий и сочный образ.', category: { name: 'Instagram' } },
-  { id: 29, image_url: '/IMG_20260412_000029_891.jpg', title: 'Макияж "Chocolate Brown"', description: 'Шоколадные оттенки для тёплого цветотипа.', category: { name: 'Instagram' } },
-  { id: 31, image_url: '/IMG_20260412_123932_327.jpg', title: 'Экспресс-макияж "На работу"', description: 'Сдержанный офисный макияж, который делается за 10 минут.', category: { name: 'Экспресс' } },
-  { id: 32, image_url: '/IMG_20260412_123942_222.jpg', title: 'Экспресс-макияж "На свидание"', description: 'Быстрый романтичный образ с акцентом на глаза.', category: { name: 'Экспресс' } },
-  { id: 33, image_url: '/IMG_20260412_123945_182.jpg', title: 'Выпускной макияж', description: 'Яркий и запоминающийся образ для выпускного вечера.', category: { name: 'Особый случай' } },
-  { id: 36, image_url: '/IMG_20260412_123958_004.jpg', title: 'Макияж "Fresh Face"', description: 'Свежий минималистичный макияж для любого дня.', category: { name: 'Сезонный' } },
-  { id: 38, image_url: '/IMG_5405.JPG', title: 'Макияж "Winter Berry"', description: 'Зимний ягодный макияж с насыщенными оттенками.', category: { name: 'Сезонный' } },
-  { id: 39, image_url: '/IMG_6428.PNG', title: 'Классический макияж', description: 'Вневременная классика, которая подходит всем.', category: { name: 'Классика' } },
-  { id: 40, image_url: '/IMG_2578.JPG', title: 'Монохромный макияж', description: 'Монохромный образ в одном цветовом решении.', category: { name: 'Классика' } },
+  {
+    id: 1,
+    image_url: '/portfolio/1.JPG',
+    title: 'Гладкий пучок "в стиле Роузи"',
+    description: 'Элегантный и безупречно гладкий пучок, идеально подходящий для особых случаев и фотосессий.',
+    category: { name: 'Причёски' }
+  },
+  {
+    id: 2,
+    image_url: '/portfolio/2.jpg',
+    title: 'Свадебный макияж в натуральных оттенках',
+    description: 'Нежный и естественный свадебный образ, подчёркивающий вашу природную красоту.',
+    category: { name: 'Свадебный' }
+  },
+  {
+    id: 3,
+    image_url: '/portfolio/3.JPG',
+    title: 'Вечерний макияж в стиле "Hollywood"',
+    description: 'Классический голливудский образ с акцентом на глаза и сияющую кожу.',
+    category: { name: 'Вечерний' }
+  },
+  {
+    id: 4,
+    image_url: '/portfolio/4.jpg',
+    title: 'Макияж без макияжа "Nude"',
+    description: 'Невероятно естественный макияж.',
+    category: { name: 'Свадебный' }
+  },
+  {
+    id: 5,
+    image_url: '/portfolio/5.jpg',
+    title: 'Свадебный графичный макияж',
+    description: 'Современный свадебный образ с чёткими графичными линиями и акцентами.',
+    category: { name: 'Свадебный' }
+  },
+  {
+    id: 6,
+    image_url: '/portfolio/6.jpg',
+    title: 'Сияющий макияж "Bridal"',
+    description: 'Идеальный сияющий свадебный макияж, который будет великолепно смотреться на фото.',
+    category: { name: 'Свадебный' }
+  },
+  {
+    id: 7,
+    image_url: '/portfolio/7.jpg',
+    title: 'Средний пучок',
+    description: 'Элегантная и универсальная укладка "средний пучок", подходящая для невест и выпускниц.',
+    category: { name: 'Причёски' }
+  },
+  {
+    id: 8,
+    image_url: '/portfolio/8.jpg',
+    title: 'Вечерний сияющий Smokey',
+    description: 'Сияющий дымчатый макияж для вечерних мероприятий и фотосессий.',
+    category: { name: 'Вечерний' }
+  },
+  {
+    id: 9,
+    image_url: '/portfolio/9.jpg',
+    title: 'Макияж в оттенках Burgundy',
+    description: 'Богатый и глубокий образ с использованием благородных бордовых оттенков.',
+    category: { name: 'Вечерний' }
+  },
+  {
+    id: 10,
+    image_url: '/portfolio/10.jpg',
+    title: 'Выразительный "Glow makeup"',
+    description: 'Максимально выразительный образ с интенсивным сиянием кожи.',
+    category: { name: 'Вечерний' }
+  },
+  {
+    id: 11,
+    image_url: '/portfolio/11.jpg',
+    title: 'Макияж "Instagram-perfect"',
+    description: 'Трендовый макияж, созданный специально для идеальных кадров в Instagram.',
+    category: { name: 'Графический' }
+  },
+  {
+    id: 12,
+    image_url: '/portfolio/12.jpg',
+    title: 'Макияж "Soft Pink"',
+    description: 'Нежный, воздушный макияж в мягких розовых тонах.',
+    category: { name: 'Вечерний' }
+  },
+  {
+    id: 13,
+    image_url: '/portfolio/13.jpg',
+    title: 'Макияж "Peach Dream"',
+    description: 'Свежий, сияющий макияж с персиковыми акцентами.',
+    category: { name: 'Вечерний' }
+  },
+  {
+    id: 14,
+    image_url: '/portfolio/14.jpg',
+    title: 'Макияж "Berry Mood"',
+    description: 'Яркий, сочный макияж с использованием ягодных оттенков.',
+    category: { name: 'Вечерний' }
+  },
+  {
+    id: 15,
+    image_url: '/portfolio/15.jpg',
+    title: 'Макияж "Latte Smokey"',
+    description: 'Тёплый и глубокий дымчатый макияж в оттенках латте.',
+    category: { name: 'Графический' }
+  },
+  {
+    id: 16,
+    image_url: '/portfolio/16.jpg',
+    title: 'Естественный макияж "Natural makeup"',
+    description: 'Естественный и свежий образ для повседневной жизни.',
+    category: { name: 'Дневной' }
+  },
+  {
+    id: 17,
+    image_url: '/portfolio/34.PNG',
+    title: 'Крупные подвижные волны',
+    description: 'Романтичная и объёмная укладка с крупными, подвижными локонами.',
+    category: { name: 'Причёски' }
+  },
+  {
+    id: 18,
+    image_url: '/portfolio/18.JPG',
+    title: 'Свадебный макияж в стиле "Old money"',
+    description: 'Изысканный и сдержанный свадебный макияж в стиле "Old money".',
+    category: { name: 'Свадебный' }
+  },
+  {
+    id: 19,
+    image_url: '/portfolio/19.jpg',
+    title: 'Вечерний сияющий макияж "Pink glow"',
+    description: 'Нежный сияющий розовый макияж, идеально подходящий для вечерних мероприятий и фотосессий.',
+    category: { name: 'Вечерний' }
+  },
+  {
+    id: 20,
+    image_url: '/portfolio/20.jpg',
+    title: 'Матовый макияж "Brown smokey"',
+    description: 'Глубокий и выразительный матовый дымчатый макияж в коричневых тонах.',
+    category: { name: 'Вечерний' }
+  },
+  {
+    id: 21,
+    image_url: '/portfolio/21.jpg',
+    title: 'Сияющий макияж невесты и прическа "Мальвинка"',
+    description: 'Нежный сияющий образ для невесты в сочетании с романтичной прической "Мальвинка".',
+    category: { name: 'Свадебный' }
+  },
+  {
+    id: 22,
+    image_url: '/portfolio/22.jpg',
+    title: 'Свадебный образ в естественных оттенках и гладкий низкий пучок',
+    description: 'Элегантный и естественный свадебный образ с гладким низким пучком.',
+    category: { name: 'Свадебный' }
+  },
+  {
+    id: 23,
+    image_url: '/portfolio/23.jpg',
+    title: 'Образ на утро невесты с натуральным макияжем и прической "Мальвинка"',
+    description: 'Нежный и натуральный образ для утра невесты в сочетании с прической "Мальвинка".',
+    category: { name: 'Свадебный' }
+  },
+  {
+    id: 24,
+    image_url: '/portfolio/24.jpg',
+    title: 'Образ невесты с гладким пучком',
+    description: 'Изысканный свадебный образ с элегантным гладким пучком.',
+    category: { name: 'Свадебный' }
+  },
+  {
+    id: 25,
+    image_url: '/portfolio/25.jpg',
+    title: 'Выразительный макияж "Soft make"',
+    description: 'Мягкий и выразительный макияж, подходящий как для дневных, так и для свадебных образов.',
+    category: { name: 'Дневной' }
+  },
+  {
+    id: 26,
+    image_url: '/portfolio/26.jpg',
+    title: 'Образ на роспись в персиковых оттенках',
+    description: 'Нежный и свежий образ для росписи в тёплых персиковых тонах.',
+    category: { name: 'Свадебный' }
+  },
+  {
+    id: 27,
+    image_url: '/portfolio/27.jpg',
+    title: 'Натуральный макияж + крупные локоны',
+    description: 'Естественный макияж в сочетании с объёмными крупными локонами.',
+    category: { name: 'Свадебный' }
+  },
+  {
+    id: 28,
+    image_url: '/portfolio/28.JPG',
+    title: 'Голливудская укладка',
+    description: 'Классическая голливудская укладка с объёмными волнами.',
+    category: { name: 'Причёски' }
+  },
+  {
+    id: 29,
+    image_url: '/portfolio/29.PNG',
+    title: 'Низкий хвост из волн',
+    description: 'Элегантный низкий хвост, собранный из красивых волн.',
+    category: { name: 'Причёски' }
+  },
+  {
+    id: 30,
+    image_url: '/portfolio/30.JPG',
+    title: 'Высокий гладкий хвост',
+    description: 'Стильный и строгий высокий гладкий хвост для особых случаев.',
+    category: { name: 'Причёски' }
+  },
+  {
+    id: 31,
+    image_url: '/portfolio/31.JPG',
+    title: 'Низкий пучок из прямых волос',
+    description: 'Лаконичный и элегантный низкий пучок из прямых волос.',
+    category: { name: 'Причёски' }
+  },
+  {
+    id: 32,
+    image_url: '/portfolio/32.JPG',
+    title: 'Прическа "Ракушка"',
+    description: 'Изысканная вечерняя прическа "Ракушка", подходящая для торжественных мероприятий.',
+    category: { name: 'Причёски' }
+  },
+  {
+    id: 33,
+    image_url: '/portfolio/33.JPG',
+    title: 'Прическа "Мальвинка"',
+    description: 'Романтичная и нежная прическа "Мальвинка", которая подчеркнёт ваш образ.',
+    category: { name: 'Причёски' }
+  }
 ];
 
 const filterTags = [
@@ -34,8 +243,8 @@ const filterTags = [
   { id: 'wedding', name: 'Свадебный' },
   { id: 'evening', name: 'Вечерний' },
   { id: 'day', name: 'Дневной' },
-  { id: 'photosession', name: 'Фотосессия' },
-  { id: 'graphic', name: 'Графический' }
+  { id: 'graphic', name: 'Графический' },
+  { id: 'hairstyles', name: 'Причёски' }
 ];
 
 export default function PortfolioPage() {
@@ -74,8 +283,8 @@ export default function PortfolioPage() {
           case 'wedding': return itemCategory.includes('свадеб');
           case 'evening': return itemCategory.includes('вечер') || itemCategory.includes('evening');
           case 'day': return itemCategory.includes('днев') || itemCategory.includes('day');
-          case 'photosession': return itemCategory.includes('фотосесс');
           case 'graphic': return itemCategory.includes('графич');
+          case 'hairstyles': return itemCategory.includes('причёс');
           default: return true;
         }
       });
@@ -131,15 +340,15 @@ export default function PortfolioPage() {
                   className="group cursor-pointer overflow-hidden rounded-xl md:rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 bg-white"
                   onClick={() => setSelectedItem(item)}
                 >
-                  <div className="relative overflow-hidden" style={{ height: '320px' }}>
+                  <div className="relative overflow-hidden" style={{ height: '380px' }}>
                     <img
                       src={item.image_url}
                       alt={item.title}
                       className="w-full h-full object-cover transition duration-700 group-hover:scale-110"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-500" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-500" />
                     {item.category && (
-                      <span className="absolute bottom-2 left-2 md:bottom-3 md:left-3 bg-white/90 text-[#4a7c59] text-[10px] md:text-xs px-2 py-0.5 md:px-3 md:py-1 rounded-full opacity-0 group-hover:opacity-100 transition duration-300">
+                      <span className="absolute bottom-3 left-3 bg-white/90 text-[#4a7c59] text-xs md:text-sm px-2 py-1 md:px-3 md:py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition duration-300 font-medium">
                         {item.category.name}
                       </span>
                     )}

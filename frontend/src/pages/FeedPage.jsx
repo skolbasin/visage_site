@@ -6,7 +6,7 @@ import AnimatedStars from '../components/AnimatedStars';
 const feedPosts = [
   {
     id: 1,
-    image: '/IMG_8514.JPG',
+    image: '/portfolio/5.jpg',
     title: 'Свадебный макияж "Bridal Glow"',
     description: 'Сияющий свадебный образ с эффектом влажной кожи. Невеста была в восторге! 💍✨',
     likes: 234,
@@ -15,7 +15,7 @@ const feedPosts = [
   },
   {
     id: 2,
-    image: '/IMG_7913.PNG',
+    image: '/portfolio/7.jpg',
     title: 'Классический смоки-айс',
     description: 'Вечерний образ с выразительным дымчатым макияжем глаз. Идеален для особого случая.',
     likes: 189,
@@ -24,7 +24,7 @@ const feedPosts = [
   },
   {
     id: 3,
-    image: '/IMG_9246.JPG',
+    image: '/portfolio/14.jpg',
     title: 'Natural Glow',
     description: 'Естественное сияние и здоровый вид кожи. Макияж без эффекта маски.',
     likes: 156,
@@ -33,7 +33,7 @@ const feedPosts = [
   },
   {
     id: 4,
-    image: '/IMG_20260412_000019_273.jpg',
+    image: '/portfolio/15.jpg',
     title: 'Нюдовый макияж для фотосессии',
     description: 'Нежный образ с акцентом на скульптурирование лица. Фотогенично и элегантно.',
     likes: 278,
@@ -42,7 +42,7 @@ const feedPosts = [
   },
   {
     id: 5,
-    image: '/IMG_20260412_000019_281.jpg',
+    image: '/portfolio/16.jpg',
     title: 'Графические стрелки',
     description: 'Чёткие графические стрелки — тренд сезона. Современный и дерзкий образ.',
     likes: 312,
@@ -51,7 +51,7 @@ const feedPosts = [
   },
   {
     id: 6,
-    image: '/IMG_20260412_000029_877.jpg',
+    image: '/portfolio/23.jpg',
     title: 'Instagram-perfect макияж',
     description: 'Трендовый макияж, который собирает лайки в соцсетях. Попробуйте и вы!',
     likes: 445,

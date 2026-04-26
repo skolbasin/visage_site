@@ -78,12 +78,17 @@ export default function ServicesSection() {
                   </div>
                 )}
                 <div className="p-6 flex flex-col flex-1">
+                  {/* Верхняя часть: иконка, заголовок, описание */}
                   <div>
                     <div className="w-12 h-12 bg-[#4a7c59]/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                       <service.icon className="w-6 h-6 text-[#4a7c59]" />
                     </div>
                     <h3 className="text-xl font-bold text-[#2c2c2c] mb-2">{service.title}</h3>
-                    <p className="text-gray-500 text-sm mb-4 leading-relaxed">{service.description}</p>
+                    <p className="text-gray-500 text-sm mb-6 leading-relaxed">{service.description}</p>
+                  </div>
+
+                  {/* Нижняя часть: цена, особенности, кнопка (всё прижато к низу) */}
+                  <div className="mt-auto">
                     <div className="mb-4">
                       <span className="text-2xl font-bold text-[#4a7c59]">{service.price}</span>
                     </div>
@@ -95,9 +100,6 @@ export default function ServicesSection() {
                         </li>
                       ))}
                     </ul>
-                  </div>
-                  {/* Кнопка прижата к низу через mt-auto */}
-                  <div className="mt-auto">
                     <Link
                       to="/booking"
                       className="inline-flex items-center justify-between w-full px-4 py-2 border border-[#4a7c59] text-[#4a7c59] rounded-lg font-medium hover:bg-[#4a7c59] hover:text-white transition-all duration-300 group-hover:shadow-md"
