@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import OptimizedImage from '../OptimizedImage';
 
 const portfolioImages = [
   '/portfolio/1.JPG',
@@ -53,6 +54,7 @@ export default function PortfolioSection({ onImageClick }) {
             <p className="text-gray-500 text-center max-w-2xl mx-auto">Каждая работа — это история, созданная с любовью и вниманием к деталям</p>
           </div>
         </div>
+
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {portfolioImages.map((img, idx) => (
@@ -62,14 +64,11 @@ export default function PortfolioSection({ onImageClick }) {
                 className={`group cursor-pointer overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-all duration-500 animate-on-scroll-portfolio ${
                   visibleCards.includes(String(idx)) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
                 }`}
-                style={{
-                  transition: 'all 0.5s ease-out',
-                  transitionDelay: `${idx * 100}ms`
-                }}
+                style={{ transition: 'all 0.5s ease-out', transitionDelay: `${idx * 100}ms` }}
                 onClick={() => onImageClick(img)}
               >
                 <div className="relative w-full" style={{ height: '550px' }}>
-                  <img
+                  <OptimizedImage
                     src={img}
                     alt={`Работа ${idx + 1}`}
                     className="w-full h-full object-cover rounded-2xl transition duration-700 group-hover:scale-110"
@@ -82,12 +81,9 @@ export default function PortfolioSection({ onImageClick }) {
               </div>
             ))}
           </div>
-          {/* Кнопка "Смотреть все работы" */}
+
           <div className="text-center mt-12">
-            <Link
-              to="/portfolio"
-              className="inline-block border-2 border-[#4a7c59] text-[#4a7c59] font-semibold py-3 px-8 rounded-full hover:bg-[#4a7c59] hover:text-white transition duration-300"
-            >
+            <Link to="/portfolio" className="inline-block border-2 border-[#4a7c59] text-[#4a7c59] font-semibold py-3 px-8 rounded-full hover:bg-[#4a7c59] hover:text-white transition duration-300">
               Смотреть все работы →
             </Link>
           </div>
