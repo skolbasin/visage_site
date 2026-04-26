@@ -2,17 +2,20 @@ from fastapi_mail import ConnectionConfig, FastMail, MessageSchema
 
 from app.core.config import settings
 
-conf = ConnectionConfig(
-    MAIL_USERNAME=settings.SMTP_USER,
-    MAIL_PASSWORD=settings.SMTP_PASSWORD,
-    MAIL_FROM=settings.EMAILS_FROM_EMAIL,
-    MAIL_PORT=settings.SMTP_PORT,
-    MAIL_SERVER=settings.SMTP_HOST,
-    MAIL_STARTTLS=True,
-    MAIL_SSL_TLS=False,
-    USE_CREDENTIALS=True,
-    VALIDATE_CERTS=True,
-)
+if settings.SMTP_HOST and settings.SMTP_PORT and settings.EMAILS_FROM_EMAIL:
+    conf = ConnectionConfig(
+        MAIL_USERNAME=settings.SMTP_USER,
+        MAIL_PASSWORD=settings.SMTP_PASSWORD,
+        MAIL_FROM=settings.EMAILS_FROM_EMAIL,
+        MAIL_PORT=settings.SMTP_PORT,
+        MAIL_SERVER=settings.SMTP_HOST,
+        MAIL_STARTTLS=True,
+        MAIL_SSL_TLS=False,
+        USE_CREDENTIALS=True,
+        VALIDATE_CERTS=True,
+    )
+else:
+    conf = None  # или просто не используем email
 
 
 async def send_booking_notification(booking):

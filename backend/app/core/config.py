@@ -1,23 +1,28 @@
-from typing import Optional
-from pydantic_settings import BaseSettings
+from typing import Optional, List
+from pydantic_settings import BaseSettings, SettingsConfigDict
+import json
 
 
 class Settings(BaseSettings):
-    """
-    Настройки приложения, загружаемые из переменных окружения.
-    """
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
     # === Основные настройки проекта ===
     PROJECT_NAME: str = "Makeup Service"
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
+    ENVIRONMENT: str = "development"
 
     # === База данных ===
-    POSTGRES_SERVER: str
+    POSTGRES_SERVER: str = "localhost"
     POSTGRES_PORT: int = 5432
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_DB: str
-    DATABASE_URL: Optional[str] = None  # формируется автоматически, если не задан
+    POSTGRES_USER: str = "postgres"
+    POSTGRES_PASSWORD: str = ""
+    POSTGRES_DB: str = "postgres"
+    DATABASE_URL: Optional[str] = None
 
     # === JWT аутентификация ===
     SECRET_KEY: str
@@ -25,7 +30,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
-    # === Email ===
+    # === Email (опционально) ===
     SMTP_HOST: Optional[str] = None
     SMTP_PORT: Optional[int] = None
     SMTP_USER: Optional[str] = None
@@ -35,29 +40,27 @@ class Settings(BaseSettings):
 
     # === Rate limiting ===
     RATE_LIMIT_ENABLED: bool = True
-    RATE_LIMIT_DEFAULT: str = "100/minute"   # общий лимит на все эндпоинты
-    RATE_LIMIT_AUTH: str = "5/minute"        # для логина и регистрации
-    RATE_LIMIT_BOOKING: str = "10/hour"      # для создания заявок
+    RATE_LIMIT_DEFAULT: str = "100/minute"
+    RATE_LIMIT_AUTH: str = "5/minute"
+    RATE_LIMIT_REVIEW: str = "3/hour"
+    RATE_LIMIT_BOOKING: str = "10/hour"
 
     # === Логирование ===
-    DEBUG: bool = False  # режим отладки (при True – логи в stdout, при False – в файлы)
+    DEBUG: bool = False
 
-    BACKEND_CORS_ORIGINS: list[str] = [
-        "http://localhost:3000",  # React dev
-        "http://localhost:5173",  # Vite dev
-        "https://yourdomain.com",  # продакшн
-    ]
-
-    class Config:
-        env_file = ".env"
+    # === CORS ===
+    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:5173", "http://localhost:3000"]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        # Автоматически формируем URL БД, если не переопределён
         if not self.DATABASE_URL:
             self.DATABASE_URL = (
                 f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
                 f"@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
             )
+
+        if isinstance(self.BACKEND_CORS_ORIGINS, str):
+            self.BACKEND_CORS_ORIGINS = json.loads(self.BACKEND_CORS_ORIGINS)
+
 
 settings = Settings()
