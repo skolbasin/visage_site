@@ -31,7 +31,9 @@ def purchase_certificate(
 
     # Отправка email с сертификатом
     # send_certificate_email(cert)
-    logger.info(f"Certificate purchased: code={cert.code}, buyer={cert.buyer_email}, recipient={cert.recipient_name}")
+    logger.info(
+        f"Certificate purchased: code={cert.code}, buyer={cert.buyer_email}, recipient={cert.recipient_name}"
+    )
 
     return cert
 

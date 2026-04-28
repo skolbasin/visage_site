@@ -4,7 +4,9 @@ from slowapi.errors import RateLimitExceeded
 from fastapi import FastAPI
 from app.core.config import settings
 
-limiter = Limiter(key_func=get_remote_address, default_limits=[settings.RATE_LIMIT_DEFAULT])
+limiter = Limiter(
+    key_func=get_remote_address, default_limits=[settings.RATE_LIMIT_DEFAULT]
+)
 
 
 def setup_rate_limit(app: FastAPI):

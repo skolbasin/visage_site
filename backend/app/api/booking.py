@@ -57,7 +57,9 @@ def create_booking(
     db.add(db_booking)
     db.commit()
     db.refresh(db_booking)
-    logger.info(f"Booking created: id={db_booking.id}, name={db_booking.name}, email={db_booking.email}, date={db_booking.appointment_date}")
+    logger.info(
+        f"Booking created: id={db_booking.id}, name={db_booking.name}, email={db_booking.email}, date={db_booking.appointment_date}"
+    )
 
     # Отправляем уведомление визажисту
     send_booking_notification(db_booking)

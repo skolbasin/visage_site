@@ -4,6 +4,7 @@ from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 from app.core.config import settings
 
+
 def setup_logging():
     """
     Настройка логирования в зависимости от режима DEBUG.
@@ -29,6 +30,9 @@ def setup_logging():
         formatter = logging.Formatter(log_format, date_format)
         console_handler.setFormatter(formatter)
         root_logger.addHandler(console_handler)
+
+        # Принудительный сброс буфера
+        sys.stdout.reconfigure(line_buffering=True)
     else:
         # Продакшн: пишем в файлы с ротацией по дням
         log_dir = Path("logs")
@@ -40,7 +44,7 @@ def setup_logging():
             when="midnight",
             interval=1,
             backupCount=30,
-            encoding="utf-8"
+            encoding="utf-8",
         )
         info_handler.setLevel(logging.INFO)
         info_handler.setFormatter(logging.Formatter(log_format, date_format))
@@ -52,7 +56,7 @@ def setup_logging():
             when="midnight",
             interval=1,
             backupCount=30,
-            encoding="utf-8"
+            encoding="utf-8",
         )
         error_handler.setLevel(logging.ERROR)
         error_handler.setFormatter(logging.Formatter(log_format, date_format))

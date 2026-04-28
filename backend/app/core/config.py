@@ -48,6 +48,13 @@ class Settings(BaseSettings):
     # === Логирование ===
     DEBUG: bool = False
 
+    # Telegram
+    TELEGRAM_BOT_TOKEN: str = ""
+    TELEGRAM_ADMIN_CHAT_ID: str = ""
+
+    ADMIN_LOGIN: str = ""
+    ADMIN_PASSWORD: str = ""
+
     # === CORS ===
     BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:5173", "http://localhost:3000"]
 

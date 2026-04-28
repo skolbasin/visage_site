@@ -1,4 +1,3 @@
-// src/context/AuthContext.jsx
 import { createContext, useContext, useState, useEffect } from 'react';
 import api from '../services/api';
 
@@ -8,7 +7,6 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Загружаем пользователя при старте, если есть токен
   useEffect(() => {
     const token = localStorage.getItem('access_token');
     if (token) {
@@ -30,8 +28,8 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (email, password) => {
-    const { data } = await api.post('/auth/login', { email, password });
+  const login = async (login, password) => {
+    const { data } = await api.post('/auth/login', { login, password });
     localStorage.setItem('access_token', data.access_token);
     localStorage.setItem('refresh_token', data.refresh_token);
     await fetchUser();

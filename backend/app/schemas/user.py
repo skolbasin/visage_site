@@ -14,12 +14,14 @@ class UserCreate(UserBase):
 
 
 class UserLogin(BaseModel):
-    email: EmailStr
+    login: str
     password: str
 
 
-class UserOut(UserBase):
+class UserOut(BaseModel):
     id: int
+    login: str
+    full_name: Optional[str] = None
     is_active: bool
     is_admin: bool
     created_at: datetime

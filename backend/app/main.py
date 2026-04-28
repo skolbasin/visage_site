@@ -2,11 +2,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import (
+    admin,
     ai,
     articles,
     auth,
     booking,
     certificates,
+    feedback,
     portfolio,
     posts,
     promo,
@@ -21,7 +23,6 @@ import logging
 # Настройка логирования (до создания приложения)
 setup_logging()
 logger = logging.getLogger(__name__)
-
 
 
 app = FastAPI(
@@ -57,10 +58,14 @@ app.include_router(booking.router, prefix=settings.API_V1_STR)
 app.include_router(promo.router, prefix=settings.API_V1_STR)
 app.include_router(certificates.router, prefix=settings.API_V1_STR)
 app.include_router(ai.router, prefix=settings.API_V1_STR)
+app.include_router(admin.router, prefix=settings.API_V1_STR)
+app.include_router(feedback.router, prefix=settings.API_V1_STR)
+
 
 @app.get("/")
 def root():
     return {"message": "Makeup Service API"}
+
 
 @app.on_event("startup")
 async def startup_event():
