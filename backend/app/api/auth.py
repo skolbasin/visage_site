@@ -1,6 +1,5 @@
 import logging
-from jose import jwt
-from datetime import datetime
+from jose import jwt, JWTError
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
@@ -62,33 +61,23 @@ def register(user_data: UserCreate, request: Request, db: Session = Depends(get_
 @router.post("/login", response_model=Token)
 @limiter.limit(settings.RATE_LIMIT_AUTH)
 def login(user_data: UserLogin, request: Request, db: Session = Depends(get_db)):
-    logger.info(f" user_data: {user_data}")
+    logger.info(f"Login attempt: {user_data.email}")
 
-    # Проверка администратора (без БД!)
-    if (
-        user_data.login == settings.ADMIN_LOGIN
-        and user_data.password == settings.ADMIN_PASSWORD
-    ):
-        # Генерируем токен с фиктивным ID 1
-        access_token = create_access_token(1)
-        refresh_token = create_refresh_token(1)
+    # Ищем пользователя по email
+    user = db.query(User).filter((User.email == user_data.email)).first()
 
-        logger.info(f"Admin logged in: {user_data.login}")
-
-        return {
-            "access_token": access_token,
-            "refresh_token": refresh_token,
-            "token_type": "bearer",
-        }
-
-    # Обычный пользователь (из БД)
-    user = db.query(User).filter(User.email == user_data.login).first()
     if not user or not verify_password(user_data.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Incorrect login or password")
 
+    if not user.is_active:
+        raise HTTPException(status_code=401, detail="Account is disabled")
+
     access_token = create_access_token(user.id)
     refresh_token = create_refresh_token(user.id)
-    logger.info(f"User logged in: {user.email} (id={user.id})")
+
+    logger.info(
+        f"User logged in: {user.email} (id={user.id}), is_admin={user.is_admin}"
+    )
 
     return {
         "access_token": access_token,
@@ -121,30 +110,23 @@ def refresh_token(refresh_data: RefreshToken, db: Session = Depends(get_db)):
 def get_me(
     request: Request, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ):
-    """Получение информации о текущем пользователе."""
     try:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
         )
         user_id = int(payload.get("sub"))
-    except (ValueError, TypeError):
+    except (JWTError, ValueError, TypeError):
         raise HTTPException(status_code=401, detail="Invalid token")
 
-    # Если это админ
-    if user_id == 1:
-
-        return UserOut(
-            id=1,
-            login=settings.ADMIN_LOGIN,
-            full_name="Администратор",
-            is_active=True,
-            is_admin=True,
-            created_at=datetime.now(),
-        )
-
-    # Обычный пользователь из БД
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    return user
+    return UserOut(
+        id=user.id,
+        email=user.email,
+        full_name=user.full_name,
+        is_active=user.is_active,
+        is_admin=user.is_admin,
+        created_at=user.created_at,
+    )

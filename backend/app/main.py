@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import logging
 
 from app.api import (
     admin,
@@ -17,7 +18,6 @@ from app.core.config import settings
 from app.core.logging_settings import setup_logging
 from app.core.rate_limiting import setup_rate_limit
 from app.core.middleware import log_requests
-import logging
 
 
 # Настройка логирования (до создания приложения)

@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { login, isAuthenticated, user } = useAuth();
-  const [loginValue, setLoginValue] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -22,9 +22,9 @@ export default function ProfilePage() {
     setError('');
     setLoading(true);
     try {
-      await login(loginValue, password);
+      await login(email, password);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Неверный логин или пароль');
+      setError(err.response?.data?.detail || 'Неверный email или пароль');
     } finally {
       setLoading(false);
     }
@@ -48,7 +48,7 @@ export default function ProfilePage() {
                 Панель управления
               </h2>
               <p className="text-sm text-gray-500">
-                Введите данные для входа
+                Введите email для входа
               </p>
             </div>
 
@@ -61,22 +61,22 @@ export default function ProfilePage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Логин
+                  Email
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Mail size={18} className="text-gray-400" />
                   </div>
                   <input
-                    id="login"
-                    name="login"
-                    type="text"
-                    autoComplete="username"
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
                     required
-                    value={loginValue}
-                    onChange={(e) => setLoginValue(e.target.value)}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/50 focus:border-[#4a7c59] transition duration-200"
-                    placeholder="Введите логин"
+                    placeholder="admin@example.com"
                   />
                 </div>
               </div>
