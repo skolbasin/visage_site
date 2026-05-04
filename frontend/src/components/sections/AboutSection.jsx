@@ -17,7 +17,7 @@ export default function AboutSection() {
     switch (position) {
       case 'top-left': return { left: 0, top: 0 };
       case 'top-right': return { right: 0, top: 0 };
-      case 'center': return { left: '48%', top: '50%', transform: 'translate(-50%, -50%)' };
+      case 'center': return { left: '44%', top: '42%', transform: 'translate(-50%, -50%)' };
       case 'bottom-left': return { left: '8px', bottom: 0 };
       case 'bottom-right': return { right: '8px', bottom: 0 };
       default: return {};
@@ -40,7 +40,8 @@ export default function AboutSection() {
             </div>
 
             <p className="text-gray-600 text-base md:text-xl mb-6 leading-relaxed">
-              Меня зовут Настя. Я визажист-стилист из Санкт-Петербурга с опытом более 6 лет.
+              Меня зовут Настя. Я визажист-стилист из Санкт-Петербурга<br />
+              с опытом более 6 лет.
             </p>
 
             <div className="space-y-4 mb-6">
@@ -55,7 +56,7 @@ export default function AboutSection() {
                 <Star className="w-5 h-5 md:w-6 md:h-6 text-[#4a7c59] flex-shrink-0 mt-0.5" />
                 <div>
                   <h4 className="font-semibold text-[#2c2c2c] text-base md:text-lg">Премиум косметика</h4>
-                  <p className="text-gray-500 text-sm md:text-base">Работаю только с лучшими брендами для безупречного результата</p>
+                  <p className="text-gray-500 text-sm md:text-base">Работаю только с лучшими брендами (Chanel, Dior, La Mer, MAC)</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 group hover:translate-x-2 transition-transform duration-300">

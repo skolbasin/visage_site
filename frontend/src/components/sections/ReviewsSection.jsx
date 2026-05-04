@@ -23,12 +23,12 @@ const beforeAfterPairs = [
 ];
 
 export default function ReviewsSection() {
-  const [selectedPair, setSelectedPair] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
 
   const openModal = (index) => {
-    setSelectedPair(beforeAfterPairs[index]);
+    setSelectedIndex(index);
     setActivePhotoIndex(0);
     setIsModalOpen(true);
     document.body.style.overflow = 'hidden';
@@ -36,7 +36,7 @@ export default function ReviewsSection() {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setSelectedPair(null);
+    setSelectedIndex(null);
     setActivePhotoIndex(0);
     document.body.style.overflow = '';
   };
@@ -45,8 +45,24 @@ export default function ReviewsSection() {
     if (e.target === e.currentTarget) closeModal();
   };
 
+  const nextReview = () => {
+    if (selectedIndex !== null && selectedIndex < beforeAfterPairs.length - 1) {
+      setSelectedIndex(selectedIndex + 1);
+      setActivePhotoIndex(0);
+    }
+  };
+
+  const prevReview = () => {
+    if (selectedIndex !== null && selectedIndex > 0) {
+      setSelectedIndex(selectedIndex - 1);
+      setActivePhotoIndex(0);
+    }
+  };
+
   const nextPhoto = () => setActivePhotoIndex(prev => prev === 0 ? 1 : 0);
   const prevPhoto = () => setActivePhotoIndex(prev => prev === 0 ? 1 : 0);
+
+  const currentPair = selectedIndex !== null ? beforeAfterPairs[selectedIndex] : null;
 
   return (
     <section className="py-16 md:py-20 bg-[#faf8f6] text-center w-full relative overflow-hidden">
@@ -96,6 +112,17 @@ export default function ReviewsSection() {
             ))}
           </div>
 
+          {/* Большая кнопка "Посмотреть ДО/ПОСЛЕ" */}
+          <div className="text-center mt-12">
+            <button
+              onClick={() => openModal(0)}
+              className="inline-flex items-center gap-2 px-8 py-3 bg-[#4a7c59] text-white font-semibold rounded-full hover:bg-[#2d5a3b] transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1"
+            >
+              Посмотреть все ДО/ПОСЛЕ
+              <ChevronRight size={18} />
+            </button>
+          </div>
+
           <p className="text-center text-gray-400 text-xs sm:text-sm mt-8">
             *Более 50+ отзывов в{' '}
             <a href="#" className="text-[#4a7c59] hover:text-[#2d5a3b] transition underline decoration-transparent hover:decoration-[#4a7c59]">Instagram</a>
@@ -105,40 +132,82 @@ export default function ReviewsSection() {
         </div>
       </div>
 
-      {isModalOpen && selectedPair && (
+      {/* Модальное окно с навигацией по отзывам */}
+      {isModalOpen && currentPair && (
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={handleBackdropClick}>
           <div className="relative max-w-5xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl">
-            <button onClick={closeModal} className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 bg-white rounded-full p-1.5 sm:p-2 shadow-md text-gray-600 hover:text-[#4a7c59] transition">
+            {/* Кнопка закрытия */}
+            <button
+              onClick={closeModal}
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 bg-white rounded-full p-1.5 sm:p-2 shadow-md text-gray-600 hover:text-[#4a7c59] transition"
+            >
               <X size={20} className="sm:w-6 sm:h-6" />
             </button>
 
-            <button onClick={prevPhoto} className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow-md text-gray-600 hover:text-[#4a7c59] transition md:hidden">
+            {/* Навигация между отзывами (стрелки слева/справа) */}
+            <button
+              onClick={prevReview}
+              disabled={selectedIndex === 0}
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow-md text-gray-600 hover:text-[#4a7c59] transition disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <button
+              onClick={nextReview}
+              disabled={selectedIndex === beforeAfterPairs.length - 1}
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow-md text-gray-600 hover:text-[#4a7c59] transition disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              <ChevronRight size={24} />
+            </button>
+
+            {/* Индикатор текущего отзыва */}
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 bg-black/50 text-white text-xs px-3 py-1 rounded-full">
+              {selectedIndex + 1} / {beforeAfterPairs.length}
+            </div>
+
+            {/* Стрелки для переключения ДО/ПОСЛЕ на мобильных */}
+            <button
+              onClick={prevPhoto}
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow-md text-gray-600 hover:text-[#4a7c59] transition md:hidden"
+              style={{ left: '70px' }}
+            >
               <ChevronLeft size={20} />
             </button>
-            <button onClick={nextPhoto} className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow-md text-gray-600 hover:text-[#4a7c59] transition md:hidden">
+            <button
+              onClick={nextPhoto}
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow-md text-gray-600 hover:text-[#4a7c59] transition md:hidden"
+              style={{ right: '70px' }}
+            >
               <ChevronRight size={20} />
             </button>
 
+            {/* Индикатор ДО/ПОСЛЕ на мобильных */}
             <div className="md:hidden flex justify-center gap-2 pt-3 pb-2">
               <div className={`w-2 h-2 rounded-full transition-all duration-300 ${activePhotoIndex === 0 ? 'bg-[#4a7c59] w-4' : 'bg-gray-300'}`} />
               <div className={`w-2 h-2 rounded-full transition-all duration-300 ${activePhotoIndex === 1 ? 'bg-[#4a7c59] w-4' : 'bg-gray-300'}`} />
             </div>
 
+            {/* Десктопная версия */}
             <div className="hidden md:flex flex-row">
               <div className="md:w-1/2 p-4 text-center">
                 <p className="text-sm text-gray-500 mb-2">ДО</p>
-                <img src={selectedPair.before} alt="ДО" className="w-full h-auto max-h-[500px] object-contain rounded-xl" />
+                <img src={currentPair.before} alt="ДО" className="w-full h-auto max-h-[500px] object-contain rounded-xl" />
               </div>
               <div className="md:w-1/2 p-4 text-center">
                 <p className="text-sm text-gray-500 mb-2">ПОСЛЕ</p>
-                <img src={selectedPair.after} alt="ПОСЛЕ" className="w-full h-auto max-h-[500px] object-contain rounded-xl" />
+                <img src={currentPair.after} alt="ПОСЛЕ" className="w-full h-auto max-h-[500px] object-contain rounded-xl" />
               </div>
             </div>
 
+            {/* Мобильная версия */}
             <div className="md:hidden">
               <div className="p-4 text-center">
                 <p className="text-sm text-gray-500 mb-2">{activePhotoIndex === 0 ? 'ДО' : 'ПОСЛЕ'}</p>
-                <img src={activePhotoIndex === 0 ? selectedPair.before : selectedPair.after} alt={activePhotoIndex === 0 ? 'ДО' : 'ПОСЛЕ'} className="w-full h-auto max-h-[60vh] object-contain rounded-xl" />
+                <img
+                  src={activePhotoIndex === 0 ? currentPair.before : currentPair.after}
+                  alt={activePhotoIndex === 0 ? 'ДО' : 'ПОСЛЕ'}
+                  className="w-full h-auto max-h-[60vh] object-contain rounded-xl"
+                />
               </div>
             </div>
 

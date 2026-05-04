@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 const services = [
   {
     id: 1,
-    title: 'Макияж/прическа в студии',
+    title: 'Макияж/прическа<br />в студии',
     description: 'Стойкий макияж/прическа для любого события',
     price: 'от 6000 ₽',
     icon: Sparkles,
@@ -13,7 +13,7 @@ const services = [
   },
   {
     id: 2,
-    title: 'Макияж/прическа с выездом',
+    title: 'Макияж/прическа<br />с выездом',
     description: 'Макияж или прическа с выездом к вам домой или отель. Экономит ваше время и создаёт комфортную атмосферу.',
     price: 'от 7000 ₽',
     icon: MapPin,
@@ -22,7 +22,7 @@ const services = [
   },
   {
     id: 3,
-    title: 'Полный образ в студии',
+    title: 'Полный образ<br />в студии',
     description: 'Полный образ (макияж и прическа) в студии для особых мероприятий',
     price: 'от 9000 ₽',
     icon: Calendar,
@@ -31,7 +31,7 @@ const services = [
   },
   {
     id: 4,
-    title: 'Полный образ с выездом',
+    title: 'Полный образ<br />с выездом',
     description: 'Полный образ (макияж и прическа) с выездом к вам. Идеально для свадеб, выпускных и особых событий',
     price: 'от 10000 ₽',
     icon: Star,
@@ -83,7 +83,9 @@ export default function ServicesSection() {
                     <div className="w-12 h-12 bg-[#4a7c59]/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                       <service.icon className="w-6 h-6 text-[#4a7c59]" />
                     </div>
-                    <h3 className="text-xl font-bold text-[#2c2c2c] mb-2">{service.title}</h3>
+                    <h3 className="text-xl md:text-2xl font-bold text-[#2c2c2c] mb-2">
+                      <span dangerouslySetInnerHTML={{ __html: service.title }} />
+                    </h3>
                     <p className="text-gray-500 text-sm mb-6 leading-relaxed">{service.description}</p>
                   </div>
 

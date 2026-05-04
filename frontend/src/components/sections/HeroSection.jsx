@@ -43,9 +43,10 @@ export default function HeroSection() {
           </div>
 
           {/* Подзаголовок */}
-          <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-sans font-normal text-black leading-relaxed tracking-wide mt-3 sm:mt-4 animate-slide-in-left max-w-3xl mx-auto md:mx-0">
-            Создаю эстетичные выразительные образы, в которых ты остаешься собой
-          </h1>
+            <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-sans font-normal text-black leading-relaxed tracking-wide mt-3 sm:mt-4 animate-slide-in-left max-w-3xl mx-auto md:mx-0">
+              Создаю эстетичные выразительные образы,<br />
+              в которых ты остаешься собой
+            </h1>
 
           {/* Кнопки */}
           <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center md:justify-start animate-fade-in-up animation-delay-400">
