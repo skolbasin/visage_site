@@ -1,18 +1,7 @@
 import enum
-
-from sqlalchemy import (
-    Column,
-    DateTime,
-    Enum,
-    ForeignKey,
-    Integer,
-    Numeric,
-    String,
-    Text,
-)
+from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-
 from app.db.base_class import Base
 
 
@@ -41,10 +30,8 @@ class Certificate(Base):
     message = Column(Text, nullable=True)
     status = Column(Enum(CertificateStatus), default=CertificateStatus.active)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    expires_at = Column(DateTime(timezone=True), nullable=True)  # срок действия
+    expires_at = Column(DateTime(timezone=True), nullable=True)
     used_at = Column(DateTime(timezone=True), nullable=True)
 
-    owner_id = Column(
-        Integer, ForeignKey("users.id"), nullable=True
-    )  # покупатель, если зарегистрирован
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     owner = relationship("User", back_populates="certificates")

@@ -1,18 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Gift, Sparkles, Calendar, Mail, User, MessageSquare, Phone, CheckCircle, ChevronDown, FileText, Smartphone, X, Star } from 'lucide-react';
+import { Gift, Sparkles, Calendar, Mail, User, MessageSquare, Phone, CheckCircle, ChevronDown, FileText, Smartphone, X } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import AnimatedStars from '../components/AnimatedStars';
 
-// Обновлённый список услуг
+// Список услуг
 const servicesList = [
-  'Макияж/прическа в студии',
-  'Макияж/прическа с выездом',
-  'Полный образ в студии',
+  'Макияж в студии',
+  'Прическа в студии',
+  'Полный образ (макияж + прическа) в студии',
+  'Макияж с выездом',
+  'Прическа с выездом',
   'Полный образ с выездом',
-  'Один урок "Макияж для себя"',
-  'Два урока "Макияж для себя"',
+  'Обучение макияжу (1 урок)',
+  'Обучение макияжу (2 урока)',
 ];
 
 export default function CertificatesPage() {
@@ -48,27 +49,79 @@ export default function CertificatesPage() {
     setLoading(true);
     setResult(null);
 
-    setTimeout(() => {
+    try {
+      let type, amount = null, serviceDesc = null;
+
       if (certificateType === 'electronic') {
-        const code = 'GIFT-' + Math.random().toString(36).substr(2, 8).toUpperCase();
-        setResult({ success: true, code: code });
-        setCertificateCode(code);
+        if (serviceDescription) {
+          // Сертификат на конкретную услугу
+          type = 'specific_service';
+          serviceDesc = serviceDescription;
+        } else {
+          // Сертификат на фиксированную сумму
+          type = 'fixed_amount';
+          amount = 5000;
+        }
+      } else {
+        // Бумажный сертификат (заявка)
+        type = 'paper';
+      }
+
+      const payload = {
+        type: type,
+        amount: amount,
+        service_description: serviceDesc,
+        buyer_name: buyerName,
+        buyer_email: buyerEmail,
+        recipient_name: recipientName,
+        message: message,
+      };
+
+      console.log('Отправка запроса:', payload);
+
+      const response = await api.post('/certificates/', payload);
+
+      console.log('Ответ сервера:', response.data);
+
+      if (certificateType === 'electronic') {
+        setResult({ success: true, code: response.data.code });
+        setCertificateCode(response.data.code);
         showCustomModal(
           'Сертификат успешно оформлен! ✨',
-          `Код сертификата: ${code}\n\nМы отправили его на email ${buyerEmail}.`
+          `Код сертификата: ${response.data.code}\n\nМы отправили его на email ${buyerEmail}.`
         );
+
+        // Очищаем форму для электронного сертификата
+        setServiceDescription('');
+        setRecipientName('');
+        setMessage('');
       } else {
         setResult({ success: true, isPaper: true });
         showCustomModal(
           'Заявка успешно отправлена! 📝',
           'Мы свяжемся с вами в ближайшее время для уточнения деталей.'
         );
+
+        // Очищаем форму для бумажного сертификата
+        setServiceDescription('');
+        setRecipientName('');
+        setMessage('');
+        setBuyerPhone('');
       }
+
+    } catch (error) {
+      console.error('Ошибка при создании сертификата:', error);
+      console.error('Детали ошибки:', error.response?.data);
+      showCustomModal(
+        'Ошибка',
+        error.response?.data?.detail || 'Не удалось оформить сертификат. Попробуйте позже.'
+      );
+    } finally {
       setLoading(false);
       setTimeout(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }, 100);
-    }, 1500);
+    }
   };
 
   return (
@@ -113,6 +166,7 @@ export default function CertificatesPage() {
 
         <form onSubmit={handleSubmit} className={`bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden transition-all duration-500 delay-100 transform ${animateCard ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
           <div className="p-6 md:p-8 space-y-6">
+            {/* Выбор типа сертификата */}
             <div className="grid grid-cols-2 gap-4">
               <button
                 type="button"
@@ -142,39 +196,53 @@ export default function CertificatesPage() {
               </button>
             </div>
 
-            <div className="animate-fadeIn">
-              <label className="block text-gray-700 text-sm font-medium mb-2">Выберите услугу</label>
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="w-full p-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:border-[#4a7c59] focus:ring-2 focus:ring-[#4a7c59]/20 outline-none transition-all duration-300 flex justify-between items-center hover:shadow-sm"
-                >
-                  <span className={serviceDescription ? 'text-gray-700' : 'text-gray-400'}>
-                    {serviceDescription || 'Выберите услугу из списка'}
-                  </span>
-                  <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
-                </button>
-                {isDropdownOpen && (
-                  <div className="absolute z-10 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-auto animate-fadeIn">
-                    {servicesList.map((service) => (
+            {/* Выбор услуги (только для электронного) */}
+            {certificateType === 'electronic' && (
+              <div className="animate-fadeIn">
+                <label className="block text-gray-700 text-sm font-medium mb-2">Выберите услугу (или оставьте пустым для сертификата на сумму)</label>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="w-full p-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:border-[#4a7c59] focus:ring-2 focus:ring-[#4a7c59]/20 outline-none transition-all duration-300 flex justify-between items-center hover:shadow-sm"
+                  >
+                    <span className={serviceDescription ? 'text-gray-700' : 'text-gray-400'}>
+                      {serviceDescription || 'Выберите услугу или оставьте пустым'}
+                    </span>
+                    <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {isDropdownOpen && (
+                    <div className="absolute z-10 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-auto animate-fadeIn">
                       <button
-                        key={service}
                         type="button"
                         onClick={() => {
-                          setServiceDescription(service);
+                          setServiceDescription('');
                           setIsDropdownOpen(false);
                         }}
-                        className="w-full p-3 text-left hover:bg-[#4a7c59]/5 transition-colors duration-200 text-gray-700 hover:text-[#4a7c59]"
+                        className="w-full p-3 text-left hover:bg-[#4a7c59]/5 transition-colors duration-200 text-gray-500 italic"
                       >
-                        {service}
+                        — Сертификат на сумму 5000 ₽ —
                       </button>
-                    ))}
-                  </div>
-                )}
+                      {servicesList.map((service) => (
+                        <button
+                          key={service}
+                          type="button"
+                          onClick={() => {
+                            setServiceDescription(service);
+                            setIsDropdownOpen(false);
+                          }}
+                          className="w-full p-3 text-left hover:bg-[#4a7c59]/5 transition-colors duration-200 text-gray-700 hover:text-[#4a7c59]"
+                        >
+                          {service}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
+            {/* Контактные данные */}
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div className="relative group">
@@ -229,6 +297,7 @@ export default function CertificatesPage() {
               </div>
             </div>
 
+            {/* Пожелания */}
             <div className="relative group">
               <MessageSquare className="absolute left-3 top-4 w-5 h-5 text-gray-400 group-focus-within:text-[#4a7c59] transition-colors duration-300" />
               <textarea
@@ -240,10 +309,11 @@ export default function CertificatesPage() {
               />
             </div>
 
+            {/* Кнопка отправки */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn-primary py-4 text-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full btn-primary py-4 text-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -257,6 +327,7 @@ export default function CertificatesPage() {
           </div>
         </form>
 
+        {/* Информационные карточки */}
         <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             { icon: Sparkles, text: 'Именной сертификат' },
@@ -276,7 +347,7 @@ export default function CertificatesPage() {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
@@ -285,11 +356,18 @@ export default function CertificatesPage() {
           from { opacity: 0; transform: scale(0.9); }
           to { opacity: 1; transform: scale(1); }
         }
+        @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
         .animate-fadeIn {
           animation: fadeIn 0.3s ease-out;
         }
         .animate-scaleIn {
           animation: scaleIn 0.3s ease-out;
+        }
+        .animate-bounce {
+          animation: bounce 0.5s ease-in-out;
         }
       `}</style>
     </div>

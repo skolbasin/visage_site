@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { CheckCircle } from 'lucide-react';
 
 export default function BookingPage() {
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [date, setDate] = useState(new Date());
   const [timeSlot, setTimeSlot] = useState('');
@@ -18,6 +20,8 @@ export default function BookingPage() {
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const services = [
     { id: 1, name: 'Макияж в студии', price: '5000 ₽', duration: '2 часа' },
@@ -51,20 +55,31 @@ export default function BookingPage() {
     setLoading(true);
     try {
       const payload = {
-        ...formData,
-        service: selectedService.name,
-        price: selectedService.price,
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        service_name: selectedService.name,
         appointment_date: `${date.toISOString().split('T')[0]}T${timeSlot}`,
         ready_by_date: `${date.toISOString().split('T')[0]}T${timeSlot}`,
+        comment: formData.comment,
+        promo_code: formData.promo_code || undefined,
       };
-      await api.post('/booking', payload);
-      setMessage({ type: 'success', text: 'Заявка успешно отправлена! Я свяжусь с вами в ближайшее время.' });
-      setStep(1);
-      setTimeSlot('');
-      setSelectedService(null);
-      setFormData({ name: '', phone: '', email: '', comment: '', promo_code: '' });
+      await api.post('/booking/', payload);
+
+      // Показываем успешное модальное окно и фейерверки
+      setShowSuccessModal(true);
+      setShowConfetti(true);
+
+      // Через 3 секунды закрываем модалку, убираем фейерверки и редиректим
+      setTimeout(() => {
+        setShowSuccessModal(false);
+        setShowConfetti(false);
+        navigate('/');
+      }, 7000);
+
     } catch (error) {
       setMessage({ type: 'error', text: error.response?.data?.detail || 'Ошибка отправки' });
+      setTimeout(() => setMessage(null), 7000);
     } finally {
       setLoading(false);
     }
@@ -81,12 +96,70 @@ export default function BookingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white py-8 md:py-12">
+    <div className="min-h-screen bg-white py-8 md:py-12 relative">
+      {/* Анимация фейерверков */}
+      {showConfetti && (
+        <div className="fixed inset-0 pointer-events-none z-50">
+          <div className="absolute inset-0 overflow-hidden">
+            {[...Array(100)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute animate-confetti"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  animationDelay: `${Math.random() * 0.5}s`,
+                  backgroundColor: `hsl(${Math.random() * 360}, 100%, 50%)`,
+                  width: `${Math.random() * 10 + 5}px`,
+                  height: `${Math.random() * 10 + 5}px`,
+                  transform: `rotate(${Math.random() * 360}deg)`,
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Успешное модальное окно */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="relative max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 text-center animate-scale-in">
+            <div className="flex justify-center mb-4">
+              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-10 h-10 text-green-500" />
+              </div>
+            </div>
+            <h3 className="text-2xl font-serif text-[#2c2c2c] mb-2">Заявка отправлена! 🎉</h3>
+            <p className="text-gray-500 mb-6">
+              Спасибо за доверие! Я свяжусь с вами в ближайшее время для подтверждения записи.
+            </p>
+            <div className="bg-[#faf8f6] rounded-xl p-4 mb-6 text-left">
+              <p className="text-sm text-gray-500 mb-2">Детали записи:</p>
+              <p className="font-semibold text-[#2c2c2c]">{selectedService?.name}</p>
+              <p className="text-[#4a7c59] font-bold">{selectedService?.price}</p>
+              <p className="text-gray-600 text-sm mt-2">
+                📅 {date.toLocaleDateString()} в {timeSlot}
+              </p>
+              <p className="text-gray-600 text-sm">
+                👤 {formData.name}, {formData.phone}
+              </p>
+            </div>
+            <p className="text-gray-400 text-sm">Перенаправление на главную...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Сообщение об ошибке */}
+      {message && !showSuccessModal && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 p-3 md:p-4 rounded-xl text-sm md:text-base bg-red-50 text-red-700 border border-red-200">
+          {message.text}
+        </div>
+      )}
+
       <div className="max-w-4xl mx-auto px-4 md:px-6">
         <h1 className="text-3xl md:text-4xl font-serif text-[#2c2c2c] text-center mb-3 md:mb-4">Запись на услугу</h1>
         <p className="text-gray-500 text-center mb-6 md:mb-8 text-sm md:text-base">Заполните форму, и я свяжусь с вами для подтверждения</p>
 
-        {/* Индикатор шагов - адаптив */}
+        {/* Индикатор шагов */}
         <div className="flex justify-center mb-6 md:mb-8">
           <div className="flex items-center gap-2 md:gap-4">
             <div className={`flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full text-sm md:text-base ${step >= 1 ? 'bg-[#4a7c59] text-white' : 'bg-gray-200 text-gray-500'}`}>1</div>
@@ -97,25 +170,16 @@ export default function BookingPage() {
           </div>
         </div>
 
-        {message && (
-          <div className={`mb-6 p-3 md:p-4 rounded-xl text-sm md:text-base ${message.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
-            {message.text}
-          </div>
-        )}
-
-        {/* ШАГ 1: Дата и время - исправлен адаптив */}
+        {/* ШАГ 1: Дата и время */}
         {step === 1 && (
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 md:p-6">
             <h2 className="text-lg md:text-xl font-semibold text-[#2c2c2c] mb-4 md:mb-6">Выберите дату и время</h2>
             <div className="flex flex-col md:grid md:grid-cols-2 gap-6 md:gap-8">
-              {/* Календарь - полная ширина на мобильных */}
               <div className="w-full overflow-x-auto">
                 <div className="flex justify-center min-w-[280px]">
                   <Calendar onChange={handleDateChange} value={date} minDate={new Date()} className="react-calendar-custom" />
                 </div>
               </div>
-
-              {/* Время - сетка 2 колонки на мобильных */}
               <div>
                 <label className="block text-gray-700 mb-2 md:mb-3 font-medium text-sm md:text-base">Выберите время</label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -150,7 +214,7 @@ export default function BookingPage() {
           </div>
         )}
 
-        {/* ШАГ 2: Выбор услуги - адаптив */}
+        {/* ШАГ 2: Выбор услуги */}
         {step === 2 && (
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 md:p-6">
             <h2 className="text-lg md:text-xl font-semibold text-[#2c2c2c] mb-4 md:mb-6">Выберите услугу</h2>
@@ -181,7 +245,7 @@ export default function BookingPage() {
           </div>
         )}
 
-        {/* ШАГ 3: Контактные данные - адаптив */}
+        {/* ШАГ 3: Контактные данные */}
         {step === 3 && selectedService && (
           <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 md:p-6">
             <h2 className="text-lg md:text-xl font-semibold text-[#2c2c2c] mb-4 md:mb-6">Ваши контактные данные</h2>
@@ -216,8 +280,53 @@ export default function BookingPage() {
         )}
       </div>
 
-      {/* Дополнительные стили для календаря на мобильных */}
+      {/* Стили для анимации */}
       <style>{`
+        @keyframes confetti {
+          0% {
+            transform: translateY(-100vh) rotate(0deg);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(100vh) rotate(720deg);
+            opacity: 0;
+          }
+        }
+
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        @keyframes scale-in {
+          from {
+            transform: scale(0.9);
+            opacity: 0;
+          }
+          to {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+
+        .animate-confetti {
+          position: absolute;
+          animation: confetti 2.5s ease-out forwards;
+          pointer-events: none;
+        }
+
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out;
+        }
+
+        .animate-scale-in {
+          animation: scale-in 0.3s ease-out;
+        }
+
         @media (max-width: 640px) {
           .react-calendar-custom {
             width: 100% !important;

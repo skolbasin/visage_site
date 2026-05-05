@@ -17,7 +17,8 @@ export default function QuestionModal({ isOpen, onClose }) {
     setStatus(null);
 
     try {
-      await api.post('/feedback', {
+      // Отправляем на бэкенд для сохранения в БД
+      await api.post('/questions', {
         message: message.trim(),
         contact_type: contactType,
         contact_value: contactValue.trim(),

@@ -12,6 +12,9 @@ import CertificatesPage from './pages/CertificatesPage';
 import FAQPage from './pages/FAQPage';
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminBookings from './pages/admin/AdminBookings';
+import AdminQuestions from './pages/admin/AdminQuestions';
+import AdminCertificates from './pages/admin/AdminCertificates';
+import AdminPromoCodes from './pages/admin/AdminPromoCodes';
 import AdminFeed from './pages/admin/AdminFeed';
 import AdminSettings from './pages/admin/AdminSettings';
 
@@ -37,6 +40,9 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Navigate to="/admin/bookings" replace />} />
           <Route path="bookings" element={<AdminBookings />} />
+          <Route path="questions" element={<AdminQuestions />} />
+          <Route path="certificates" element={<AdminCertificates />} />
+          <Route path="promocodes" element={<AdminPromoCodes />} />
           <Route path="feed" element={<AdminFeed />} />
           <Route path="settings" element={<AdminSettings />} />
         </Route>

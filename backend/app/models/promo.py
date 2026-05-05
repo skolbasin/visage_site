@@ -17,3 +17,4 @@ class PromoCode(Base):
     used_at = Column(DateTime(timezone=True), nullable=True)
 
     owner = relationship("User", back_populates="promo_codes")
+    bookings = relationship("Booking", back_populates="promo_code")

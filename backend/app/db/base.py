@@ -9,3 +9,4 @@ from app.models.portfolio import PortfolioItem
 from app.models.post import Post
 from app.models.promo import PromoCode
 from app.models.user import User
+from app.models.question import Question

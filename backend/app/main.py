@@ -13,6 +13,7 @@ from app.api import (
     portfolio,
     posts,
     promo,
+    question,
 )
 from app.core.config import settings
 from app.core.logging_settings import setup_logging
@@ -60,6 +61,7 @@ app.include_router(certificates.router, prefix=settings.API_V1_STR)
 app.include_router(ai.router, prefix=settings.API_V1_STR)
 app.include_router(admin.router, prefix=settings.API_V1_STR)
 app.include_router(feedback.router, prefix=settings.API_V1_STR)
+app.include_router(question.router, prefix=settings.API_V1_STR)
 
 
 @app.get("/")

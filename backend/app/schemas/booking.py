@@ -10,10 +10,11 @@ class BookingBase(BaseModel):
     name: str
     phone: str
     email: EmailStr
+    service_name: Optional[str] = None
     appointment_date: datetime
     ready_by_date: datetime
     comment: Optional[str] = None
-    promo_code: Optional[str] = None  # код строкой
+    promo_code: Optional[str] = None
 
     @validator("ready_by_date")
     def ready_after_appointment(cls, v, values):
@@ -28,7 +29,6 @@ class BookingCreate(BookingBase):
 
 class BookingOut(BookingBase):
     id: int
-    user_id: Optional[int]
     status: BookingStatus
     created_at: datetime
 

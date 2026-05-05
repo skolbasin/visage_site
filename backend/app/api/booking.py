@@ -1,20 +1,14 @@
 import logging
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.core.dependencies import (
-    get_current_active_user,
-    get_current_admin_user,
-    get_db,
-)
+from app.core.dependencies import get_db
 from app.models.booking import Booking, BookingStatus
 from app.models.promo import PromoCode
-from app.models.user import User
-from app.schemas.booking import BookingCreate, BookingOut, BookingUpdateStatus
-from app.services.email_service import send_booking_notification
+from app.schemas.booking import BookingCreate, BookingOut
 
 router = APIRouter(prefix="/booking", tags=["booking"])
 logger = logging.getLogger(__name__)
@@ -22,32 +16,49 @@ logger = logging.getLogger(__name__)
 
 @router.post("/", response_model=BookingOut)
 def create_booking(
-    booking: BookingCreate,
-    db: Session = Depends(get_db),
-    current_user: Optional[User] = Depends(get_current_active_user),  # может быть None
+        booking: BookingCreate,
+        db: Session = Depends(get_db),
 ):
     """Публичный: создание заявки на запись"""
-    # Проверка промокода, если указан
     promo_code_id = None
+    promo_code_str = None
 
+    # Проверка промокода, если указан
     if booking.promo_code:
         promo = db.query(PromoCode).filter(PromoCode.code == booking.promo_code).first()
-        if not promo or promo.is_used:
-            logger.warning(f"Invalid promo code attempted: {booking.promo_code}")
+
+        if not promo:
+            # Промокод не найден в базе
             raise HTTPException(
-                status_code=400, detail="Invalid or already used promo code"
+                status_code=400,
+                detail=f"Промокод '{booking.promo_code}' не существует"
             )
+
+        if promo.is_used:
+            # Промокод уже использован
+            raise HTTPException(
+                status_code=400,
+                detail=f"Промокод '{booking.promo_code}' уже был использован"
+            )
+
+        # Проверка срока действия (если есть поле expires_at)
+        if hasattr(promo, 'expires_at') and promo.expires_at:
+            from datetime import datetime
+            if promo.expires_at < datetime.utcnow():
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Промокод '{booking.promo_code}' просрочен"
+                )
+
+        # Все проверки пройдены - применяем промокод
         promo_code_id = promo.id
-        # Пока не применяем скидку, просто сохраняем связь
+        promo_code_str = promo.code
 
-    # Валидация: дата готовности >= даты записи уже в схеме
-
-    # Создаём запись
     db_booking = Booking(
-        user_id=current_user.id if current_user else None,
         name=booking.name,
         phone=booking.phone,
         email=booking.email,
+        service_name=booking.service_name,
         appointment_date=booking.appointment_date,
         ready_by_date=booking.ready_by_date,
         comment=booking.comment,
@@ -57,51 +68,20 @@ def create_booking(
     db.add(db_booking)
     db.commit()
     db.refresh(db_booking)
-    logger.info(
-        f"Booking created: id={db_booking.id}, name={db_booking.name}, email={db_booking.email}, date={db_booking.appointment_date}"
+
+    response = BookingOut(
+        id=db_booking.id,
+        name=db_booking.name,
+        phone=db_booking.phone,
+        email=db_booking.email,
+        service_name=db_booking.service_name,
+        appointment_date=db_booking.appointment_date,
+        ready_by_date=db_booking.ready_by_date,
+        comment=db_booking.comment,
+        promo_code=promo_code_str,
+        status=db_booking.status,
+        created_at=db_booking.created_at,
     )
 
-    # Отправляем уведомление визажисту
-    send_booking_notification(db_booking)
-
-    return db_booking
-
-
-# Админские эндпоинты
-@router.get(
-    "/admin/all",
-    response_model=List[BookingOut],
-    dependencies=[Depends(get_current_admin_user)],
-)
-def get_all_bookings(
-    status: Optional[BookingStatus] = Query(None),
-    from_date: Optional[datetime] = Query(None),
-    to_date: Optional[datetime] = Query(None),
-    db: Session = Depends(get_db),
-):
-    """Админ: список заявок с фильтрацией"""
-    query = db.query(Booking)
-    if status:
-        query = query.filter(Booking.status == status)
-    if from_date:
-        query = query.filter(Booking.appointment_date >= from_date)
-    if to_date:
-        query = query.filter(Booking.appointment_date <= to_date)
-    return query.order_by(Booking.created_at.desc()).all()
-
-
-@router.patch(
-    "/admin/{booking_id}/status",
-    response_model=BookingOut,
-    dependencies=[Depends(get_current_admin_user)],
-)
-def update_booking_status(
-    booking_id: int, status_update: BookingUpdateStatus, db: Session = Depends(get_db)
-):
-    db_booking = db.query(Booking).filter(Booking.id == booking_id).first()
-    if not db_booking:
-        raise HTTPException(status_code=404, detail="Booking not found")
-    db_booking.status = status_update.status
-    db.commit()
-    db.refresh(db_booking)
-    return db_booking
+    logger.info(f"Booking created: id={db_booking.id}, promo_code={promo_code_str}")
+    return response

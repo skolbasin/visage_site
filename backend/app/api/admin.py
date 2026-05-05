@@ -3,14 +3,14 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.core.dependencies import get_current_admin_user, get_db
 from app.models.booking import Booking, BookingStatus
-from app.models.post import Post
+from app.models.promo import PromoCode
 from app.schemas.booking import BookingOut, BookingUpdateStatus
-from app.schemas.post import PostOut, PostCreate, PostUpdate
+from app.models.question import Question
+from app.models.certificate import Certificate, CertificateStatus
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 
-# Заявки
 @router.get("/bookings", response_model=List[BookingOut])
 def get_all_bookings(
     status: Optional[BookingStatus] = Query(None),
@@ -22,7 +22,32 @@ def get_all_bookings(
     query = db.query(Booking)
     if status:
         query = query.filter(Booking.status == status)
-    return query.order_by(Booking.created_at.desc()).offset(skip).limit(limit).all()
+
+    bookings = query.order_by(Booking.created_at.desc()).offset(skip).limit(limit).all()
+
+    result = []
+    for booking in bookings:
+        promo_code_str = None
+        if booking.promo_code_id:
+            promo = db.query(PromoCode).filter(PromoCode.id == booking.promo_code_id).first()
+            if promo:
+                promo_code_str = promo.code
+
+        result.append(BookingOut(
+            id=booking.id,
+            name=booking.name,
+            phone=booking.phone,
+            email=booking.email,
+            service_name=booking.service_name,
+            appointment_date=booking.appointment_date,
+            ready_by_date=booking.ready_by_date,
+            comment=booking.comment,
+            promo_code=promo_code_str,
+            status=booking.status,
+            created_at=booking.created_at,
+        ))
+
+    return result
 
 
 @router.patch("/bookings/{booking_id}/status", response_model=BookingOut)
@@ -35,62 +60,43 @@ def update_booking_status(
     booking = db.query(Booking).filter(Booking.id == booking_id).first()
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
+
     booking.status = status_update.status
     db.commit()
     db.refresh(booking)
-    return booking
 
+    promo_code_str = None
+    if booking.promo_code_id:
+        promo = db.query(PromoCode).filter(PromoCode.id == booking.promo_code_id).first()
+        if promo:
+            promo_code_str = promo.code
 
-# Посты (бьюти-лента)
-@router.get("/posts", response_model=List[PostOut])
-def get_all_posts(
-    skip: int = 0,
-    limit: int = 100,
-    db: Session = Depends(get_db),
-    admin=Depends(get_current_admin_user),
-):
-    return (
-        db.query(Post).order_by(Post.created_at.desc()).offset(skip).limit(limit).all()
+    return BookingOut(
+        id=booking.id,
+        name=booking.name,
+        phone=booking.phone,
+        email=booking.email,
+        service_name=booking.service_name,
+        appointment_date=booking.appointment_date,
+        ready_by_date=booking.ready_by_date,
+        comment=booking.comment,
+        promo_code=promo_code_str,
+        status=booking.status,
+        created_at=booking.created_at,
     )
 
 
-@router.post("/posts", response_model=PostOut)
-def create_post(
-    post: PostCreate,
-    db: Session = Depends(get_db),
-    admin=Depends(get_current_admin_user),
+@router.get("/counts")
+def get_new_counts(
+        db: Session = Depends(get_db),
+        admin=Depends(get_current_admin_user)
 ):
-    db_post = Post(**post.model_dump())
-    db.add(db_post)
-    db.commit()
-    db.refresh(db_post)
-    return db_post
+    new_bookings = db.query(Booking).filter(Booking.status == BookingStatus.new).count()
+    new_questions = db.query(Question).filter(Question.status == 'new').count()
+    active_certificates = db.query(Certificate).filter(Certificate.status == CertificateStatus.active).count()
 
-
-@router.put("/posts/{post_id}", response_model=PostOut)
-def update_post(
-    post_id: int,
-    post: PostUpdate,
-    db: Session = Depends(get_db),
-    admin=Depends(get_current_admin_user),
-):
-    db_post = db.query(Post).filter(Post.id == post_id).first()
-    if not db_post:
-        raise HTTPException(status_code=404, detail="Post not found")
-    for key, value in post.model_dump(exclude_unset=True).items():
-        setattr(db_post, key, value)
-    db.commit()
-    db.refresh(db_post)
-    return db_post
-
-
-@router.delete("/posts/{post_id}")
-def delete_post(
-    post_id: int, db: Session = Depends(get_db), admin=Depends(get_current_admin_user)
-):
-    db_post = db.query(Post).filter(Post.id == post_id).first()
-    if not db_post:
-        raise HTTPException(status_code=404, detail="Post not found")
-    db.delete(db_post)
-    db.commit()
-    return {"ok": True}
+    return {
+        "bookings": new_bookings,
+        "questions": new_questions,
+        "certificates": active_certificates,
+    }
