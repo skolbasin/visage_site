@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+import os
 import logging
 
 from app.api import (
@@ -49,6 +51,10 @@ app.middleware("http")(log_requests)
 # === Rate limiting ===
 if settings.RATE_LIMIT_ENABLED:
     setup_rate_limit(app)
+
+# === СТАТИКА ===
+os.makedirs("static", exist_ok=True)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # === Роутеры ===
 app.include_router(auth.router, prefix=settings.API_V1_STR)

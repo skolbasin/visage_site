@@ -1,174 +1,117 @@
 import { useState, useEffect } from 'react';
-import { Heart, MessageCircle, Sparkles } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Heart, Sparkles } from 'lucide-react';
 import AnimatedStars from '../components/AnimatedStars';
-
-const feedPosts = [
-  {
-    id: 1,
-    image: '/portfolio/5.jpg',
-    title: 'Свадебный макияж "Bridal Glow"',
-    description: 'Сияющий свадебный образ с эффектом влажной кожи. Невеста была в восторге! 💍✨',
-    likes: 234,
-    comments: 12,
-    date: '2 дня назад',
-  },
-  {
-    id: 2,
-    image: '/portfolio/7.jpg',
-    title: 'Классический смоки-айс',
-    description: 'Вечерний образ с выразительным дымчатым макияжем глаз. Идеален для особого случая.',
-    likes: 189,
-    comments: 8,
-    date: '5 дней назад',
-  },
-  {
-    id: 3,
-    image: '/portfolio/14.jpg',
-    title: 'Natural Glow',
-    description: 'Естественное сияние и здоровый вид кожи. Макияж без эффекта маски.',
-    likes: 156,
-    comments: 5,
-    date: '1 неделя назад',
-  },
-  {
-    id: 4,
-    image: '/portfolio/15.jpg',
-    title: 'Нюдовый макияж для фотосессии',
-    description: 'Нежный образ с акцентом на скульптурирование лица. Фотогенично и элегантно.',
-    likes: 278,
-    comments: 15,
-    date: '1 неделя назад',
-  },
-  {
-    id: 5,
-    image: '/portfolio/16.jpg',
-    title: 'Графические стрелки',
-    description: 'Чёткие графические стрелки — тренд сезона. Современный и дерзкий образ.',
-    likes: 312,
-    comments: 23,
-    date: '2 недели назад',
-  },
-  {
-    id: 6,
-    image: '/portfolio/23.jpg',
-    title: 'Instagram-perfect макияж',
-    description: 'Трендовый макияж, который собирает лайки в соцсетях. Попробуйте и вы!',
-    likes: 445,
-    comments: 31,
-    date: '2 недели назад',
-  },
-];
+import api from '../services/api';
+import { getStaticUrl } from '../config';
 
 export default function BeautyFeedPage() {
-  const [likedPosts, setLikedPosts] = useState([]);
-  const [localLikes, setLocalLikes] = useState({});
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [likedLocal, setLikedLocal] = useState({});
 
-  const toggleLike = (id, currentLikes) => {
-    if (likedPosts.includes(id)) {
-      setLikedPosts(prev => prev.filter(item => item !== id));
-      setLocalLikes(prev => ({ ...prev, [id]: currentLikes - 1 }));
-    } else {
-      setLikedPosts(prev => [...prev, id]);
-      setLocalLikes(prev => ({ ...prev, [id]: currentLikes + 1 }));
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const fetchPosts = async () => {
+    try {
+      const { data } = await api.get('/posts');
+      setPosts(data);
+      const initialLikes = {};
+      data.forEach(p => { initialLikes[p.id] = p.likes_count; });
+      setLikedLocal(initialLikes);
+    } catch (err) {
+      console.error('Ошибка загрузки ленты:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getLikeCount = (post) => {
-    if (localLikes[post.id] !== undefined) {
-      return localLikes[post.id];
+  const handleLike = async (postId, currentLikes) => {
+    setLikedLocal(prev => ({ ...prev, [postId]: prev[postId] + 1 }));
+    try {
+      const { data } = await api.post(`/posts/${postId}/like`);
+      setLikedLocal(prev => ({ ...prev, [postId]: data.likes_count }));
+    } catch (err) {
+      setLikedLocal(prev => ({ ...prev, [postId]: currentLikes }));
+      console.error('Ошибка лайка:', err);
     }
-    return post.likes;
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center">
+        <AnimatedStars />
+        <div className="w-12 h-12 border-2 border-[#4a7c59] border-t-transparent rounded-full animate-spin" />
+        <p className="mt-4 text-gray-500">Загрузка...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white py-12 relative overflow-hidden">
       <AnimatedStars />
-
       <div className="max-w-[600px] mx-auto px-4 relative z-10">
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-[#4a7c59]/10 rounded-full mb-4">
             <Sparkles className="w-8 h-8 text-[#4a7c59]" />
           </div>
           <h1 className="text-4xl md:text-5xl font-serif text-[#2c2c2c] mb-4">Бьюти-лента</h1>
-          <p className="text-gray-500 text-lg max-w-2xl mx-auto">
-            Свежие работы, вдохновение и моменты из моей профессиональной жизни
-          </p>
+          <p className="text-gray-500 text-lg">Свежие работы, вдохновение и моменты из моей профессиональной жизни</p>
         </div>
 
         <div className="space-y-8">
-          {feedPosts.map((post, idx) => (
-            <div
-              key={post.id}
-              className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
-              style={{ animationDelay: `${idx * 100}ms` }}
-            >
-              {/* Шапка поста */}
+          {posts.map((post) => (
+            <div key={post.id} className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition">
               <div className="p-3 flex items-center gap-3">
                 <div className="w-8 h-8 bg-gradient-to-r from-[#4a7c59] to-[#8bbd9b] rounded-full flex items-center justify-center text-white text-sm font-bold">
                   А
                 </div>
                 <div>
-                  <h3 className="font-semibold text-sm text-[#2c2c2c]">Анастасия Романча</h3>
-                  <p className="text-xs text-gray-400">{post.date}</p>
+                  <h3 className="font-semibold text-sm">Анастасия Романча</h3>
+                  <p className="text-xs text-gray-400">{new Date(post.created_at).toLocaleDateString()}</p>
                 </div>
               </div>
 
-              {/* Изображение - квадратное, как в Instagram */}
-              <div className="relative overflow-hidden bg-gray-100 aspect-square">
-                <img
-                  src={post.image}
-                  alt={post.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
+              {post.type === 'photo' && post.media_url && (
+                <div className="relative aspect-square bg-gray-100 overflow-hidden">
+                  <img
+                    src={getStaticUrl(post.media_url)}
+                    alt={post.content || 'Пост'}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
 
-              {/* Действия - только лайк и комментарий */}
+              {post.type === 'text' && post.content && (
+                <div className="p-4 bg-gray-50 whitespace-pre-wrap">
+                  <p className="text-gray-700">{post.content}</p>
+                </div>
+              )}
+
               <div className="p-3">
-                <div className="flex items-center gap-4 mb-2">
-                  <button
-                    onClick={() => toggleLike(post.id, getLikeCount(post))}
-                    className="flex items-center gap-1 text-gray-500 hover:text-red-500 transition"
-                  >
-                    <Heart
-                      size={24}
-                      className={likedPosts.includes(post.id) ? 'fill-red-500 text-red-500' : ''}
-                    />
-                    <span className="text-sm">{getLikeCount(post)}</span>
-                  </button>
-                  <button className="flex items-center gap-1 text-gray-500 hover:text-[#4a7c59] transition">
-                    <MessageCircle size={24} />
-                    <span className="text-sm">{post.comments}</span>
-                  </button>
-                </div>
-
-                {/* Подпись */}
-                <div className="mt-2">
-                  <p className="text-sm">
-                    <span className="font-semibold text-[#2c2c2c] mr-2">Анастасия Романча</span>
-                    <span className="text-gray-700">{post.description}</span>
-                  </p>
-                </div>
-
-                {/* Ссылка на запись */}
-                <Link
-                  to="/booking"
-                  className="inline-block mt-3 text-xs text-gray-400 hover:text-[#4a7c59] transition"
+                <button
+                  onClick={() => handleLike(post.id, likedLocal[post.id])}
+                  className="flex items-center gap-1 text-gray-500 hover:text-red-500 transition"
                 >
-                  Записаться на такой же образ →
-                </Link>
+                  <Heart
+                    size={24}
+                    className={likedLocal[post.id] > 0 ? "fill-red-500 text-red-500" : ""}
+                  />
+                  <span className="text-sm font-medium">{likedLocal[post.id]}</span>
+                </button>
+
+                {post.type === 'photo' && post.content && (
+                  <p className="mt-2 text-sm text-gray-700">{post.content}</p>
+                )}
               </div>
             </div>
           ))}
-        </div>
-
-        <div className="text-center mt-12">
-          <Link
-            to="/portfolio"
-            className="inline-flex items-center gap-2 text-[#4a7c59] hover:text-[#2d5a3b] transition"
-          >
-            Смотреть все работы в портфолио →
-          </Link>
+          {posts.length === 0 && (
+            <div className="text-center py-20">
+              <p className="text-gray-400">Пока нет постов. Загляните позже!</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
