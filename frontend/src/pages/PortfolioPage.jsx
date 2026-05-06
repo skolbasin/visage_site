@@ -337,15 +337,18 @@ export default function PortfolioPage() {
               {filteredItems.map((item) => (
                 <div
                   key={item.id}
-                  className="group cursor-pointer overflow-hidden rounded-xl md:rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 bg-white"
+                  className="group cursor-pointer overflow-hidden rounded-xl md:rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 bg-white flex flex-col"
                   onClick={() => setSelectedItem(item)}
                 >
-                  <div className="relative overflow-hidden" style={{ height: '380px' }}>
-                    <img
-                      src={item.image_url}
-                      alt={item.title}
-                      className="w-full h-full object-cover transition duration-700 group-hover:scale-110"
-                    />
+                  <div className="relative overflow-hidden flex-shrink-0">
+                    {/* Увеличенная высота контейнера для вертикального масштаба */}
+                    <div style={{ height: '480px', width: '100%' }}>
+                      <img
+                        src={item.image_url}
+                        alt={item.title}
+                        className="w-full h-full object-cover object-center transition duration-700 group-hover:scale-110"
+                      />
+                    </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-500" />
                     {item.category && (
                       <span className="absolute bottom-3 left-3 bg-white/90 text-[#4a7c59] text-xs md:text-sm px-2 py-1 md:px-3 md:py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition duration-300 font-medium">

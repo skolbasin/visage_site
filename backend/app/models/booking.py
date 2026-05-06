@@ -9,6 +9,7 @@ from app.db.base_class import Base
 
 class BookingStatus(str, enum.Enum):
     new = "new"
+    in_progress = "in_progress"
     confirmed = "confirmed"
     completed = "completed"
     cancelled = "cancelled"

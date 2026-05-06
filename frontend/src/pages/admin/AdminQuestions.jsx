@@ -6,6 +6,7 @@ const statusOptions = [
   { value: 'new', label: 'Новое' },
   { value: 'in_progress', label: 'В работе' },
   { value: 'completed', label: 'Выполнено' },
+  { value: 'cancelled', label: 'Отменено' }
 ];
 
 export default function AdminQuestions() {

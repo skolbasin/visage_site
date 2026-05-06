@@ -85,3 +85,4 @@ def create_booking(
 
     logger.info(f"Booking created: id={db_booking.id}, promo_code={promo_code_str}")
     return response
+

@@ -100,3 +100,20 @@ def get_new_counts(
         "questions": new_questions,
         "certificates": active_certificates,
     }
+
+
+@router.delete("/bookings/{booking_id}")
+def delete_booking(
+        booking_id: int,
+        db: Session = Depends(get_db),
+        admin=Depends(get_current_admin_user),
+):
+    """Удаление записи (только администратор)"""
+    booking = db.query(Booking).filter(Booking.id == booking_id).first()
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+
+    db.delete(booking)
+    db.commit()
+
+    return {"ok": True, "message": "Запись удалена"}
