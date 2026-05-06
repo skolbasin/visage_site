@@ -1,8 +1,50 @@
 import { Link } from 'react-router-dom';
-import { BookOpen, Clock, Gift, Star, CheckCircle, ArrowRight, Users, Award, Calendar } from 'lucide-react';
+import { BookOpen, Clock, Gift, Star, CheckCircle, ArrowRight, Users, Award, Calendar, Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import { useState, useRef } from 'react';
 import AnimatedStars from '../components/AnimatedStars';
 
 export default function LearningPage() {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const videoRef = useRef(null);
+
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (videoRef.current) {
+      const current = videoRef.current.currentTime;
+      const duration = videoRef.current.duration;
+      setProgress((current / duration) * 100);
+    }
+  };
+
+  const handleProgressClick = (e) => {
+    if (videoRef.current) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const width = rect.width;
+      const percentage = x / width;
+      videoRef.current.currentTime = percentage * videoRef.current.duration;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white py-12 relative overflow-hidden">
       <AnimatedStars />
@@ -15,6 +57,57 @@ export default function LearningPage() {
           <h1 className="text-4xl md:text-5xl font-serif text-[#2c2c2c] mb-4">Макияж для себя</h1>
           <p className="text-gray-500 text-lg max-w-2xl mx-auto">
             Научитесь делать красивый и быстрый макияж, который подойдет именно вам!
+          </p>
+        </div>
+
+        {/* Видео-блок */}
+        <div className="max-w-4xl mx-auto mb-12">
+          <div className="relative bg-black rounded-2xl overflow-hidden shadow-xl">
+            <video
+              ref={videoRef}
+              src="/teach_video.mp4"
+              className="w-full aspect-video"
+              onTimeUpdate={handleTimeUpdate}
+              poster="/video-poster.jpg" // опционально: постер для видео
+            />
+
+            {/* Кастомные контролы */}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+              {/* Прогресс-бар */}
+              <div
+                className="w-full h-1 bg-white/30 rounded-full cursor-pointer mb-3"
+                onClick={handleProgressClick}
+              >
+                <div
+                  className="h-full bg-[#4a7c59] rounded-full relative"
+                  style={{ width: `${progress}%` }}
+                >
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-[#4a7c59] rounded-full shadow-lg" />
+                </div>
+              </div>
+
+              {/* Кнопки управления */}
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={togglePlay}
+                  className="text-white hover:text-[#4a7c59] transition p-1"
+                >
+                  {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+                </button>
+                <button
+                  onClick={toggleMute}
+                  className="text-white hover:text-[#4a7c59] transition p-1"
+                >
+                  {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+                </button>
+                <span className="text-white text-xs ml-auto">
+                  Мастер-класс по макияжу
+                </span>
+              </div>
+            </div>
+          </div>
+          <p className="text-center text-gray-500 text-sm mt-3">
+            🎥 Посмотрите видео, чтобы познакомиться со мной и моим подходом к макияжу
           </p>
         </div>
 

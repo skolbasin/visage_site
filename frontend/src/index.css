@@ -388,3 +388,32 @@ h1, h2, h3, h4 {
 .animate-bounce-slow {
   animation: bounceSlow 2s ease-in-out infinite;
 }
+
+@media (max-width: 640px) {
+  button, .btn {
+    min-height: 44px; /* Увеличенная область нажатия */
+  }
+
+  input, select, textarea {
+    font-size: 16px; /* Предотвращает зум в iOS */
+  }
+}
+
+/* В global.css или index.css */
+@media (max-width: 768px) {
+  /* Увеличиваем область нажатия для кнопок */
+  button,
+  .nav-link {
+    min-height: 44px;
+  }
+
+  /* Улучшаем читаемость */
+  body {
+    font-size: 14px;
+  }
+
+  /* Предотвращаем зум на iOS */
+  input, select, textarea {
+    font-size: 16px;
+  }
+}

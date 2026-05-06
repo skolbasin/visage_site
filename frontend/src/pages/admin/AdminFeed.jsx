@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../../services/api';
-import { Trash2, Edit, Image as ImageIcon } from 'lucide-react';
+import { Trash2, Edit, Image as ImageIcon, ChevronDown, ChevronUp } from 'lucide-react';
 import { getStaticUrl } from '../../config';
 
 export default function AdminFeed() {
@@ -10,6 +10,7 @@ export default function AdminFeed() {
   const [form, setForm] = useState({ type: 'photo', content: '', media_url: '', image_file: null });
   const [editingId, setEditingId] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [expandedPost, setExpandedPost] = useState(null);
 
   useEffect(() => {
     fetchPosts();
@@ -95,7 +96,7 @@ export default function AdminFeed() {
       fetchPosts();
     } catch (err) {
       console.error('Ошибка сохранения поста:', err);
-      alert('Ошибка сохранения поста: ' + (err.response?.data?.detail || 'Неизвестная ошибка'));
+      alert('Ошибка сохранения поста: ' + (err.message || 'Неизвестная ошибка'));
     } finally {
       setUploading(false);
     }
@@ -121,6 +122,7 @@ export default function AdminFeed() {
       media_url: post.media_url || '',
       image_file: null
     });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleCancelEdit = () => {
@@ -128,34 +130,40 @@ export default function AdminFeed() {
     setForm({ type: 'photo', content: '', media_url: '', image_file: null });
   };
 
+  const toggleExpand = (postId) => {
+    setExpandedPost(expandedPost === postId ? null : postId);
+  };
+
   if (loading) return <div className="text-center py-20">Загрузка...</div>;
 
   return (
-    <div>
+    <div className="px-4 sm:px-6 lg:px-8 py-6">
       <h1 className="text-2xl font-serif text-gray-800 mb-6">Бьюти-лента</h1>
 
-      {/* Статистика */}
-      <div className="bg-white p-4 rounded-lg shadow mb-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div>
-          <p className="text-sm text-gray-500">Всего постов</p>
-          <p className="text-2xl font-bold text-[#4a7c59]">{stats.total}</p>
-        </div>
-        <div>
-          <p className="text-sm text-gray-500">Фото</p>
-          <p className="text-2xl font-bold">{stats.photo_count}</p>
-        </div>
-        <div>
-          <p className="text-sm text-gray-500">Текстовых</p>
-          <p className="text-2xl font-bold">{stats.text_count}</p>
-        </div>
-        <div>
-          <p className="text-sm text-gray-500">Всего лайков</p>
-          <p className="text-2xl font-bold">❤️ {stats.total_likes}</p>
+      {/* Статистика - адаптивная сетка */}
+      <div className="bg-white p-4 rounded-lg shadow mb-6">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="text-center p-3 bg-gray-50 rounded-lg">
+            <p className="text-xs text-gray-500">Всего постов</p>
+            <p className="text-xl font-bold text-[#4a7c59]">{stats.total}</p>
+          </div>
+          <div className="text-center p-3 bg-gray-50 rounded-lg">
+            <p className="text-xs text-gray-500">Фото</p>
+            <p className="text-xl font-bold">{stats.photo_count}</p>
+          </div>
+          <div className="text-center p-3 bg-gray-50 rounded-lg">
+            <p className="text-xs text-gray-500">Текстовых</p>
+            <p className="text-xl font-bold">{stats.text_count}</p>
+          </div>
+          <div className="text-center p-3 bg-gray-50 rounded-lg">
+            <p className="text-xs text-gray-500">Всего лайков</p>
+            <p className="text-xl font-bold">❤️ {stats.total_likes}</p>
+          </div>
         </div>
       </div>
 
       {/* Форма создания/редактирования */}
-      <div className="bg-white p-6 rounded-lg shadow mb-8">
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow mb-6">
         <h2 className="text-lg font-semibold mb-4">{editingId ? 'Редактировать пост' : 'Создать пост'}</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -163,10 +171,10 @@ export default function AdminFeed() {
             <select
               value={form.type}
               onChange={e => setForm({ ...form, type: e.target.value })}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-[#4a7c59] focus:border-[#4a7c59]"
+              className="w-full border border-gray-300 rounded-lg shadow-sm p-2 focus:ring-[#4a7c59] focus:border-[#4a7c59]"
             >
-              <option value="photo">Фото</option>
-              <option value="text">Текст</option>
+              <option value="photo">📷 Фото</option>
+              <option value="text">📝 Текст</option>
             </select>
           </div>
 
@@ -194,7 +202,7 @@ export default function AdminFeed() {
                     setForm({ ...form, image_file: file, media_url: '' });
                   }
                 }}
-                className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#4a7c59] file:text-white hover:file:bg-[#2d5a3b] file:cursor-pointer"
+                className="w-full text-sm text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#4a7c59] file:text-white hover:file:bg-[#2d5a3b] file:cursor-pointer"
               />
             </div>
           )}
@@ -205,7 +213,7 @@ export default function AdminFeed() {
               value={form.content}
               onChange={e => setForm({ ...form, content: e.target.value })}
               rows="3"
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-[#4a7c59] focus:border-[#4a7c59] resize-none"
+              className="w-full border border-gray-300 rounded-lg shadow-sm p-2 focus:ring-[#4a7c59] focus:border-[#4a7c59] resize-none"
               placeholder={form.type === 'photo' ? 'Опишите эту работу...' : 'Напишите текст поста...'}
             />
           </div>
@@ -214,10 +222,10 @@ export default function AdminFeed() {
             <button
               type="submit"
               disabled={uploading || (form.type === 'photo' && !form.media_url && !form.image_file)}
-              className="bg-[#4a7c59] text-white px-4 py-2 rounded hover:bg-[#2d5a3b] transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 bg-[#4a7c59] text-white px-4 py-2 rounded-lg hover:bg-[#2d5a3b] transition disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
             >
               {uploading ? (
-                <span className="flex items-center gap-2">
+                <span className="flex items-center justify-center gap-2">
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   Загрузка...
                 </span>
@@ -227,7 +235,7 @@ export default function AdminFeed() {
               <button
                 type="button"
                 onClick={handleCancelEdit}
-                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
+                className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition text-sm sm:text-base"
               >
                 Отмена
               </button>
@@ -236,8 +244,8 @@ export default function AdminFeed() {
         </form>
       </div>
 
-      {/* Список постов */}
-      <div className="grid gap-4">
+      {/* Список постов - карточки для мобильных */}
+      <div className="space-y-4">
         {posts.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-lg shadow">
             <ImageIcon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
@@ -245,17 +253,69 @@ export default function AdminFeed() {
           </div>
         ) : (
           posts.map(post => (
-            <div key={post.id} className="bg-white p-4 rounded-lg shadow flex flex-col md:flex-row justify-between items-start gap-4 hover:shadow-md transition">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className={`px-2 py-1 text-xs rounded-full ${post.type === 'photo' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}`}>
-                    {post.type === 'photo' ? '📷 Фото' : '📝 Текст'}
-                  </span>
-                  <p className="text-xs text-gray-400">{new Date(post.created_at).toLocaleString()}</p>
+            <div key={post.id} className="bg-white rounded-lg shadow overflow-hidden">
+              {/* Заголовок карточки - всегда виден */}
+              <div className="p-4 border-b border-gray-100">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2 py-1 text-xs rounded-full ${post.type === 'photo' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}`}>
+                      {post.type === 'photo' ? '📷' : '📝'}
+                    </span>
+                    <p className="text-xs text-gray-400">{new Date(post.created_at).toLocaleString()}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => startEdit(post)}
+                      className="text-blue-600 hover:text-blue-800 transition p-1"
+                      title="Редактировать"
+                    >
+                      <Edit size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(post.id)}
+                      className="text-red-600 hover:text-red-800 transition p-1"
+                      title="Удалить"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                    <button
+                      onClick={() => toggleExpand(post.id)}
+                      className="text-gray-400 hover:text-gray-600 transition p-1 md:hidden"
+                    >
+                      {expandedPost === post.id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    </button>
+                  </div>
                 </div>
+              </div>
 
+              {/* Контент карточки - адаптивное отображение */}
+              <div className={`p-4 ${expandedPost === post.id ? 'block' : 'hidden md:block'}`}>
                 {post.content && (
-                  <p className="mt-1 text-gray-700">{post.content}</p>
+                  <p className="text-sm text-gray-700 mb-3">{post.content}</p>
+                )}
+
+                {post.media_url && post.type === 'photo' && (
+                  <img
+                    src={getStaticUrl(post.media_url)}
+                    alt="post"
+                    className="mt-2 w-full max-w-[200px] h-auto object-cover rounded border hover:scale-105 transition duration-200 cursor-pointer"
+                    onClick={() => window.open(getStaticUrl(post.media_url), '_blank')}
+                  />
+                )}
+
+                <div className="mt-3 flex items-center gap-2 text-sm">
+                  <span className="flex items-center gap-1 text-gray-500">
+                    ❤️ {post.likes_count || 0} лайков
+                  </span>
+                  <span className="text-gray-300">|</span>
+                  <span className="text-gray-400 text-xs">ID: {post.id}</span>
+                </div>
+              </div>
+
+              {/* Для десктопа всегда показываем контент */}
+              <div className="hidden md:block p-4 pt-0">
+                {post.content && (
+                  <p className="text-sm text-gray-700 mb-3">{post.content}</p>
                 )}
 
                 {post.media_url && post.type === 'photo' && (
@@ -267,30 +327,13 @@ export default function AdminFeed() {
                   />
                 )}
 
-                <div className="mt-2 flex items-center gap-4 text-sm">
+                <div className="mt-3 flex items-center gap-2 text-sm">
                   <span className="flex items-center gap-1 text-gray-500">
                     ❤️ {post.likes_count || 0} лайков
                   </span>
                   <span className="text-gray-300">|</span>
-                  <span className="text-gray-400">ID: {post.id}</span>
+                  <span className="text-gray-400 text-xs">ID: {post.id}</span>
                 </div>
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  onClick={() => startEdit(post)}
-                  className="text-blue-600 hover:text-blue-800 transition p-1"
-                  title="Редактировать"
-                >
-                  <Edit size={18} />
-                </button>
-                <button
-                  onClick={() => handleDelete(post.id)}
-                  className="text-red-600 hover:text-red-800 transition p-1"
-                  title="Удалить"
-                >
-                  <Trash2 size={18} />
-                </button>
               </div>
             </div>
           ))
