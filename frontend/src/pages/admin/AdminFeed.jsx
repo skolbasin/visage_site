@@ -49,7 +49,6 @@ export default function AdminFeed() {
       const token = localStorage.getItem('access_token');
       const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
-      // Используем fetch вместо axios
       const response = await fetch(`${baseUrl}/posts/admin/upload`, {
         method: 'POST',
         headers: {
@@ -140,7 +139,7 @@ export default function AdminFeed() {
     <div className="px-4 sm:px-6 lg:px-8 py-6">
       <h1 className="text-2xl font-serif text-gray-800 mb-6">Бьюти-лента</h1>
 
-      {/* Статистика - адаптивная сетка */}
+      {/* Статистика */}
       <div className="bg-white p-4 rounded-lg shadow mb-6">
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center p-3 bg-gray-50 rounded-lg">
@@ -244,7 +243,7 @@ export default function AdminFeed() {
         </form>
       </div>
 
-      {/* Список постов - карточки для мобильных */}
+      {/* Список постов — исправлено дублирование */}
       <div className="space-y-4">
         {posts.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-lg shadow">
@@ -254,7 +253,7 @@ export default function AdminFeed() {
         ) : (
           posts.map(post => (
             <div key={post.id} className="bg-white rounded-lg shadow overflow-hidden">
-              {/* Заголовок карточки - всегда виден */}
+              {/* Заголовок карточки */}
               <div className="p-4 border-b border-gray-100">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center gap-2">
@@ -288,7 +287,7 @@ export default function AdminFeed() {
                 </div>
               </div>
 
-              {/* Контент карточки - адаптивное отображение */}
+              {/* Контент — единый блок для всех устройств */}
               <div className={`p-4 ${expandedPost === post.id ? 'block' : 'hidden md:block'}`}>
                 {post.content && (
                   <p className="text-sm text-gray-700 mb-3">{post.content}</p>
@@ -299,30 +298,6 @@ export default function AdminFeed() {
                     src={getStaticUrl(post.media_url)}
                     alt="post"
                     className="mt-2 w-full max-w-[200px] h-auto object-cover rounded border hover:scale-105 transition duration-200 cursor-pointer"
-                    onClick={() => window.open(getStaticUrl(post.media_url), '_blank')}
-                  />
-                )}
-
-                <div className="mt-3 flex items-center gap-2 text-sm">
-                  <span className="flex items-center gap-1 text-gray-500">
-                    ❤️ {post.likes_count || 0} лайков
-                  </span>
-                  <span className="text-gray-300">|</span>
-                  <span className="text-gray-400 text-xs">ID: {post.id}</span>
-                </div>
-              </div>
-
-              {/* Для десктопа всегда показываем контент */}
-              <div className="hidden md:block p-4 pt-0">
-                {post.content && (
-                  <p className="text-sm text-gray-700 mb-3">{post.content}</p>
-                )}
-
-                {post.media_url && post.type === 'photo' && (
-                  <img
-                    src={getStaticUrl(post.media_url)}
-                    alt="post"
-                    className="mt-2 h-32 w-32 object-cover rounded border hover:scale-105 transition duration-200 cursor-pointer"
                     onClick={() => window.open(getStaticUrl(post.media_url), '_blank')}
                   />
                 )}
