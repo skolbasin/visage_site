@@ -15,7 +15,7 @@ export default function BeautyFeedPage() {
 
   const fetchPosts = async () => {
     try {
-      const { data } = await api.get('/posts');
+      const { data } = await api.get('/posts/');
       setPosts(data);
       const initialLikes = {};
       data.forEach(p => { initialLikes[p.id] = p.likes_count; });
