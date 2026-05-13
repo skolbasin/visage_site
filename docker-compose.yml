@@ -52,6 +52,7 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./frontend/public/images:/usr/share/nginx/html/images:ro
       - ./backend/static:/usr/share/nginx/html/static:ro
     depends_on:
       - frontend
