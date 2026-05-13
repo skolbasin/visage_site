@@ -9,7 +9,7 @@ from app.models.portfolio import PortfolioItem
 
 portfolio_items = [
     {
-        "image_url": "/portfolio/1.JPG",
+        "image_url": "/portfolio/1.jpg",
         "title": "Гладкий пучок \"в стиле Роузи\"",
         "description": "Элегантный и безупречно гладкий пучок, идеально подходящий для особых случаев и фотосессий.",
         "category_name": "Причёски"
@@ -21,7 +21,7 @@ portfolio_items = [
         "category_name": "Свадебный"
     },
     {
-        "image_url": "/portfolio/3.JPG",
+        "image_url": "/portfolio/3.jpg",
         "title": "Вечерний макияж в стиле \"Hollywood\"",
         "description": "Классический голливудский образ с акцентом на глаза и сияющую кожу.",
         "category_name": "Вечерний"
@@ -105,13 +105,13 @@ portfolio_items = [
         "category_name": "Дневной"
     },
     {
-        "image_url": "/portfolio/34.PNG",
+        "image_url": "/portfolio/34.png",
         "title": "Крупные подвижные волны",
         "description": "Романтичная и объёмная укладка с крупными, подвижными локонами.",
         "category_name": "Причёски"
     },
     {
-        "image_url": "/portfolio/18.JPG",
+        "image_url": "/portfolio/18.jpg",
         "title": "Свадебный макияж в стиле \"Old money\"",
         "description": "Изысканный и сдержанный свадебный макияж в стиле \"Old money\".",
         "category_name": "Свадебный"
@@ -171,37 +171,37 @@ portfolio_items = [
         "category_name": "Свадебный"
     },
     {
-        "image_url": "/portfolio/28.JPG",
+        "image_url": "/portfolio/28.jpg",
         "title": "Голливудская укладка",
         "description": "Классическая голливудская укладка с объёмными волнами.",
         "category_name": "Причёски"
     },
     {
-        "image_url": "/portfolio/29.PNG",
+        "image_url": "/portfolio/29.png",
         "title": "Низкий хвост из волн",
         "description": "Элегантный низкий хвост, собранный из красивых волн.",
         "category_name": "Причёски"
     },
     {
-        "image_url": "/portfolio/30.JPG",
+        "image_url": "/portfolio/30.jpg",
         "title": "Высокий гладкий хвост",
         "description": "Стильный и строгий высокий гладкий хвост для особых случаев.",
         "category_name": "Причёски"
     },
     {
-        "image_url": "/portfolio/31.JPG",
+        "image_url": "/portfolio/31.jpg",
         "title": "Низкий пучок из прямых волос",
         "description": "Лаконичный и элегантный низкий пучок из прямых волос.",
         "category_name": "Причёски"
     },
     {
-        "image_url": "/portfolio/32.JPG",
+        "image_url": "/portfolio/32.jpg",
         "title": "Прическа \"Ракушка\"",
         "description": "Изысканная вечерняя прическа \"Ракушка\", подходящая для торжественных мероприятий.",
         "category_name": "Причёски"
     },
     {
-        "image_url": "/portfolio/33.JPG",
+        "image_url": "/portfolio/33.jpg",
         "title": "Прическа \"Мальвинка\"",
         "description": "Романтичная и нежная прическа \"Мальвинка\", которая подчеркнёт ваш образ.",
         "category_name": "Причёски"
