@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { X } from 'lucide-react';
 import api from '../services/api';
 import AnimatedStars from '../components/AnimatedStars';
@@ -248,10 +248,19 @@ const filterTags = [
 ];
 
 export default function PortfolioPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState(null);
   const [activeCategory, setActiveCategory] = useState('all');
+
+  // Убираем слеш в конце URL, если он есть
+  useEffect(() => {
+    if (location.pathname.endsWith('/') && location.pathname !== '/') {
+      navigate(location.pathname.slice(0, -1), { replace: true });
+    }
+  }, [location.pathname, navigate]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -341,7 +350,6 @@ export default function PortfolioPage() {
                   onClick={() => setSelectedItem(item)}
                 >
                   <div className="relative overflow-hidden flex-shrink-0">
-                    {/* Увеличенная высота контейнера для вертикального масштаба */}
                     <div style={{ height: '480px', width: '100%' }}>
                       <img
                         src={item.image_url}
@@ -369,7 +377,7 @@ export default function PortfolioPage() {
         )}
       </div>
 
-      {/* Модальное окно с адаптивом */}
+      {/* Модальное окно */}
       {selectedItem && (
         <div
           className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-2 md:p-4"
@@ -387,7 +395,6 @@ export default function PortfolioPage() {
             </button>
 
             <div className="flex flex-col md:flex-row overflow-y-auto">
-              {/* Изображение */}
               <div className="md:w-2/3 bg-gray-100 flex items-center justify-center p-3 md:p-4">
                 <img
                   src={selectedItem.image_url}
@@ -396,7 +403,6 @@ export default function PortfolioPage() {
                 />
               </div>
 
-              {/* Информация */}
               <div className="md:w-1/3 p-4 md:p-6 flex flex-col">
                 <h2 className="text-lg md:text-2xl font-serif font-bold text-[#2c2c2c] mb-2 md:mb-3">
                   {selectedItem.title}
