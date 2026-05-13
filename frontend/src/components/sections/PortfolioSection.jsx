@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom';
 import OptimizedImage from '../OptimizedImage';
 
 const portfolioImages = [
-  '/portfolio/1.JPG',
-  '/portfolio/3.JPG',
+  '/portfolio/1.jpg',
+  '/portfolio/3.jpg',
   '/portfolio/7.jpg',
   '/portfolio/10.jpg',
-  '/portfolio/34.PNG',
+  '/portfolio/34.png',
   '/portfolio/19.jpg',
 ];
 
