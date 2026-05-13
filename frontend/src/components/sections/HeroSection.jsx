@@ -7,7 +7,7 @@ export default function HeroSection() {
       <div
         className="absolute inset-0 z-0 md:hidden"
         style={{
-          backgroundImage: "url('/IMG_4177.JPG')",
+          backgroundImage: "url('/IMG_4177.jpg')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
@@ -22,7 +22,7 @@ export default function HeroSection() {
       <div
         className="hidden md:block absolute inset-0 z-0 animate-image-reveal"
         style={{
-          backgroundImage: "url('/IMG_4177.JPG')",
+          backgroundImage: "url('/IMG_4177.jpg')",
           backgroundSize: 'contain',
           backgroundPosition: 'right bottom',
           backgroundRepeat: 'no-repeat',
