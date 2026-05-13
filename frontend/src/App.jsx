@@ -17,6 +17,7 @@ import AdminCertificates from './pages/admin/AdminCertificates';
 import AdminPromoCodes from './pages/admin/AdminPromoCodes';
 import AdminFeed from './pages/admin/AdminFeed';
 import AdminSettings from './pages/admin/AdminSettings';
+import AdminPortfolio from './pages/admin/AdminPortfolio';
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
           <Route path="certificates" element={<AdminCertificates />} />
           <Route path="promocodes" element={<AdminPromoCodes />} />
           <Route path="feed" element={<AdminFeed />} />
+          <Route path="portfolio" element={<AdminPortfolio />} />
           <Route path="settings" element={<AdminSettings />} />
         </Route>
       </Routes>
