@@ -42,10 +42,12 @@ def send_booking_notification(booking_data: dict) -> bool:
 
     try:
         resend.Emails.send(
-            from_=settings.RESEND_FROM,
-            to=[settings.ADMIN_EMAIL],
-            subject=subject,
-            html=html,
+            {
+                "from": settings.RESEND_FROM,
+                "to": [settings.ADMIN_EMAIL],
+                "subject": subject,
+                "html": html,
+            }
         )
         print(f"✅ Письмо о записи отправлено на {settings.ADMIN_EMAIL}")
         return True
@@ -79,10 +81,12 @@ def send_certificate_notification(certificate_data: dict) -> bool:
 
     try:
         resend.Emails.send(
-            from_=settings.RESEND_FROM,
-            to=[settings.ADMIN_EMAIL],
-            subject=subject,
-            html=html,
+            {
+                "from": settings.RESEND_FROM,
+                "to": [settings.ADMIN_EMAIL],
+                "subject": subject,
+                "html": html,
+            }
         )
         print(f"✅ Письмо о сертификате отправлено на {settings.ADMIN_EMAIL}")
         return True
@@ -112,10 +116,12 @@ def send_question_notification(question_data: dict) -> bool:
 
     try:
         resend.Emails.send(
-            from_=settings.RESEND_FROM,
-            to=[settings.ADMIN_EMAIL],
-            subject=subject,
-            html=html,
+            {
+                "from": settings.RESEND_FROM,
+                "to": [settings.ADMIN_EMAIL],
+                "subject": subject,
+                "html": html,
+            }
         )
         print(f"✅ Письмо о вопросе отправлено на {settings.ADMIN_EMAIL}")
         return True
@@ -132,10 +138,12 @@ def send_test_email() -> bool:
 
     try:
         resend.Emails.send(
-            from_=settings.RESEND_FROM,
-            to=[settings.ADMIN_EMAIL],
-            subject="🔧 Тестовое письмо",
-            html="<h1>Тест!</h1><p>Если вы видите это письмо — Resend работает!</p>",
+            {
+                "from": settings.RESEND_FROM,
+                "to": [settings.ADMIN_EMAIL],
+                "subject": "🔧 Тестовое письмо",
+                "html": "<h1>Тест!</h1><p>Если вы видите это письмо — Resend работает!</p>",
+            }
         )
         print(f"✅ Тестовое письмо отправлено на {settings.ADMIN_EMAIL}")
         return True
