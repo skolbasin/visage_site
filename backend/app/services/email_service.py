@@ -145,7 +145,7 @@ def send_test_email() -> bool:
         resend.Emails.send(
             {
                 "from": settings.RESEND_FROM,
-                "to": [settings.ADMIN_EMAIL],
+                "to": settings.ADMIN_EMAIL,
                 "subject": "🔧 Тестовое письмо",
                 "html": "<h1>Тест!</h1><p>Если вы видите это письмо — Resend работает!</p>",
             }
