@@ -1,6 +1,6 @@
 import resend
 from pathlib import Path
-from jinja2 import Template
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 from app.core.config import settings
 
 # Инициализация Resend
@@ -10,11 +10,16 @@ resend.api_key = settings.RESEND_API_KEY
 TEMPLATES_DIR = Path(__file__).parent / "templates"
 
 
+# Настройка Jinja2 окружения
+env = Environment(
+    loader=FileSystemLoader(TEMPLATES_DIR),
+    autoescape=select_autoescape(['html', 'xml'])
+)
+
+
 def render_template(template_name: str, **kwargs) -> str:
     """Рендеринг HTML-шаблона"""
-    template_path = TEMPLATES_DIR / template_name
-    with open(template_path, "r", encoding="utf-8") as f:
-        template = Template(f.read())
+    template = env.get_template(template_name)
     return template.render(**kwargs)
 
 
