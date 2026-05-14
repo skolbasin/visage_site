@@ -1,11 +1,22 @@
-name: Deploy
+name: Deploy to Server
+
 on:
   push:
     branches: [master]
+
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - run: cd frontend && npm install && npm run build
-      - run: scp -r frontend/dist/* root@213.226.112.41:/opt/visage_site/frontend/dist/
+      - name: SSH and deploy
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.Server_Host }}
+          username: ${{ secrets.Server_User }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /opt/visage_site
+            git pull
+            docker compose down
+            docker compose build --no-cache
+            docker compose up -d
