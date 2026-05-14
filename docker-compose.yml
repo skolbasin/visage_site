@@ -32,6 +32,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
     volumes:
       - ./backend/static:/app/static
+      - ./frontend/public/images/portfolio:/app/frontend/public/images/portfolio
     expose:
       - "8000"
 
@@ -39,6 +40,8 @@ services:
     build: ./frontend
     container_name: makeup_frontend
     restart: always
+    volumes:
+      - ./frontend/public:/usr/share/nginx/html:ro
     expose:
       - "80"
 

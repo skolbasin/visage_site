@@ -161,7 +161,7 @@ async def upload_image(
     # Сохраняем в папку static/uploads
     import os
     import shutil
-    upload_dir = "/images/portfolio"
+    upload_dir = "/app/frontend/public/images/portfolio"
     os.makedirs(upload_dir, exist_ok=True)
     file_path = os.path.join(upload_dir, new_filename)
 
