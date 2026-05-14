@@ -3,11 +3,16 @@ from datetime import datetime
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.core.dependencies import get_current_active_user, get_current_admin_user, get_db
+from app.core.dependencies import (
+    get_current_active_user,
+    get_current_admin_user,
+    get_db,
+)
 from app.models.certificate import Certificate, CertificateStatus
-from app.models.user import User
 from app.schemas.certificate import CertificateCheck, CertificateCreate, CertificateOut
 from app.services.certificate_service import create_certificate
+from app.services.email_service import send_certificate_notification
+
 
 router = APIRouter(prefix="/certificates", tags=["certificates"])
 logger = logging.getLogger(__name__)
@@ -20,6 +25,21 @@ def purchase_certificate(
 ):
     owner_id = None
     cert = create_certificate(db, cert_data, owner_id)
+
+    send_certificate_notification(
+        {
+            "buyer_name": cert_data.buyer_name,
+            "buyer_email": cert_data.buyer_email,
+            "recipient_name": cert_data.recipient_name,
+            "type": cert_data.type,
+            "amount": cert_data.amount,
+            "service_description": cert_data.service_description,
+            "code": cert.code,
+            "message": cert_data.message,
+            "status": cert.status.value,
+        }
+    )
+
     return cert
 
 
@@ -40,11 +60,12 @@ def check_certificate(code: str, db: Session = Depends(get_db)):
 
 # === АДМИНСКИЕ ЭНДПОИНТЫ ===
 
+
 @router.get("/admin/all", response_model=List[CertificateOut])
 def get_all_certificates(
-        status: Optional[CertificateStatus] = None,
-        db: Session = Depends(get_db),
-        admin=Depends(get_current_admin_user),
+    status: Optional[CertificateStatus] = None,
+    db: Session = Depends(get_db),
+    admin=Depends(get_current_admin_user),
 ):
     """Получение всех сертификатов (только администратор)"""
     query = db.query(Certificate)
@@ -55,9 +76,9 @@ def get_all_certificates(
 
 @router.post("/admin/{cert_id}/use", response_model=CertificateOut)
 def mark_certificate_used(
-        cert_id: int,
-        db: Session = Depends(get_db),
-        admin=Depends(get_current_admin_user),
+    cert_id: int,
+    db: Session = Depends(get_db),
+    admin=Depends(get_current_admin_user),
 ):
     """Отметить сертификат как использованный (администратор)"""
     cert = db.query(Certificate).filter(Certificate.id == cert_id).first()
@@ -78,9 +99,9 @@ def mark_certificate_used(
 
 @router.delete("/admin/{cert_id}")
 def delete_certificate(
-        cert_id: int,
-        db: Session = Depends(get_db),
-        admin=Depends(get_current_admin_user),
+    cert_id: int,
+    db: Session = Depends(get_db),
+    admin=Depends(get_current_admin_user),
 ):
     """Удаление сертификата (администратор)"""
     cert = db.query(Certificate).filter(Certificate.id == cert_id).first()

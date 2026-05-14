@@ -29,23 +29,29 @@ def get_all_bookings(
     for booking in bookings:
         promo_code_str = None
         if booking.promo_code_id:
-            promo = db.query(PromoCode).filter(PromoCode.id == booking.promo_code_id).first()
+            promo = (
+                db.query(PromoCode)
+                .filter(PromoCode.id == booking.promo_code_id)
+                .first()
+            )
             if promo:
                 promo_code_str = promo.code
 
-        result.append(BookingOut(
-            id=booking.id,
-            name=booking.name,
-            phone=booking.phone,
-            email=booking.email,
-            service_name=booking.service_name,
-            appointment_date=booking.appointment_date,
-            ready_by_date=booking.ready_by_date,
-            comment=booking.comment,
-            promo_code=promo_code_str,
-            status=booking.status,
-            created_at=booking.created_at,
-        ))
+        result.append(
+            BookingOut(
+                id=booking.id,
+                name=booking.name,
+                phone=booking.phone,
+                email=booking.email,
+                service_name=booking.service_name,
+                appointment_date=booking.appointment_date,
+                ready_by_date=booking.ready_by_date,
+                comment=booking.comment,
+                promo_code=promo_code_str,
+                status=booking.status,
+                created_at=booking.created_at,
+            )
+        )
 
     return result
 
@@ -67,7 +73,9 @@ def update_booking_status(
 
     promo_code_str = None
     if booking.promo_code_id:
-        promo = db.query(PromoCode).filter(PromoCode.id == booking.promo_code_id).first()
+        promo = (
+            db.query(PromoCode).filter(PromoCode.id == booking.promo_code_id).first()
+        )
         if promo:
             promo_code_str = promo.code
 
@@ -88,12 +96,15 @@ def update_booking_status(
 
 @router.get("/counts")
 def get_new_counts(
-        db: Session = Depends(get_db),
-        admin=Depends(get_current_admin_user)
+    db: Session = Depends(get_db), admin=Depends(get_current_admin_user)
 ):
     new_bookings = db.query(Booking).filter(Booking.status == BookingStatus.new).count()
-    new_questions = db.query(Question).filter(Question.status == 'new').count()
-    active_certificates = db.query(Certificate).filter(Certificate.status == CertificateStatus.active).count()
+    new_questions = db.query(Question).filter(Question.status == "new").count()
+    active_certificates = (
+        db.query(Certificate)
+        .filter(Certificate.status == CertificateStatus.active)
+        .count()
+    )
 
     return {
         "bookings": new_bookings,
@@ -104,9 +115,9 @@ def get_new_counts(
 
 @router.delete("/bookings/{booking_id}")
 def delete_booking(
-        booking_id: int,
-        db: Session = Depends(get_db),
-        admin=Depends(get_current_admin_user),
+    booking_id: int,
+    db: Session = Depends(get_db),
+    admin=Depends(get_current_admin_user),
 ):
     """Удаление записи (только администратор)"""
     booking = db.query(Booking).filter(Booking.id == booking_id).first()

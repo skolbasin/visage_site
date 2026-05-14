@@ -8,10 +8,14 @@ from app.schemas.certificate import CertificateCreate
 
 def generate_certificate_code():
     """Генерация уникального кода сертификата"""
-    return 'GIFT-' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=12))
+    return "GIFT-" + "".join(
+        random.choices(string.ascii_uppercase + string.digits, k=12)
+    )
 
 
-def create_certificate(db: Session, cert_data: CertificateCreate, owner_id: int = None) -> Certificate:
+def create_certificate(
+    db: Session, cert_data: CertificateCreate, owner_id: int = None
+) -> Certificate:
     """Создание нового сертификата"""
     code = generate_certificate_code()
 
@@ -29,7 +33,7 @@ def create_certificate(db: Session, cert_data: CertificateCreate, owner_id: int 
         message=cert_data.message,
         expires_at=expires_at,
         owner_id=owner_id,
-        status=CertificateStatus.active
+        status=CertificateStatus.active,
     )
 
     db.add(certificate)

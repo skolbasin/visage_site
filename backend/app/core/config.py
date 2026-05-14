@@ -31,11 +31,8 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
     # SMTP настройки(EMAIL)
-    SMTP_HOST: str = None
-    SMTP_PORT: int = 587
-    SMTP_USER: Optional[str] = None
-    SMTP_PASSWORD: Optional[str] = None
-    SMTP_FROM: Optional[str] = None
+    RESEND_API_KEY: Optional[str] = None
+    RESEND_FROM: str = "noreply@resend.dev"
     ADMIN_EMAIL: Optional[str] = None
     SITE_URL: str = "https://anastasia-romancha.ru"
 

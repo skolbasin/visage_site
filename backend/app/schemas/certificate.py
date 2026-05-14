@@ -3,6 +3,7 @@ from typing import Optional
 from pydantic import BaseModel
 from app.models.certificate import CertificateStatus, CertificateType
 
+
 class CertificateBase(BaseModel):
     type: CertificateType
     amount: Optional[float] = None
@@ -13,8 +14,10 @@ class CertificateBase(BaseModel):
     message: Optional[str] = None
     expires_at: Optional[datetime] = None
 
+
 class CertificateCreate(CertificateBase):
     pass
+
 
 class CertificateOut(CertificateBase):
     id: int
@@ -26,6 +29,7 @@ class CertificateOut(CertificateBase):
 
     class Config:
         from_attributes = True
+
 
 class CertificateCheck(BaseModel):
     code: str

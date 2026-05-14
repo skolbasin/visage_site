@@ -1,10 +1,12 @@
 from pydantic import BaseModel
 from datetime import datetime
 
+
 class QuestionCreate(BaseModel):
     message: str
     contact_type: str  # 'telegram', 'phone', 'email'
     contact_value: str
+
 
 class QuestionOut(BaseModel):
     id: int
@@ -16,6 +18,7 @@ class QuestionOut(BaseModel):
 
     class Config:
         from_attributes = True
+
 
 class QuestionUpdateStatus(BaseModel):
     status: str  # 'new', 'in_progress', 'completed'
