@@ -158,7 +158,7 @@ async def upload_image(
     # Сохраняем в папку static/uploads
     import os
     import shutil
-    upload_dir = "static/uploads"
+    upload_dir = "/images/portfolio"
     os.makedirs(upload_dir, exist_ok=True)
     file_path = os.path.join(upload_dir, new_filename)
 
@@ -166,7 +166,7 @@ async def upload_image(
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        url = f"/static/uploads/{new_filename}"
+        url = f"/images/portfolio/{new_filename}"
         print(f"Файл сохранён: {file_path}, URL: {url}")
 
         return {"url": url}
