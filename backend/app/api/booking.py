@@ -12,26 +12,13 @@ from app.services.email_service import send_booking_notification
 router = APIRouter(prefix="/booking", tags=["booking"])
 logger = logging.getLogger(__name__)
 
-send_booking_notification(
-    {
-        "name": booking.name,
-        "phone": booking.phone,
-        "email": booking.email,
-        "service": booking.service_name,
-        "appointment_date": booking.appointment_date.strftime("%d.%m.%Y %H:%M"),
-        "promo_code": promo_code_str,
-        "comment": booking.comment,
-        "status": db_booking.status.value,
-    }
-)
-
 
 @router.post("/", response_model=BookingOut)
 def create_booking(
     booking: BookingCreate,
     db: Session = Depends(get_db),
 ):
-    """Публичный: создание заявки на запись"""
+    """Создание заявки на запись (доступно всем, без авторизации)"""
     promo_code_id = None
     promo_code_str = None
 

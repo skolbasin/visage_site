@@ -14,6 +14,7 @@ router = APIRouter()
 # Публичный эндпоинт - создание вопроса (доступен всем)
 @router.post("/questions", response_model=QuestionOut)
 def create_question(question_in: QuestionCreate, db: Session = Depends(get_db)):
+    """Создание нового вопроса (доступно всем без авторизации)"""
     question = Question(
         message=question_in.message,
         contact_type=question_in.contact_type,
@@ -45,6 +46,7 @@ def get_questions(
     db: Session = Depends(get_db),
     current_admin=Depends(get_current_admin_user),
 ):
+    """Админ: получение списка всех вопросов с пагинацией"""
     questions = (
         db.query(Question)
         .order_by(Question.created_at.desc())
@@ -62,6 +64,7 @@ def update_question_status(
     db: Session = Depends(get_db),
     current_admin=Depends(get_current_admin_user),
 ):
+    """Админ: обновление статуса вопроса"""
     question = db.query(Question).filter(Question.id == question_id).first()
     if not question:
         raise HTTPException(status_code=404, detail="Question not found")
@@ -77,6 +80,7 @@ def delete_question(
     db: Session = Depends(get_db),
     current_admin=Depends(get_current_admin_user),
 ):
+    """Админ: удаление вопроса"""
     question = db.query(Question).filter(Question.id == question_id).first()
     if not question:
         raise HTTPException(status_code=404, detail="Question not found")

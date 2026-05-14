@@ -23,6 +23,7 @@ def purchase_certificate(
     cert_data: CertificateCreate,
     db: Session = Depends(get_db),
 ):
+    """Покупка сертификата (доступно всем, без авторизации)"""
     owner_id = None
     cert = create_certificate(db, cert_data, owner_id)
 
