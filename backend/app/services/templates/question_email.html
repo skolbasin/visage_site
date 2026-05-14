@@ -1,0 +1,28 @@
+{% extends "base_email.html" %}
+
+{% block content %}
+<p><strong>💬 Новый вопрос от клиента!</strong></p>
+
+<div class="info-block">
+    <div class="info-row">
+        <div class="info-label">Имя:</div>
+        <div class="info-value">{{ name }}</div>
+    </div>
+    <div class="info-row">
+        <div class="info-label">Контакт:</div>
+        <div class="info-value">
+            {{ contact_type }}: {{ contact_value }}
+        </div>
+    </div>
+    <div class="info-row">
+        <div class="info-label">Вопрос:</div>
+        <div class="info-value">
+            <em>"{{ message }}"</em>
+        </div>
+    </div>
+</div>
+
+<p style="color: #666; font-size: 14px; margin-top: 16px;">
+    Статус обращения: <strong style="color: #4a7c59;">{{ status }}</strong>
+</p>
+{% endblock %}

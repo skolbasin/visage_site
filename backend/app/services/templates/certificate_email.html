@@ -1,0 +1,44 @@
+{% extends "base_email.html" %}
+
+{% block content %}
+<p><strong>🎁 Новый заказ сертификата!</strong></p>
+
+<div class="info-block">
+    <div class="info-row">
+        <div class="info-label">Покупатель:</div>
+        <div class="info-value">{{ buyer_name }}</div>
+    </div>
+    <div class="info-row">
+        <div class="info-label">Email покупателя:</div>
+        <div class="info-value">{{ buyer_email }}</div>
+    </div>
+    <div class="info-row">
+        <div class="info-label">Получатель:</div>
+        <div class="info-value">{{ recipient_name }}</div>
+    </div>
+    <div class="info-row">
+        <div class="info-label">Тип сертификата:</div>
+        <div class="info-value">
+            {% if certificate_type == 'fixed_amount' %}
+                На сумму {{ amount }} ₽
+            {% else %}
+                Конкретная услуга: {{ service_description }}
+            {% endif %}
+        </div>
+    </div>
+    <div class="info-row">
+        <div class="info-label">Код сертификата:</div>
+        <div class="info-value"><strong style="font-family: monospace;">{{ certificate_code }}</strong></div>
+    </div>
+    {% if message %}
+    <div class="info-row">
+        <div class="info-label">Пожелания:</div>
+        <div class="info-value">{{ message }}</div>
+    </div>
+    {% endif %}
+</div>
+
+<p style="color: #666; font-size: 14px; margin-top: 16px;">
+    Статус сертификата: <strong style="color: #4a7c59;">{{ status }}</strong>
+</p>
+{% endblock %}

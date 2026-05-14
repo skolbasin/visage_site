@@ -1,0 +1,44 @@
+{% extends "base_email.html" %}
+
+{% block content %}
+<p><strong>📅 Новая запись на услугу!</strong></p>
+
+<div class="info-block">
+    <div class="info-row">
+        <div class="info-label">Имя клиента:</div>
+        <div class="info-value">{{ name }}</div>
+    </div>
+    <div class="info-row">
+        <div class="info-label">Телефон:</div>
+        <div class="info-value">{{ phone }}</div>
+    </div>
+    <div class="info-row">
+        <div class="info-label">Email:</div>
+        <div class="info-value">{{ email }}</div>
+    </div>
+    <div class="info-row">
+        <div class="info-label">Услуга:</div>
+        <div class="info-value">{{ service }}</div>
+    </div>
+    <div class="info-row">
+        <div class="info-label">Дата и время:</div>
+        <div class="info-value">{{ appointment_date }}</div>
+    </div>
+    {% if promo_code %}
+    <div class="info-row">
+        <div class="info-label">Промокод:</div>
+        <div class="info-value">{{ promo_code }}</div>
+    </div>
+    {% endif %}
+    {% if comment %}
+    <div class="info-row">
+        <div class="info-label">Комментарий:</div>
+        <div class="info-value">{{ comment }}</div>
+    </div>
+    {% endif %}
+</div>
+
+<p style="color: #666; font-size: 14px; margin-top: 16px;">
+    Статус заявки: <strong style="color: #4a7c59;">{{ status }}</strong>
+</p>
+{% endblock %}

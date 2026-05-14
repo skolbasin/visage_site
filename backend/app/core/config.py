@@ -30,13 +30,14 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
-    # === Email (опционально) ===
-    SMTP_HOST: Optional[str] = None
-    SMTP_PORT: Optional[int] = None
+    # SMTP настройки(EMAIL)
+    SMTP_HOST: str = None
+    SMTP_PORT: int = 587
     SMTP_USER: Optional[str] = None
     SMTP_PASSWORD: Optional[str] = None
-    EMAILS_FROM_EMAIL: Optional[str] = None
-    EMAILS_FROM_NAME: Optional[str] = None
+    SMTP_FROM: Optional[str] = None
+    ADMIN_EMAIL: Optional[str] = None
+    SITE_URL: str = "https://anastasia-romancha.ru"
 
     # === Rate limiting ===
     RATE_LIMIT_ENABLED: bool = True
