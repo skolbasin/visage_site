@@ -44,7 +44,7 @@ def send_booking_notification(booking_data: dict) -> bool:
         resend.Emails.send(
             {
                 "from": settings.RESEND_FROM,
-                "to": [settings.ADMIN_EMAIL],
+                "to": settings.ADMIN_EMAIL,
                 "subject": subject,
                 "html": html,
             }
@@ -83,7 +83,7 @@ def send_certificate_notification(certificate_data: dict) -> bool:
         resend.Emails.send(
             {
                 "from": settings.RESEND_FROM,
-                "to": [settings.ADMIN_EMAIL],
+                "to": settings.ADMIN_EMAIL,
                 "subject": subject,
                 "html": html,
             }
@@ -118,7 +118,7 @@ def send_question_notification(question_data: dict) -> bool:
         resend.Emails.send(
             {
                 "from": settings.RESEND_FROM,
-                "to": [settings.ADMIN_EMAIL],
+                "to": settings.ADMIN_EMAIL,
                 "subject": subject,
                 "html": html,
             }
