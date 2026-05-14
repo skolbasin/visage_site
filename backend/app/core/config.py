@@ -30,13 +30,11 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
-    # === Email (опционально) ===
-    SMTP_HOST: Optional[str] = None
-    SMTP_PORT: Optional[int] = None
-    SMTP_USER: Optional[str] = None
-    SMTP_PASSWORD: Optional[str] = None
-    EMAILS_FROM_EMAIL: Optional[str] = None
-    EMAILS_FROM_NAME: Optional[str] = None
+    # SMTP настройки(EMAIL)
+    RESEND_API_KEY: Optional[str] = None
+    RESEND_FROM: str = "noreply@resend.dev"
+    ADMIN_EMAIL: Optional[str] = None
+    SITE_URL: str = "https://anastasia-romancha.ru"
 
     # === Rate limiting ===
     RATE_LIMIT_ENABLED: bool = True

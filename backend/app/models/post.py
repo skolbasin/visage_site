@@ -3,10 +3,12 @@ from sqlalchemy import Boolean, Column, DateTime, Enum, Integer, String, Text
 from sqlalchemy.sql import func
 from app.db.base_class import Base
 
+
 class PostType(str, enum.Enum):
     photo = "photo"
     video = "video"
     text = "text"
+
 
 class Post(Base):
     __tablename__ = "posts"

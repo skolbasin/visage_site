@@ -3,14 +3,17 @@ from typing import Optional
 from pydantic import BaseModel
 from app.models.post import PostType
 
+
 class PostBase(BaseModel):
     type: PostType = PostType.photo
     media_url: Optional[str] = None
     content: Optional[str] = None
     is_published: bool = True
 
+
 class PostCreate(PostBase):
     likes_count: Optional[int] = None
+
 
 class PostUpdate(BaseModel):
     type: Optional[PostType] = None
@@ -18,6 +21,7 @@ class PostUpdate(BaseModel):
     content: Optional[str] = None
     is_published: Optional[bool] = None
     likes_count: Optional[int] = None
+
 
 class PostOut(PostBase):
     id: int
