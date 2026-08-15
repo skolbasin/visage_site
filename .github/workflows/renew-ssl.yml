@@ -1,0 +1,83 @@
+name: Renew SSL Certificate
+
+on:
+  workflow_dispatch:
+
+jobs:
+  renew:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Renew Let's Encrypt and reload nginx
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.Server_Host }}
+          username: ${{ secrets.Server_User }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 10m
+          script: |
+            set -e
+            cd /opt/visage_site
+
+            echo "=== Current cert in nginx/ssl ==="
+            openssl x509 -in nginx/ssl/fullchain.pem -noout -subject -dates || true
+
+            echo "=== Let's Encrypt live dirs ==="
+            ls -la /etc/letsencrypt/live/ || true
+
+            echo "=== Stopping nginx for standalone renew ==="
+            docker compose stop nginx
+
+            if command -v certbot >/dev/null 2>&1; then
+              if [ -d /etc/letsencrypt/live/anastasia-romancha.ru ]; then
+                certbot renew --force-renewal --standalone \
+                  --preferred-challenges http \
+                  --non-interactive \
+                  --cert-name anastasia-romancha.ru
+              else
+                certbot certonly --standalone \
+                  --preferred-challenges http \
+                  --non-interactive \
+                  --agree-tos \
+                  --email romancha.96@list.ru \
+                  -d anastasia-romancha.ru \
+                  -d www.anastasia-romancha.ru
+              fi
+            else
+              echo "certbot not found, installing..."
+              if command -v apt-get >/dev/null 2>&1; then
+                apt-get update -y
+                apt-get install -y certbot
+              else
+                echo "Cannot install certbot automatically"
+                docker compose start nginx
+                exit 1
+              fi
+              certbot certonly --standalone \
+                --preferred-challenges http \
+                --non-interactive \
+                --agree-tos \
+                --email romancha.96@list.ru \
+                -d anastasia-romancha.ru \
+                -d www.anastasia-romancha.ru
+            fi
+
+            LIVE_DIR="/etc/letsencrypt/live/anastasia-romancha.ru"
+            if [ ! -f "$LIVE_DIR/fullchain.pem" ]; then
+              LIVE_DIR=$(find /etc/letsencrypt/live -mindepth 1 -maxdepth 1 -type d | head -1)
+            fi
+
+            echo "=== Copying from $LIVE_DIR ==="
+            mkdir -p nginx/ssl
+            cp -L "$LIVE_DIR/fullchain.pem" nginx/ssl/fullchain.pem
+            cp -L "$LIVE_DIR/privkey.pem" nginx/ssl/privkey.pem
+            chmod 644 nginx/ssl/fullchain.pem
+            chmod 600 nginx/ssl/privkey.pem
+
+            echo "=== New cert ==="
+            openssl x509 -in nginx/ssl/fullchain.pem -noout -subject -dates
+
+            echo "=== Starting nginx ==="
+            docker compose start nginx
+            sleep 2
+            docker compose ps nginx
+            echo "Done"
