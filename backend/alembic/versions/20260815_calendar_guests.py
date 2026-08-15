@@ -10,19 +10,21 @@ from typing import Sequence, Union
 
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy.dialects import postgresql
 
 revision: str = "20260815_calendar_guests"
 down_revision: Union[str, None] = "20260815_calendar"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-workplace_enum = sa.Enum(
+workplace_enum = postgresql.ENUM(
     "studio",
     "apartment",
     "hotel",
     name="workplace",
+    create_type=False,
 )
-appointment_type_enum = sa.Enum(
+appointment_type_enum = postgresql.ENUM(
     "hair",
     "makeup",
     "look",
@@ -35,7 +37,8 @@ appointment_type_enum = sa.Enum(
 
 
 def upgrade() -> None:
-    workplace_enum.create(op.get_bind(), checkfirst=True)
+    bind = op.get_bind()
+    workplace_enum.create(bind, checkfirst=True)
 
     op.alter_column(
         "calendar_appointments",
