@@ -16,6 +16,12 @@ export const APPOINTMENT_TYPES = [
   { value: 'self_makeup', label: 'Макияж для себя', durationHours: 3 },
 ];
 
+export const WORKPLACES = [
+  { value: 'studio', label: 'Студия' },
+  { value: 'apartment', label: 'Квартира' },
+  { value: 'hotel', label: 'Отель' },
+];
+
 export const APPOINTMENT_STATUSES = [
   { value: 'scheduled', label: 'Запланировано' },
   { value: 'completed', label: 'Завершено' },
@@ -44,9 +50,29 @@ export function getDurationHours(type) {
   return found?.durationHours ?? 1.5;
 }
 
+export function getTotalDurationHours(mainType, guests = []) {
+  const guestHours = guests.reduce(
+    (sum, guest) => sum + getDurationHours(guest.appointment_type),
+    0
+  );
+  return getDurationHours(mainType) + guestHours;
+}
+
+export function getTotalPrice(mainPrice, guests = []) {
+  const base = mainPrice === '' || mainPrice == null ? 0 : Number(mainPrice) || 0;
+  const guestsSum = guests.reduce((sum, guest) => {
+    if (guest.price === '' || guest.price == null) return sum;
+    return sum + (Number(guest.price) || 0);
+  }, 0);
+  return base + guestsSum;
+}
+
 export function formatDuration(hours) {
-  if (hours === Math.floor(hours)) return `${hours} ч`;
-  return `${hours} ч`;
+  const whole = Math.floor(hours);
+  const minutes = Math.round((hours - whole) * 60);
+  if (minutes === 0) return `${whole} ч`;
+  if (whole === 0) return `${minutes} мин`;
+  return `${whole} ч ${minutes} мин`;
 }
 
 export function sourceLabel(value) {
@@ -55,6 +81,10 @@ export function sourceLabel(value) {
 
 export function typeLabel(value) {
   return APPOINTMENT_TYPES.find((t) => t.value === value)?.label || value;
+}
+
+export function workplaceLabel(value) {
+  return WORKPLACES.find((w) => w.value === value)?.label || value;
 }
 
 export function statusLabel(value) {

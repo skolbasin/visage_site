@@ -53,7 +53,7 @@ export default function AnalyticsOverview() {
       <section>
         <h2 className="text-lg font-medium text-gray-800 mb-1">Ключевые показатели</h2>
         <p className="text-sm text-gray-500 mb-4">Сводка по выбранному периоду</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 bg-white rounded-xl border border-gray-100 p-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 bg-white rounded-xl border border-gray-100 p-5">
           <Kpi label="Всего записей" value={data.total} />
           <Kpi label="Завершено" value={data.completed} hint={`Отмен: ${data.cancelled}`} />
           <Kpi label="Выручка" value={formatMoney(data.revenue)} hint="Только завершённые" />
@@ -61,6 +61,11 @@ export default function AnalyticsOverview() {
             label="Средний чек"
             value={formatMoney(data.average_check)}
             hint={`Предоплата: ${data.prepayment_share}%`}
+          />
+          <Kpi
+            label="Групповые"
+            value={`${data.group_share ?? 0}%`}
+            hint={`${data.group_count ?? 0} записей`}
           />
         </div>
         {data.top_source && (

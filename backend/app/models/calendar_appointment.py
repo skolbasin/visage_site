@@ -1,7 +1,20 @@
 import enum
 from datetime import timedelta
+from decimal import Decimal
+from typing import Iterable, Optional
 
-from sqlalchemy import Boolean, Column, DateTime, Enum, Integer, Numeric, String, Text
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Integer,
+    Numeric,
+    String,
+    Text,
+)
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from app.db.base_class import Base
@@ -32,6 +45,12 @@ class AppointmentStatus(str, enum.Enum):
     no_show = "no_show"
 
 
+class Workplace(str, enum.Enum):
+    studio = "studio"
+    apartment = "apartment"
+    hotel = "hotel"
+
+
 DURATION_HOURS = {
     AppointmentType.hair: 1.5,
     AppointmentType.makeup: 1.5,
@@ -47,6 +66,19 @@ def duration_for_type(appointment_type: AppointmentType) -> timedelta:
     return timedelta(minutes=int(hours * 60))
 
 
+def duration_for_types(types: Iterable[AppointmentType]) -> timedelta:
+    total = timedelta()
+    for appointment_type in types:
+        total += duration_for_type(appointment_type)
+    return total
+
+
+def money_or_zero(value: Optional[Decimal]) -> Decimal:
+    if value is None:
+        return Decimal("0")
+    return Decimal(value)
+
+
 class CalendarAppointment(Base):
     __tablename__ = "calendar_appointments"
 
@@ -55,13 +87,13 @@ class CalendarAppointment(Base):
     client_source = Column(Enum(ClientSource), nullable=False)
     client_source_other = Column(String, nullable=True)
     appointment_type = Column(Enum(AppointmentType), nullable=False)
-    client_link = Column(String, nullable=True)
-    price = Column(Numeric(10, 2), nullable=False)
+    contact = Column(String, nullable=False)
+    price = Column(Numeric(10, 2), nullable=True)
     starts_at = Column(DateTime(timezone=True), nullable=False, index=True)
     ends_at = Column(DateTime(timezone=True), nullable=False, index=True)
     has_prepayment = Column(Boolean, default=False, nullable=False)
     prepayment_amount = Column(Numeric(10, 2), nullable=True)
-    workplace = Column(String, nullable=False)
+    workplace = Column(Enum(Workplace), nullable=False)
     comment = Column(Text, nullable=True)
     status = Column(
         Enum(AppointmentStatus),
@@ -71,3 +103,42 @@ class CalendarAppointment(Base):
     )
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    guests = relationship(
+        "AppointmentGuest",
+        back_populates="appointment",
+        cascade="all, delete-orphan",
+        order_by="AppointmentGuest.id",
+    )
+
+    @property
+    def people_count(self) -> int:
+        return 1 + len(self.guests or [])
+
+    @property
+    def is_group(self) -> bool:
+        return self.people_count > 1
+
+    @property
+    def total_price(self) -> Decimal:
+        total = money_or_zero(self.price)
+        for guest in self.guests or []:
+            total += money_or_zero(guest.price)
+        return total
+
+
+class AppointmentGuest(Base):
+    __tablename__ = "calendar_appointment_guests"
+
+    id = Column(Integer, primary_key=True, index=True)
+    appointment_id = Column(
+        Integer,
+        ForeignKey("calendar_appointments.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    name = Column(String, nullable=False)
+    appointment_type = Column(Enum(AppointmentType), nullable=False)
+    price = Column(Numeric(10, 2), nullable=True)
+
+    appointment = relationship("CalendarAppointment", back_populates="guests")

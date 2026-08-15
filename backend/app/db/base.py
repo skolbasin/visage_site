@@ -3,7 +3,7 @@ from app.db.base_class import Base
 # Импортируем модели, чтобы Alembic их видел
 from app.models.article import Article
 from app.models.booking import Booking
-from app.models.calendar_appointment import CalendarAppointment
+from app.models.calendar_appointment import AppointmentGuest, CalendarAppointment
 from app.models.category import Category
 from app.models.certificate import Certificate
 from app.models.portfolio import PortfolioItem

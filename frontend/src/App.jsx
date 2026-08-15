@@ -28,6 +28,7 @@ import AnalyticsFunnel from './pages/admin/analytics/AnalyticsFunnel';
 import AnalyticsQuality from './pages/admin/analytics/AnalyticsQuality';
 import AnalyticsRevenue from './pages/admin/analytics/AnalyticsRevenue';
 import AnalyticsServices from './pages/admin/analytics/AnalyticsServices';
+import AnalyticsGroups from './pages/admin/analytics/AnalyticsGroups';
 
 function App() {
   return (
@@ -62,6 +63,7 @@ function App() {
             <Route path="quality" element={<AnalyticsQuality />} />
             <Route path="revenue" element={<AnalyticsRevenue />} />
             <Route path="services" element={<AnalyticsServices />} />
+            <Route path="groups" element={<AnalyticsGroups />} />
           </Route>
           <Route path="questions" element={<AdminQuestions />} />
           <Route path="certificates" element={<AdminCertificates />} />

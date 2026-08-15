@@ -5,7 +5,7 @@ from statistics import median
 from typing import Dict, List, Optional, Tuple
 
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.core.dependencies import get_current_admin_user, get_db
 from app.models.calendar_appointment import (
@@ -43,6 +43,7 @@ def _appointments_in_range(
 ) -> List[CalendarAppointment]:
     return (
         db.query(CalendarAppointment)
+        .options(joinedload(CalendarAppointment.guests))
         .filter(
             CalendarAppointment.starts_at >= start,
             CalendarAppointment.starts_at <= end,
@@ -55,6 +56,10 @@ def _money(value) -> float:
     if value is None:
         return 0.0
     return float(Decimal(value))
+
+
+def _total_money(appointment: CalendarAppointment) -> float:
+    return float(appointment.total_price)
 
 
 def _source_label(source: ClientSource) -> str:
@@ -81,6 +86,12 @@ def _type_label(appointment_type: AppointmentType) -> str:
     return labels.get(appointment_type, appointment_type.value)
 
 
+def _service_entries(appointment: CalendarAppointment):
+    yield appointment.appointment_type, appointment.price, True
+    for guest in appointment.guests or []:
+        yield guest.appointment_type, guest.price, False
+
+
 @router.get("/overview")
 def analytics_overview(
     date_from: Optional[datetime] = Query(None, alias="from"),
@@ -96,8 +107,9 @@ def analytics_overview(
     no_show = [a for a in items if a.status == AppointmentStatus.no_show]
     scheduled = [a for a in items if a.status == AppointmentStatus.scheduled]
     with_prepay = [a for a in items if a.has_prepayment]
+    group_items = [a for a in items if a.is_group]
 
-    revenue = sum(_money(a.price) for a in completed)
+    revenue = sum(_total_money(a) for a in completed)
     avg_check = revenue / len(completed) if completed else 0.0
 
     source_counts: Dict[ClientSource, int] = defaultdict(int)
@@ -124,6 +136,8 @@ def analytics_overview(
         "revenue": revenue,
         "average_check": round(avg_check, 2),
         "prepayment_share": round(len(with_prepay) / len(items) * 100, 1) if items else 0.0,
+        "group_share": round(len(group_items) / len(items) * 100, 1) if items else 0.0,
+        "group_count": len(group_items),
         "top_source": top_source,
         "timeline": timeline,
     }
@@ -257,7 +271,7 @@ def analytics_quality(
                 AppointmentStatus.no_show,
             )
         ]
-        revenue = sum(_money(a.price) for a in completed)
+        revenue = sum(_total_money(a) for a in completed)
         rows.append(
             {
                 "source": source.value,
@@ -301,7 +315,7 @@ def analytics_revenue(
         statuses.add(AppointmentStatus.scheduled)
     relevant = [a for a in items if a.status in statuses]
 
-    prices = [_money(a.price) for a in relevant]
+    prices = [_total_money(a) for a in relevant]
     total_revenue = sum(prices)
     prepayments = sum(
         _money(a.prepayment_amount) for a in relevant if a.has_prepayment and a.prepayment_amount
@@ -313,7 +327,7 @@ def analytics_revenue(
     by_day: Dict[str, float] = defaultdict(float)
     for a in relevant:
         key = a.starts_at.astimezone(timezone.utc).date().isoformat()
-        by_day[key] += _money(a.price)
+        by_day[key] += _total_money(a)
 
     return {
         "period": {"from": start, "to": end},
@@ -338,31 +352,36 @@ def analytics_services(
     start, end = _parse_period(date_from, date_to)
     items = _appointments_in_range(db, start, end)
 
-    by_type: Dict[AppointmentType, List[CalendarAppointment]] = defaultdict(list)
-    for a in items:
-        by_type[a.appointment_type].append(a)
+    counts: Dict[AppointmentType, int] = defaultdict(int)
+    active_counts: Dict[AppointmentType, int] = defaultdict(int)
+    revenues: Dict[AppointmentType, float] = defaultdict(float)
+
+    for appointment in items:
+        is_active = appointment.status in (
+            AppointmentStatus.completed,
+            AppointmentStatus.scheduled,
+        )
+        is_completed = appointment.status == AppointmentStatus.completed
+        for service_type, price, _is_main in _service_entries(appointment):
+            counts[service_type] += 1
+            if is_active:
+                active_counts[service_type] += 1
+            if is_completed:
+                revenues[service_type] += _money(price)
 
     rows = []
     total_hours = 0.0
     for appointment_type in AppointmentType:
-        group = by_type.get(appointment_type, [])
-        active = [
-            a
-            for a in group
-            if a.status in (AppointmentStatus.completed, AppointmentStatus.scheduled)
-        ]
-        completed = [a for a in group if a.status == AppointmentStatus.completed]
         duration = DURATION_HOURS[appointment_type]
-        hours = len(active) * duration
+        hours = active_counts[appointment_type] * duration
         total_hours += hours
-        revenue = sum(_money(a.price) for a in completed)
         rows.append(
             {
                 "type": appointment_type.value,
                 "label": _type_label(appointment_type),
-                "count": len(group),
-                "active_count": len(active),
-                "revenue": round(revenue, 2),
+                "count": counts[appointment_type],
+                "active_count": active_counts[appointment_type],
+                "revenue": round(revenues[appointment_type], 2),
                 "duration_hours": duration,
                 "busy_hours": round(hours, 2),
             }
@@ -372,6 +391,60 @@ def analytics_services(
         "period": {"from": start, "to": end},
         "services": rows,
         "total_busy_hours": round(total_hours, 2),
+    }
+
+
+@router.get("/groups")
+def analytics_groups(
+    date_from: Optional[datetime] = Query(None, alias="from"),
+    date_to: Optional[datetime] = Query(None, alias="to"),
+    db: Session = Depends(get_db),
+    admin=Depends(get_current_admin_user),
+):
+    start, end = _parse_period(date_from, date_to)
+    items = _appointments_in_range(db, start, end)
+
+    solo = [a for a in items if not a.is_group]
+    group = [a for a in items if a.is_group]
+    completed_group = [a for a in group if a.status == AppointmentStatus.completed]
+    completed_solo = [a for a in solo if a.status == AppointmentStatus.completed]
+
+    people_total = sum(a.people_count for a in items)
+    avg_people = people_total / len(items) if items else 0.0
+    avg_people_in_groups = (
+        sum(a.people_count for a in group) / len(group) if group else 0.0
+    )
+
+    size_buckets: Dict[int, int] = defaultdict(int)
+    for a in items:
+        size_buckets[a.people_count] += 1
+
+    size_distribution = [
+        {"people": size, "count": size_buckets[size]}
+        for size in sorted(size_buckets.keys())
+    ]
+
+    group_revenue = sum(_total_money(a) for a in completed_group)
+    solo_revenue = sum(_total_money(a) for a in completed_solo)
+
+    return {
+        "period": {"from": start, "to": end},
+        "total_appointments": len(items),
+        "solo_count": len(solo),
+        "group_count": len(group),
+        "group_share": round(len(group) / len(items) * 100, 1) if items else 0.0,
+        "people_total": people_total,
+        "average_people_per_appointment": round(avg_people, 2),
+        "average_people_in_groups": round(avg_people_in_groups, 2),
+        "size_distribution": size_distribution,
+        "solo_revenue": round(solo_revenue, 2),
+        "group_revenue": round(group_revenue, 2),
+        "average_group_check": round(group_revenue / len(completed_group), 2)
+        if completed_group
+        else 0.0,
+        "average_solo_check": round(solo_revenue / len(completed_solo), 2)
+        if completed_solo
+        else 0.0,
     }
 
 
@@ -400,7 +473,7 @@ def analytics_timeline(
         buckets[key]["count"] += 1
         if a.status == AppointmentStatus.completed:
             buckets[key]["completed"] += 1
-            buckets[key]["revenue"] += _money(a.price)
+            buckets[key]["revenue"] += _total_money(a)
 
     points = [
         {

@@ -1,13 +1,24 @@
 import { useMemo, useState } from 'react';
-import { X } from 'lucide-react';
+import { Plus, Trash2, X } from 'lucide-react';
 import {
   APPOINTMENT_STATUSES,
   APPOINTMENT_TYPES,
   CLIENT_SOURCES,
+  WORKPLACES,
   formatDuration,
-  getDurationHours,
+  formatMoney,
+  getTotalDurationHours,
+  getTotalPrice,
   toLocalInputValue,
 } from '../../data/calendarConstants';
+
+function emptyGuest() {
+  return {
+    name: '',
+    appointment_type: 'makeup',
+    price: '',
+  };
+}
 
 function buildInitialForm(initial, defaultStartsAt) {
   if (initial) {
@@ -16,15 +27,20 @@ function buildInitialForm(initial, defaultStartsAt) {
       client_source: initial.client_source || 'instagram',
       client_source_other: initial.client_source_other || '',
       appointment_type: initial.appointment_type || 'makeup',
-      client_link: initial.client_link || '',
+      contact: initial.contact || '',
       price: initial.price != null ? String(initial.price) : '',
       starts_at: toLocalInputValue(initial.starts_at),
       has_prepayment: Boolean(initial.has_prepayment),
       prepayment_amount:
         initial.prepayment_amount != null ? String(initial.prepayment_amount) : '',
-      workplace: initial.workplace || '',
+      workplace: initial.workplace || 'studio',
       comment: initial.comment || '',
       status: initial.status || 'scheduled',
+      guests: (initial.guests || []).map((guest) => ({
+        name: guest.name || '',
+        appointment_type: guest.appointment_type || 'makeup',
+        price: guest.price != null ? String(guest.price) : '',
+      })),
     };
   }
   return {
@@ -32,14 +48,15 @@ function buildInitialForm(initial, defaultStartsAt) {
     client_source: 'instagram',
     client_source_other: '',
     appointment_type: 'makeup',
-    client_link: '',
+    contact: '',
     price: '',
     starts_at: toLocalInputValue(defaultStartsAt || new Date()),
     has_prepayment: false,
     prepayment_amount: '',
-    workplace: '',
+    workplace: 'studio',
     comment: '',
     status: 'scheduled',
+    guests: [],
   };
 }
 
@@ -55,12 +72,37 @@ function AppointmentForm({
   const [error, setError] = useState('');
 
   const durationHours = useMemo(
-    () => getDurationHours(form.appointment_type),
-    [form.appointment_type]
+    () => getTotalDurationHours(form.appointment_type, form.guests),
+    [form.appointment_type, form.guests]
+  );
+
+  const totalPrice = useMemo(
+    () => getTotalPrice(form.price, form.guests),
+    [form.price, form.guests]
   );
 
   const update = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const updateGuest = (index, field, value) => {
+    setForm((prev) => ({
+      ...prev,
+      guests: prev.guests.map((guest, i) =>
+        i === index ? { ...guest, [field]: value } : guest
+      ),
+    }));
+  };
+
+  const addGuest = () => {
+    setForm((prev) => ({ ...prev, guests: [...prev.guests, emptyGuest()] }));
+  };
+
+  const removeGuest = (index) => {
+    setForm((prev) => ({
+      ...prev,
+      guests: prev.guests.filter((_, i) => i !== index),
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -71,7 +113,11 @@ function AppointmentForm({
       setError('Укажите имя клиента');
       return;
     }
-    if (!form.workplace.trim()) {
+    if (!form.contact.trim()) {
+      setError('Укажите контакты');
+      return;
+    }
+    if (!form.workplace) {
       setError('Укажите место работы');
       return;
     }
@@ -79,13 +125,23 @@ function AppointmentForm({
       setError('Укажите время записи');
       return;
     }
-    if (form.price === '' || Number(form.price) < 0) {
-      setError('Укажите стоимость');
+    if (form.price !== '' && Number(form.price) < 0) {
+      setError('Стоимость не может быть отрицательной');
       return;
     }
     if (form.client_source === 'other' && !form.client_source_other.trim()) {
       setError('Укажите источник в поле «другое»');
       return;
+    }
+    for (const guest of form.guests) {
+      if (!guest.name.trim()) {
+        setError('Укажите имя дополнительного клиента');
+        return;
+      }
+      if (guest.price !== '' && Number(guest.price) < 0) {
+        setError('Стоимость доп. клиента не может быть отрицательной');
+        return;
+      }
     }
     if (form.has_prepayment) {
       const amount = Number(form.prepayment_amount);
@@ -93,8 +149,8 @@ function AppointmentForm({
         setError('Укажите сумму предоплаты');
         return;
       }
-      if (amount > Number(form.price)) {
-        setError('Предоплата не может превышать стоимость');
+      if (totalPrice > 0 && amount > totalPrice) {
+        setError('Предоплата не может превышать общую стоимость');
         return;
       }
     }
@@ -105,21 +161,32 @@ function AppointmentForm({
       client_source_other:
         form.client_source === 'other' ? form.client_source_other.trim() : null,
       appointment_type: form.appointment_type,
-      client_link: form.client_link.trim() || null,
-      price: Number(form.price),
+      contact: form.contact.trim(),
+      price: form.price === '' ? null : Number(form.price),
       starts_at: new Date(form.starts_at).toISOString(),
       has_prepayment: form.has_prepayment,
       prepayment_amount: form.has_prepayment ? Number(form.prepayment_amount) : null,
-      workplace: form.workplace.trim(),
+      workplace: form.workplace,
       comment: form.comment.trim() || null,
       status: form.status,
+      guests: form.guests.map((guest) => ({
+        name: guest.name.trim(),
+        appointment_type: guest.appointment_type,
+        price: guest.price === '' ? null : Number(guest.price),
+      })),
     };
 
     try {
       await onSubmit(payload);
     } catch (err) {
       const detail = err.response?.data?.detail;
-      setError(typeof detail === 'string' ? detail : 'Не удалось сохранить запись');
+      if (typeof detail === 'string') {
+        setError(detail);
+      } else if (Array.isArray(detail)) {
+        setError(detail.map((item) => item.msg).join('; '));
+      } else {
+        setError('Не удалось сохранить запись');
+      }
     }
   };
 
@@ -149,7 +216,7 @@ function AppointmentForm({
           )}
 
           <label className="block">
-            <span className="text-sm text-gray-600 mb-1 block">Имя</span>
+            <span className="text-sm text-gray-600 mb-1 block">Имя *</span>
             <input
               type="text"
               value={form.name}
@@ -160,11 +227,12 @@ function AppointmentForm({
           </label>
 
           <label className="block">
-            <span className="text-sm text-gray-600 mb-1 block">Откуда клиент</span>
+            <span className="text-sm text-gray-600 mb-1 block">Откуда клиент *</span>
             <select
               value={form.client_source}
               onChange={(e) => update('client_source', e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4a7c59]"
+              required
             >
               {CLIENT_SOURCES.map((s) => (
                 <option key={s.value} value={s.value}>
@@ -176,22 +244,24 @@ function AppointmentForm({
 
           {form.client_source === 'other' && (
             <label className="block">
-              <span className="text-sm text-gray-600 mb-1 block">Укажите источник</span>
+              <span className="text-sm text-gray-600 mb-1 block">Укажите источник *</span>
               <input
                 type="text"
                 value={form.client_source_other}
                 onChange={(e) => update('client_source_other', e.target.value)}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4a7c59]"
+                required
               />
             </label>
           )}
 
           <label className="block">
-            <span className="text-sm text-gray-600 mb-1 block">Тип записи</span>
+            <span className="text-sm text-gray-600 mb-1 block">Тип записи *</span>
             <select
               value={form.appointment_type}
               onChange={(e) => update('appointment_type', e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4a7c59]"
+              required
             >
               {APPOINTMENT_TYPES.map((t) => (
                 <option key={t.value} value={t.value}>
@@ -200,18 +270,20 @@ function AppointmentForm({
               ))}
             </select>
             <span className="text-xs text-gray-500 mt-1 block">
-              Длительность: {formatDuration(durationHours)} (автоматически)
+              Длительность записи: {formatDuration(durationHours)}
+              {form.guests.length > 0 ? ' (с учётом доп. клиентов)' : ''}
             </span>
           </label>
 
           <label className="block">
-            <span className="text-sm text-gray-600 mb-1 block">Ссылка на клиента</span>
+            <span className="text-sm text-gray-600 mb-1 block">Контакты *</span>
             <input
-              type="url"
-              value={form.client_link}
-              onChange={(e) => update('client_link', e.target.value)}
-              placeholder="https://"
+              type="text"
+              value={form.contact}
+              onChange={(e) => update('contact', e.target.value)}
+              placeholder="Ссылка или номер телефона"
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4a7c59]"
+              required
             />
           </label>
 
@@ -225,12 +297,15 @@ function AppointmentForm({
                 value={form.price}
                 onChange={(e) => update('price', e.target.value)}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4a7c59]"
-                required
               />
+              <span className="text-xs text-gray-500 mt-1 block">
+                Если стоимость может измениться — оставьте пустым и опишите ситуацию в
+                комментариях
+              </span>
             </label>
 
             <label className="block">
-              <span className="text-sm text-gray-600 mb-1 block">Время записи</span>
+              <span className="text-sm text-gray-600 mb-1 block">Время записи *</span>
               <input
                 type="datetime-local"
                 value={form.starts_at}
@@ -243,7 +318,7 @@ function AppointmentForm({
 
           <div className="rounded-lg border border-gray-200 p-3 space-y-3">
             <label className="flex items-center justify-between gap-3 cursor-pointer">
-              <span className="text-sm text-gray-700">Предоплата</span>
+              <span className="text-sm text-gray-700">Предоплата *</span>
               <button
                 type="button"
                 role="switch"
@@ -262,7 +337,7 @@ function AppointmentForm({
             </label>
             {form.has_prepayment && (
               <label className="block">
-                <span className="text-sm text-gray-600 mb-1 block">Сумма предоплаты, ₽</span>
+                <span className="text-sm text-gray-600 mb-1 block">Сумма предоплаты, ₽ *</span>
                 <input
                   type="number"
                   min="1"
@@ -270,21 +345,111 @@ function AppointmentForm({
                   value={form.prepayment_amount}
                   onChange={(e) => update('prepayment_amount', e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4a7c59]"
+                  required
                 />
               </label>
             )}
           </div>
 
           <label className="block">
-            <span className="text-sm text-gray-600 mb-1 block">Место работы</span>
-            <input
-              type="text"
+            <span className="text-sm text-gray-600 mb-1 block">Место работы *</span>
+            <select
               value={form.workplace}
               onChange={(e) => update('workplace', e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4a7c59]"
               required
-            />
+            >
+              {WORKPLACES.map((place) => (
+                <option key={place.value} value={place.value}>
+                  {place.label}
+                </option>
+              ))}
+            </select>
           </label>
+
+          <div className="rounded-lg border border-gray-200 p-3 space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <div>
+                <div className="text-sm font-medium text-gray-800">Доп. клиенты</div>
+                <div className="text-xs text-gray-500">
+                  Мама, подруги и другие в той же записи
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={addGuest}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#4a7c59] text-white text-sm hover:bg-[#3d6849] transition"
+              >
+                <Plus size={16} />
+                Добавить
+              </button>
+            </div>
+
+            {form.guests.map((guest, index) => (
+              <div
+                key={index}
+                className="rounded-lg border border-gray-100 bg-gray-50 p-3 space-y-3"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-700">Клиент {index + 2}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeGuest(index)}
+                    className="p-1.5 rounded-lg text-red-600 hover:bg-red-50"
+                    aria-label="Удалить"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+                <label className="block">
+                  <span className="text-sm text-gray-600 mb-1 block">Кто *</span>
+                  <input
+                    type="text"
+                    value={guest.name}
+                    onChange={(e) => updateGuest(index, 'name', e.target.value)}
+                    placeholder="Мама / подруга / ..."
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#4a7c59]"
+                    required
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-sm text-gray-600 mb-1 block">Услуга *</span>
+                  <select
+                    value={guest.appointment_type}
+                    onChange={(e) =>
+                      updateGuest(index, 'appointment_type', e.target.value)
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#4a7c59]"
+                    required
+                  >
+                    {APPOINTMENT_TYPES.map((t) => (
+                      <option key={t.value} value={t.value}>
+                        {t.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block">
+                  <span className="text-sm text-gray-600 mb-1 block">Стоимость, ₽</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={guest.price}
+                    onChange={(e) => updateGuest(index, 'price', e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#4a7c59]"
+                  />
+                </label>
+              </div>
+            ))}
+
+            {(form.guests.length > 0 || totalPrice > 0) && (
+              <div className="text-sm text-gray-700 pt-1 border-t border-gray-100">
+                Итого: {formatMoney(totalPrice)} · {formatDuration(durationHours)} ·{' '}
+                {1 + form.guests.length} чел.
+              </div>
+            )}
+          </div>
 
           {initial && (
             <label className="block">
@@ -357,7 +522,7 @@ export default function AppointmentFormModal({
   if (!open) return null;
 
   const formKey = initial
-    ? `edit-${initial.id}`
+    ? `edit-${initial.id}-${(initial.guests || []).length}`
     : `create-${defaultStartsAt ? new Date(defaultStartsAt).getTime() : 'now'}`;
 
   return (

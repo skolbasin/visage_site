@@ -7,12 +7,14 @@ def _create_completed(client, admin_headers, **overrides):
         "name": "Мария",
         "client_source": "profi",
         "appointment_type": "look",
+        "contact": "https://t.me/maria",
         "price": 8000,
         "starts_at": starts.isoformat(),
         "has_prepayment": True,
         "prepayment_amount": 2000,
-        "workplace": "Студия",
+        "workplace": "studio",
         "status": "completed",
+        "guests": [],
     }
     payload.update(overrides)
     created = client.post(
@@ -46,6 +48,7 @@ def test_analytics_overview_and_revenue(client, admin_headers):
     assert data["total"] >= 2
     assert data["completed"] >= 2
     assert data["revenue"] >= 13000
+    assert "group_share" in data
 
     revenue = client.get("/api/v1/admin/analytics/revenue", headers=admin_headers)
     assert revenue.status_code == 200
@@ -72,3 +75,22 @@ def test_analytics_sources_funnel_services(client, admin_headers):
     quality = client.get("/api/v1/admin/analytics/quality", headers=admin_headers)
     assert quality.status_code == 200
     assert "by_source" in quality.json()
+
+
+def test_analytics_groups(client, admin_headers):
+    _create_completed(client, admin_headers)
+    _create_completed(
+        client,
+        admin_headers,
+        guests=[{"name": "Мама", "appointment_type": "makeup", "price": 5000}],
+        price=10000,
+        prepayment_amount=3000,
+    )
+
+    groups = client.get("/api/v1/admin/analytics/groups", headers=admin_headers)
+    assert groups.status_code == 200
+    data = groups.json()
+    assert data["group_count"] >= 1
+    assert data["solo_count"] >= 1
+    assert data["people_total"] >= 3
+    assert data["group_revenue"] >= 15000

@@ -62,15 +62,19 @@ export default function AdminCalendar() {
 
   const events = useMemo(
     () =>
-      appointments.map((a) => ({
-        id: String(a.id),
-        title: `${a.name} · ${typeLabel(a.appointment_type)}`,
-        start: a.starts_at,
-        end: a.ends_at,
-        backgroundColor: TYPE_COLORS[a.appointment_type] || '#4a7c59',
-        borderColor: TYPE_COLORS[a.appointment_type] || '#4a7c59',
-        extendedProps: { appointment: a },
-      })),
+      appointments.map((a) => {
+        const people = a.people_count || 1 + (a.guests?.length || 0);
+        const suffix = people > 1 ? ` · ${people} чел.` : '';
+        return {
+          id: String(a.id),
+          title: `${a.name} · ${typeLabel(a.appointment_type)}${suffix}`,
+          start: a.starts_at,
+          end: a.ends_at,
+          backgroundColor: TYPE_COLORS[a.appointment_type] || '#4a7c59',
+          borderColor: TYPE_COLORS[a.appointment_type] || '#4a7c59',
+          extendedProps: { appointment: a },
+        };
+      }),
     [appointments]
   );
 
@@ -194,7 +198,7 @@ export default function AdminCalendar() {
               <div className="px-1 py-0.5 overflow-hidden text-[11px] sm:text-xs leading-tight">
                 <div className="font-medium truncate">{arg.event.title}</div>
                 {!isMobile && (
-                  <div className="opacity-90 truncate">{formatMoney(a.price)}</div>
+                  <div className="opacity-90 truncate">{formatMoney(a.total_price ?? a.price)}</div>
                 )}
               </div>
             );

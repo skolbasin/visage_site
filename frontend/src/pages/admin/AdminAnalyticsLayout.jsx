@@ -9,6 +9,7 @@ const TABS = [
   { to: 'quality', label: 'Качество' },
   { to: 'revenue', label: 'Выручка' },
   { to: 'services', label: 'Услуги' },
+  { to: 'groups', label: 'Группы' },
 ];
 
 export default function AdminAnalyticsLayout() {
