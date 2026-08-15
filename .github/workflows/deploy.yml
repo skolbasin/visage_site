@@ -3,6 +3,8 @@ name: Deploy to Server
 on:
   push:
     branches: [master]
+    paths-ignore:
+      - ".github/workflows/list-users.yml"
 
 jobs:
   deploy:

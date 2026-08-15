@@ -1,0 +1,30 @@
+name: List users
+
+on:
+  workflow_dispatch:
+
+jobs:
+  list:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Query users table
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.Server_Host }}
+          username: ${{ secrets.Server_User }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            cd /opt/visage_site
+            echo "=== containers ==="
+            docker ps --format '{{.Names}}'
+            echo "=== users ==="
+            docker exec makeup_backend python -c '
+            from app.db.session import SessionLocal
+            from app.models.user import User
+            db = SessionLocal()
+            print("id\temail\tfull_name\tis_active\tis_admin\tcreated_at")
+            for u in db.query(User).order_by(User.id).all():
+                print(f"{u.id}\t{u.email}\t{u.full_name}\t{u.is_active}\t{u.is_admin}\t{u.created_at}")
+            '
