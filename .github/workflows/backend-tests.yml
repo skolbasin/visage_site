@@ -1,10 +1,9 @@
-name: Deploy to Server
+name: Backend tests
 
 on:
+  pull_request:
   push:
     branches: [master]
-    paths-ignore:
-      - ".github/workflows/list-users.yml"
 
 jobs:
   test:
@@ -12,6 +11,7 @@ jobs:
     defaults:
       run:
         working-directory: backend
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -34,23 +34,3 @@ jobs:
           RATE_LIMIT_DEFAULT: 1000/minute
           DATABASE_URL: sqlite://
         run: pytest
-
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: SSH and deploy
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.Server_Host }}
-          username: ${{ secrets.Server_User }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd /opt/visage_site
-            git pull
-            docker compose down
-            docker compose build --no-cache
-            docker compose up -d
-            # wait for backend to be ready, then apply DB migrations
-            sleep 8
-            docker compose exec -T backend alembic upgrade head

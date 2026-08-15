@@ -28,6 +28,9 @@ node_modules/
 vendor/
 bower_components/
 jspm_packages/
+.venv/
+venv/
+env/
 
 # --- Build outputs ---
 /dist
