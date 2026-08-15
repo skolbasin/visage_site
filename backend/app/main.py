@@ -7,9 +7,11 @@ import logging
 from app.api import (
     admin,
     ai,
+    analytics,
     articles,
     auth,
     booking,
+    calendar,
     certificates,
     feedback,
     portfolio,
@@ -66,6 +68,8 @@ app.include_router(promo.router, prefix=settings.API_V1_STR)
 app.include_router(certificates.router, prefix=settings.API_V1_STR)
 app.include_router(ai.router, prefix=settings.API_V1_STR)
 app.include_router(admin.router, prefix=settings.API_V1_STR)
+app.include_router(calendar.router, prefix=settings.API_V1_STR)
+app.include_router(analytics.router, prefix=settings.API_V1_STR)
 app.include_router(feedback.router, prefix=settings.API_V1_STR)
 app.include_router(question.router, prefix=settings.API_V1_STR)
 

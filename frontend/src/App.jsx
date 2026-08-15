@@ -20,6 +20,14 @@ import AdminPromoCodes from './pages/admin/AdminPromoCodes';
 import AdminFeed from './pages/admin/AdminFeed';
 import AdminSettings from './pages/admin/AdminSettings';
 import AdminPortfolio from './pages/admin/AdminPortfolio';
+import AdminCalendar from './pages/admin/AdminCalendar';
+import AdminAnalyticsLayout from './pages/admin/AdminAnalyticsLayout';
+import AnalyticsOverview from './pages/admin/analytics/AnalyticsOverview';
+import AnalyticsSources from './pages/admin/analytics/AnalyticsSources';
+import AnalyticsFunnel from './pages/admin/analytics/AnalyticsFunnel';
+import AnalyticsQuality from './pages/admin/analytics/AnalyticsQuality';
+import AnalyticsRevenue from './pages/admin/analytics/AnalyticsRevenue';
+import AnalyticsServices from './pages/admin/analytics/AnalyticsServices';
 
 function App() {
   return (
@@ -45,6 +53,16 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Navigate to="/admin/bookings" replace />} />
           <Route path="bookings" element={<AdminBookings />} />
+          <Route path="calendar" element={<AdminCalendar />} />
+          <Route path="analytics" element={<AdminAnalyticsLayout />}>
+            <Route index element={<Navigate to="overview" replace />} />
+            <Route path="overview" element={<AnalyticsOverview />} />
+            <Route path="sources" element={<AnalyticsSources />} />
+            <Route path="funnel" element={<AnalyticsFunnel />} />
+            <Route path="quality" element={<AnalyticsQuality />} />
+            <Route path="revenue" element={<AnalyticsRevenue />} />
+            <Route path="services" element={<AnalyticsServices />} />
+          </Route>
           <Route path="questions" element={<AdminQuestions />} />
           <Route path="certificates" element={<AdminCertificates />} />
           <Route path="promocodes" element={<AdminPromoCodes />} />

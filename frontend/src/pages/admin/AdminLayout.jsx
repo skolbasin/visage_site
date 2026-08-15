@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LogOut, Calendar, Image, Settings, MessageSquare, Gift, Users, Tag, FolderOpen, Menu, X } from 'lucide-react';
+import { LogOut, Calendar, Image, Settings, MessageSquare, Gift, Users, Tag, FolderOpen, Menu, X, CalendarDays, BarChart3 } from 'lucide-react';
 import api from '../../services/api';
 
 export default function AdminLayout() {
@@ -117,6 +117,28 @@ export default function AdminLayout() {
             </Link>
           </div>
         </div>
+
+        {/* Календарь */}
+        <Link
+          to="/admin/calendar"
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg transition ${
+            isActive('/admin/calendar') ? 'bg-[#4a7c59] text-white' : 'text-gray-700 hover:bg-gray-100'
+          }`}
+        >
+          <CalendarDays size={20} />
+          <span>Календарь</span>
+        </Link>
+
+        {/* Аналитика */}
+        <Link
+          to="/admin/analytics"
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg transition ${
+            isActive('/admin/analytics') ? 'bg-[#4a7c59] text-white' : 'text-gray-700 hover:bg-gray-100'
+          }`}
+        >
+          <BarChart3 size={20} />
+          <span>Аналитика</span>
+        </Link>
 
         {/* Промокоды */}
         <Link
