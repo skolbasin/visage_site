@@ -13,7 +13,8 @@ jobs:
           host: ${{ secrets.Server_Host }}
           username: ${{ secrets.Server_User }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          command_timeout: 10m
+          command_timeout: 15m
+          script_stop: true
           script: |
             set -e
             cd /opt/visage_site
@@ -21,51 +22,33 @@ jobs:
             echo "=== Current cert in nginx/ssl ==="
             openssl x509 -in nginx/ssl/fullchain.pem -noout -subject -dates || true
 
-            echo "=== Let's Encrypt live dirs ==="
-            ls -la /etc/letsencrypt/live/ || true
+            echo "=== Freeing ports 80/443 (stop stack + host web servers) ==="
+            docker compose stop || true
+            # stop any container still publishing 80/443
+            for id in $(docker ps -q); do
+              ports=$(docker port "$id" 2>/dev/null || true)
+              echo "$ports" | grep -qE ':(80|443)' && docker stop "$id" || true
+            done
+            systemctl stop nginx 2>/dev/null || true
+            systemctl stop apache2 2>/dev/null || true
+            fuser -k 80/tcp 2>/dev/null || true
+            fuser -k 443/tcp 2>/dev/null || true
+            sleep 3
+            echo "=== Listeners on 80/443 ==="
+            ss -ltnp | grep -E ':80|:443' || echo "(none)"
 
-            echo "=== Stopping nginx for standalone renew ==="
-            docker compose stop nginx
-
-            if command -v certbot >/dev/null 2>&1; then
-              if [ -d /etc/letsencrypt/live/anastasia-romancha.ru ]; then
-                certbot renew --force-renewal --standalone \
-                  --preferred-challenges http \
-                  --non-interactive \
-                  --cert-name anastasia-romancha.ru
-              else
-                certbot certonly --standalone \
-                  --preferred-challenges http \
-                  --non-interactive \
-                  --agree-tos \
-                  --email romancha.96@list.ru \
-                  -d anastasia-romancha.ru \
-                  -d www.anastasia-romancha.ru
-              fi
-            else
-              echo "certbot not found, installing..."
-              if command -v apt-get >/dev/null 2>&1; then
-                apt-get update -y
-                apt-get install -y certbot
-              else
-                echo "Cannot install certbot automatically"
-                docker compose start nginx
-                exit 1
-              fi
-              certbot certonly --standalone \
-                --preferred-challenges http \
-                --non-interactive \
-                --agree-tos \
-                --email romancha.96@list.ru \
-                -d anastasia-romancha.ru \
-                -d www.anastasia-romancha.ru
+            echo "=== Renewing certificate ==="
+            if ! command -v certbot >/dev/null 2>&1; then
+              apt-get update -y
+              apt-get install -y certbot
             fi
+
+            certbot renew --force-renewal --standalone \
+              --preferred-challenges http \
+              --non-interactive \
+              --cert-name anastasia-romancha.ru
 
             LIVE_DIR="/etc/letsencrypt/live/anastasia-romancha.ru"
-            if [ ! -f "$LIVE_DIR/fullchain.pem" ]; then
-              LIVE_DIR=$(find /etc/letsencrypt/live -mindepth 1 -maxdepth 1 -type d | head -1)
-            fi
-
             echo "=== Copying from $LIVE_DIR ==="
             mkdir -p nginx/ssl
             cp -L "$LIVE_DIR/fullchain.pem" nginx/ssl/fullchain.pem
@@ -76,8 +59,8 @@ jobs:
             echo "=== New cert ==="
             openssl x509 -in nginx/ssl/fullchain.pem -noout -subject -dates
 
-            echo "=== Starting nginx ==="
-            docker compose start nginx
-            sleep 2
-            docker compose ps nginx
+            echo "=== Starting stack ==="
+            docker compose up -d
+            sleep 3
+            docker compose ps
             echo "Done"
