@@ -3,18 +3,10 @@ import { Gift, Sparkles, Calendar, Mail, User, MessageSquare, Phone, CheckCircle
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import AnimatedStars from '../components/AnimatedStars';
+import ConsentCheckbox from '../components/ConsentCheckbox';
+import { certificateServicesList } from '../data/services';
 
-// Список услуг
-const servicesList = [
-  'Макияж в студии',
-  'Прическа в студии',
-  'Полный образ (макияж + прическа) в студии',
-  'Макияж с выездом',
-  'Прическа с выездом',
-  'Полный образ с выездом',
-  'Обучение макияжу (1 урок)',
-  'Обучение макияжу (2 урока)',
-];
+const servicesList = certificateServicesList;
 
 export default function CertificatesPage() {
   const { user } = useAuth();
@@ -25,6 +17,7 @@ export default function CertificatesPage() {
   const [buyerPhone, setBuyerPhone] = useState('');
   const [recipientName, setRecipientName] = useState('');
   const [message, setMessage] = useState('');
+  const [consent, setConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [certificateCode, setCertificateCode] = useState('');
@@ -46,6 +39,7 @@ export default function CertificatesPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!consent) return;
     setLoading(true);
     setResult(null);
 
@@ -309,10 +303,12 @@ export default function CertificatesPage() {
               />
             </div>
 
+            <ConsentCheckbox checked={consent} onChange={setConsent} id="certificate-consent" />
+
             {/* Кнопка отправки */}
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !consent}
               className="w-full btn-primary py-4 text-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70"
             >
               {loading ? (

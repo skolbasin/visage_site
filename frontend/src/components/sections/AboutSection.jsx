@@ -56,7 +56,7 @@ export default function AboutSection() {
                 <Star className="w-5 h-5 md:w-6 md:h-6 text-[#4a7c59] flex-shrink-0 mt-0.5" />
                 <div>
                   <h4 className="font-semibold text-[#2c2c2c] text-base md:text-lg">Премиум косметика</h4>
-                  <p className="text-gray-500 text-sm md:text-base">Работаю только с лучшими брендами (Chanel, Dior, La Mer, MAC)</p>
+                  <p className="text-gray-500 text-sm md:text-base">В работе использую косметику премиальных и профессиональных брендов, в том числе Chanel, Dior, La Mer, MAC</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 group hover:translate-x-2 transition-transform duration-300">

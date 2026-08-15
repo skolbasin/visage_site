@@ -14,8 +14,8 @@ export default function StatsSection() {
                 <p className="text-gray-500 text-sm">клиентов</p>
               </div>
               <div className="group cursor-pointer">
-                <p className="text-3xl md:text-4xl text-[#4a7c59] font-bold group-hover:scale-110 transition-transform duration-300">100%</p>
-                <p className="text-gray-500 text-sm">довольных</p>
+                <p className="text-3xl md:text-4xl text-[#4a7c59] font-bold group-hover:scale-110 transition-transform duration-300">♡</p>
+                <p className="text-gray-500 text-sm">заботливый подход</p>
               </div>
             </div>
           </div>

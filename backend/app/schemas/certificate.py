@@ -31,5 +31,19 @@ class CertificateOut(CertificateBase):
         from_attributes = True
 
 
+class CertificatePublicOut(BaseModel):
+    """Публичная проверка сертификата без персональных данных."""
+
+    code: str
+    status: CertificateStatus
+    type: CertificateType
+    amount: Optional[float] = None
+    service_description: Optional[str] = None
+    expires_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
 class CertificateCheck(BaseModel):
     code: str

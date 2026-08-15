@@ -9,7 +9,11 @@ from app.core.dependencies import (
     get_db,
 )
 from app.models.certificate import Certificate, CertificateStatus
-from app.schemas.certificate import CertificateCheck, CertificateCreate, CertificateOut
+from app.schemas.certificate import (
+    CertificateCreate,
+    CertificateOut,
+    CertificatePublicOut,
+)
 from app.services.certificate_service import create_certificate
 from app.services.email_service import send_certificate_notification
 
@@ -44,9 +48,9 @@ def purchase_certificate(
     return cert
 
 
-@router.get("/check", response_model=CertificateOut)
+@router.get("/check", response_model=CertificatePublicOut)
 def check_certificate(code: str, db: Session = Depends(get_db)):
-    """Проверка сертификата по коду (публично)"""
+    """Проверка сертификата по коду (публично, без ПДн)"""
     cert = db.query(Certificate).filter(Certificate.code == code).first()
     if not cert:
         raise HTTPException(status_code=404, detail="Certificate not found")
@@ -56,7 +60,14 @@ def check_certificate(code: str, db: Session = Depends(get_db)):
         cert.status = CertificateStatus.expired
         db.commit()
 
-    return cert
+    return CertificatePublicOut(
+        code=cert.code,
+        status=cert.status,
+        type=cert.type,
+        amount=cert.amount,
+        service_description=cert.service_description,
+        expires_at=cert.expires_at,
+    )
 
 
 # === АДМИНСКИЕ ЭНДПОИНТЫ ===

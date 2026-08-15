@@ -1,17 +1,19 @@
 import { useState } from 'react';
 import { X, Send, CheckCircle } from 'lucide-react';
 import api from '../services/api';
+import ConsentCheckbox from './ConsentCheckbox';
 
 export default function QuestionModal({ isOpen, onClose }) {
   const [message, setMessage] = useState('');
   const [contactType, setContactType] = useState('telegram'); // 'telegram', 'phone', 'email'
   const [contactValue, setContactValue] = useState('');
+  const [consent, setConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!message.trim() || !contactValue.trim()) return;
+    if (!message.trim() || !contactValue.trim() || !consent) return;
 
     setLoading(true);
     setStatus(null);
@@ -28,6 +30,7 @@ export default function QuestionModal({ isOpen, onClose }) {
         setMessage('');
         setContactType('telegram');
         setContactValue('');
+        setConsent(false);
         setStatus(null);
         onClose();
       }, 3000);
@@ -104,9 +107,13 @@ export default function QuestionModal({ isOpen, onClose }) {
             />
           </div>
 
+          <div className="mb-4">
+            <ConsentCheckbox checked={consent} onChange={setConsent} id="question-consent" />
+          </div>
+
           <button
             type="submit"
-            disabled={loading || !message.trim() || !contactValue.trim()}
+            disabled={loading || !message.trim() || !contactValue.trim() || !consent}
             className="w-full btn-primary py-3 flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {loading ? (

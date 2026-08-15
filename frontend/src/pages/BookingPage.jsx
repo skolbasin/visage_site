@@ -4,6 +4,8 @@ import 'react-calendar/dist/Calendar.css';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { CheckCircle } from 'lucide-react';
+import ConsentCheckbox from '../components/ConsentCheckbox';
+import { bookingServices } from '../data/services';
 
 export default function BookingPage() {
   const navigate = useNavigate();
@@ -18,21 +20,13 @@ export default function BookingPage() {
     comment: '',
     promo_code: ''
   });
+  const [consent, setConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  const services = [
-    { id: 1, name: 'Макияж в студии', price: '5000 ₽', duration: '2 часа' },
-    { id: 2, name: 'Прическа в студии', price: '4000 ₽', duration: '1.5 часа' },
-    { id: 3, name: 'Полный образ (макияж + прическа) в студии', price: '8000 ₽', duration: '3 часа' },
-    { id: 4, name: 'Макияж с выездом', price: '7000 ₽', duration: '2 часа' },
-    { id: 5, name: 'Прическа с выездом', price: '6000 ₽', duration: '1.5 часа' },
-    { id: 6, name: 'Полный образ с выездом', price: '11000 ₽', duration: '3 часа' },
-    { id: 7, name: 'Обучение макияжу (1 урок)', price: '9000 ₽', duration: '3 часа' },
-    { id: 8, name: 'Обучение макияжу (2 урока)', price: '15000 ₽', duration: '6 часов' },
-  ];
+  const services = bookingServices;
 
   const bookedSlots = ['2025-04-10T10:00', '2025-04-10T14:00'];
   const availableTimes = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
@@ -268,11 +262,12 @@ export default function BookingPage() {
                 className="w-full p-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:border-[#4a7c59] focus:ring-1 focus:ring-[#4a7c59] outline-none transition resize-none text-sm md:text-base" />
               <input type="text" name="promo_code" placeholder="Промокод" value={formData.promo_code} onChange={handleChange}
                 className="w-full p-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:border-[#4a7c59] focus:ring-1 focus:ring-[#4a7c59] outline-none transition text-sm md:text-base" />
+              <ConsentCheckbox checked={consent} onChange={setConsent} id="booking-consent" />
             </div>
 
             <div className="mt-6 md:mt-8 flex justify-between">
               <button type="button" onClick={prevStep} className="btn-secondary text-sm md:text-base py-2 md:py-3 px-4 md:px-6">← Назад</button>
-              <button type="submit" disabled={loading} className="btn-primary text-sm md:text-base py-2 md:py-3 px-4 md:px-6 disabled:opacity-50">
+              <button type="submit" disabled={loading || !consent} className="btn-primary text-sm md:text-base py-2 md:py-3 px-4 md:px-6 disabled:opacity-50">
                 {loading ? 'Отправка...' : 'Оформить услугу'}
               </button>
             </div>

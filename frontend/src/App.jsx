@@ -10,6 +10,8 @@ import ArticlesPage from './pages/ArticlesPage';
 import ArticleDetailPage from './pages/ArticleDetailPage';
 import CertificatesPage from './pages/CertificatesPage';
 import FAQPage from './pages/FAQPage';
+import PrivacyPage from './pages/PrivacyPage';
+import OfferPage from './pages/OfferPage';
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminBookings from './pages/admin/AdminBookings';
 import AdminQuestions from './pages/admin/AdminQuestions';
@@ -35,6 +37,8 @@ function App() {
           <Route path="articles/:slug" element={<ArticleDetailPage />} />
           <Route path="certificates" element={<CertificatesPage />} />
           <Route path="faq" element={<FAQPage />} />
+          <Route path="privacy" element={<PrivacyPage />} />
+          <Route path="offer" element={<OfferPage />} />
         </Route>
 
         {/* Админ-панель */}

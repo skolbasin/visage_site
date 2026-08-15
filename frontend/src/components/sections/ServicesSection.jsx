@@ -1,44 +1,13 @@
 import { Sparkles, Calendar, MapPin, Star, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { showcaseServices } from '../../data/services';
 
-const services = [
-  {
-    id: 1,
-    title: 'Макияж/прическа<br />в студии',
-    description: 'Стойкий макияж/прическа для любого события',
-    price: 'от 5000 ₽',
-    icon: Sparkles,
-    features: ['Профессиональная косметика', 'Индивидуальный подход', 'Стойкость до 12 часов'],
-    popular: false,
-  },
-  {
-    id: 2,
-    title: 'Макияж/прическа<br />с выездом',
-    description: 'Макияж или прическа с выездом к вам домой или отель. Экономит ваше время и создаёт комфортную атмосферу.',
-    price: 'от 7000 ₽',
-    icon: MapPin,
-    features: ['Выезд в пределах СПб', 'Удобство и комфорт', 'Стойкость до 12 часов'],
-    popular: true,
-  },
-  {
-    id: 3,
-    title: 'Полный образ<br />в студии',
-    description: 'Полный образ (макияж и прическа) в студии для особых мероприятий',
-    price: 'от 8000 ₽',
-    icon: Calendar,
-    features: ['Макияж + прическа', 'Профессиональная косметика', 'Стойкость до 12 часов'],
-    popular: false,
-  },
-  {
-    id: 4,
-    title: 'Полный образ<br />с выездом',
-    description: 'Полный образ (макияж и прическа) с выездом к вам. Идеально для свадеб, выпускных и особых событий',
-    price: 'от 10000 ₽',
-    icon: Star,
-    features: ['Макияж + прическа', 'Выезд в пределах СПб', 'Индивидуальный подход'],
-    popular: false,
-  },
-];
+const iconMap = {
+  Sparkles,
+  MapPin,
+  Calendar,
+  Star,
+};
 
 export default function ServicesSection() {
   return (
@@ -62,7 +31,9 @@ export default function ServicesSection() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {services.map((service, idx) => (
+            {showcaseServices.map((service, idx) => {
+              const Icon = iconMap[service.icon] || Sparkles;
+              return (
               <div
                 key={service.id}
                 className={`group relative bg-white rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-xl flex flex-col h-full ${
@@ -78,10 +49,9 @@ export default function ServicesSection() {
                   </div>
                 )}
                 <div className="p-6 flex flex-col flex-1">
-                  {/* Верхняя часть: иконка, заголовок, описание */}
                   <div>
                     <div className="w-12 h-12 bg-[#4a7c59]/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                      <service.icon className="w-6 h-6 text-[#4a7c59]" />
+                      <Icon className="w-6 h-6 text-[#4a7c59]" />
                     </div>
                     <h3 className="text-xl md:text-2xl font-bold text-[#2c2c2c] mb-2">
                       <span dangerouslySetInnerHTML={{ __html: service.title }} />
@@ -89,7 +59,6 @@ export default function ServicesSection() {
                     <p className="text-gray-500 text-sm mb-6 leading-relaxed">{service.description}</p>
                   </div>
 
-                  {/* Нижняя часть: цена, особенности, кнопка (всё прижато к низу) */}
                   <div className="mt-auto">
                     <div className="mb-4">
                       <span className="text-2xl font-bold text-[#4a7c59]">{service.price}</span>
@@ -112,7 +81,8 @@ export default function ServicesSection() {
                   </div>
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
 
           <div className="text-center mt-12">

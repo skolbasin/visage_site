@@ -125,9 +125,12 @@ export default function ReviewsSection() {
 
           <p className="text-center text-gray-400 text-xs sm:text-sm mt-8">
             *Более 50+ отзывов в{' '}
-            <a href="#" className="text-[#4a7c59] hover:text-[#2d5a3b] transition underline decoration-transparent hover:decoration-[#4a7c59]">Instagram</a>
+            <a href="https://instagram.com/anastasia.romancha" target="_blank" rel="noopener noreferrer" className="text-[#4a7c59] hover:text-[#2d5a3b] transition underline decoration-transparent hover:decoration-[#4a7c59]">Instagram</a>
             {' и '}
-            <a href="https://t.me/anastasia_romancha" className="text-[#4a7c59] hover:text-[#2d5a3b] transition underline decoration-transparent hover:decoration-[#4a7c59]">Telegram</a>
+            <a href="https://t.me/anastasia_romancha" target="_blank" rel="noopener noreferrer" className="text-[#4a7c59] hover:text-[#2d5a3b] transition underline decoration-transparent hover:decoration-[#4a7c59]">Telegram</a>
+          </p>
+          <p className="text-center text-gray-400 text-xs mt-3">
+            Фотографии работ и материалы «до/после» публикуются с согласия клиентов.
           </p>
         </div>
       </div>
