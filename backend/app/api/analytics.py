@@ -87,9 +87,9 @@ def _type_label(appointment_type: AppointmentType) -> str:
 
 
 def _service_entries(appointment: CalendarAppointment):
-    yield appointment.appointment_type, appointment.price, True
+    yield appointment.appointment_type, appointment.price, appointment.duration_minutes
     for guest in appointment.guests or []:
-        yield guest.appointment_type, guest.price, False
+        yield guest.appointment_type, guest.price, guest.duration_minutes
 
 
 @router.get("/overview")
@@ -355,6 +355,7 @@ def analytics_services(
     counts: Dict[AppointmentType, int] = defaultdict(int)
     active_counts: Dict[AppointmentType, int] = defaultdict(int)
     revenues: Dict[AppointmentType, float] = defaultdict(float)
+    busy_minutes: Dict[AppointmentType, int] = defaultdict(int)
 
     for appointment in items:
         is_active = appointment.status in (
@@ -362,10 +363,11 @@ def analytics_services(
             AppointmentStatus.scheduled,
         )
         is_completed = appointment.status == AppointmentStatus.completed
-        for service_type, price, _is_main in _service_entries(appointment):
+        for service_type, price, duration_minutes in _service_entries(appointment):
             counts[service_type] += 1
             if is_active:
                 active_counts[service_type] += 1
+                busy_minutes[service_type] += int(duration_minutes or 0)
             if is_completed:
                 revenues[service_type] += _money(price)
 
@@ -373,7 +375,7 @@ def analytics_services(
     total_hours = 0.0
     for appointment_type in AppointmentType:
         duration = DURATION_HOURS[appointment_type]
-        hours = active_counts[appointment_type] * duration
+        hours = busy_minutes[appointment_type] / 60
         total_hours += hours
         rows.append(
             {

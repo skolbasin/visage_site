@@ -66,6 +66,18 @@ def duration_for_type(appointment_type: AppointmentType) -> timedelta:
     return timedelta(minutes=int(hours * 60))
 
 
+def minutes_for_type(appointment_type: AppointmentType) -> int:
+    return int(DURATION_HOURS[appointment_type] * 60)
+
+
+def resolve_duration_minutes(
+    appointment_type: AppointmentType, duration_minutes: Optional[int]
+) -> int:
+    if duration_minutes is not None and duration_minutes > 0:
+        return int(duration_minutes)
+    return minutes_for_type(appointment_type)
+
+
 def duration_for_types(types: Iterable[AppointmentType]) -> timedelta:
     total = timedelta()
     for appointment_type in types:
@@ -89,6 +101,7 @@ class CalendarAppointment(Base):
     appointment_type = Column(Enum(AppointmentType), nullable=False)
     contact = Column(String, nullable=False)
     price = Column(Numeric(10, 2), nullable=True)
+    duration_minutes = Column(Integer, nullable=False, default=90)
     starts_at = Column(DateTime(timezone=True), nullable=False, index=True)
     ends_at = Column(DateTime(timezone=True), nullable=False, index=True)
     has_prepayment = Column(Boolean, default=False, nullable=False)
@@ -126,6 +139,13 @@ class CalendarAppointment(Base):
             total += money_or_zero(guest.price)
         return total
 
+    @property
+    def total_duration_minutes(self) -> int:
+        total = int(self.duration_minutes or 0)
+        for guest in self.guests or []:
+            total += int(guest.duration_minutes or 0)
+        return total
+
 
 class AppointmentGuest(Base):
     __tablename__ = "calendar_appointment_guests"
@@ -140,5 +160,6 @@ class AppointmentGuest(Base):
     name = Column(String, nullable=False)
     appointment_type = Column(Enum(AppointmentType), nullable=False)
     price = Column(Numeric(10, 2), nullable=True)
+    duration_minutes = Column(Integer, nullable=False, default=90)
 
     appointment = relationship("CalendarAppointment", back_populates="guests")

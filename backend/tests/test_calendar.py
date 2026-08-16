@@ -76,6 +76,35 @@ def test_create_group_appointment_sums_duration_and_price(client, admin_headers)
     assert data["is_group"] is True
     assert float(data["total_price"]) == 20000
     assert len(data["guests"]) == 2
+    assert data["duration_minutes"] == 150
+    assert data["total_duration_minutes"] == 330
+
+
+def test_create_appointment_with_custom_duration(client, admin_headers):
+    response = client.post(
+        "/api/v1/admin/calendar/appointments",
+        headers=admin_headers,
+        json=_appointment_payload(
+            appointment_type="makeup",
+            duration_minutes=45,
+            guests=[
+                {
+                    "name": "Подруга",
+                    "appointment_type": "hair",
+                    "price": 3000,
+                    "duration_minutes": 60,
+                }
+            ],
+        ),
+    )
+    assert response.status_code == 201
+    data = response.json()
+    start = datetime.fromisoformat(data["starts_at"].replace("Z", "+00:00"))
+    end = datetime.fromisoformat(data["ends_at"].replace("Z", "+00:00"))
+    assert (end - start) == timedelta(minutes=105)
+    assert data["duration_minutes"] == 45
+    assert data["guests"][0]["duration_minutes"] == 60
+    assert data["total_duration_minutes"] == 105
 
 
 def test_create_appointment_with_prepayment_validation(client, admin_headers):

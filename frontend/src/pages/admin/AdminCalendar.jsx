@@ -11,6 +11,7 @@ import AppointmentFormModal from '../../components/admin/AppointmentFormModal';
 import {
   TYPE_COLORS,
   formatMoney,
+  formatTimeRange,
   typeLabel,
 } from '../../data/calendarConstants';
 
@@ -122,7 +123,11 @@ export default function AdminCalendar() {
   };
 
   const headerToolbar = isMobile
-    ? { left: 'prev,next', center: 'title', right: 'listWeek,timeGridDay' }
+    ? {
+        left: 'prev,next',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
+      }
     : {
         left: 'prev,next today',
         center: 'title',
@@ -130,6 +135,13 @@ export default function AdminCalendar() {
       };
 
   const initialView = isMobile ? 'listWeek' : 'timeGridWeek';
+  const buttonText = {
+    today: 'Сегодня',
+    month: 'Месяц',
+    week: 'Неделя',
+    day: 'День',
+    list: 'Список',
+  };
 
   return (
     <div className="px-0 sm:px-2">
@@ -163,6 +175,7 @@ export default function AdminCalendar() {
           initialView={initialView}
           locale={ruLocale}
           headerToolbar={headerToolbar}
+          buttonText={buttonText}
           height="auto"
           contentHeight="auto"
           stickyHeaderDates
@@ -194,11 +207,18 @@ export default function AdminCalendar() {
           }}
           eventContent={(arg) => {
             const a = arg.event.extendedProps.appointment;
+            const timeRange = formatTimeRange(a.starts_at, a.ends_at);
+            const price = a.total_price ?? a.price;
+            const people = a.people_count || 1 + (a.guests?.length || 0);
             return (
               <div className="px-1 py-0.5 overflow-hidden text-[11px] sm:text-xs leading-tight">
-                <div className="font-medium truncate">{arg.event.title}</div>
-                {!isMobile && (
-                  <div className="opacity-90 truncate">{formatMoney(a.total_price ?? a.price)}</div>
+                <div className="font-medium truncate">{timeRange}</div>
+                <div className="truncate">
+                  {a.name} · {typeLabel(a.appointment_type)}
+                  {people > 1 ? ` · ${people} чел.` : ''}
+                </div>
+                {price != null && Number(price) > 0 && (
+                  <div className="opacity-90 truncate">{formatMoney(price)}</div>
                 )}
               </div>
             );

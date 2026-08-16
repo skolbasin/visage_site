@@ -50,12 +50,25 @@ export function getDurationHours(type) {
   return found?.durationHours ?? 1.5;
 }
 
-export function getTotalDurationHours(mainType, guests = []) {
-  const guestHours = guests.reduce(
-    (sum, guest) => sum + getDurationHours(guest.appointment_type),
-    0
-  );
-  return getDurationHours(mainType) + guestHours;
+export function hoursToMinutes(hours) {
+  return Math.round(Number(hours) * 60);
+}
+
+export function minutesToHours(minutes) {
+  return Math.round((Number(minutes) / 60) * 100) / 100;
+}
+
+export function getTotalDurationHoursFromValues(mainHours, guests = []) {
+  const guestHours = guests.reduce((sum, guest) => {
+    const hours =
+      guest.duration_hours === '' || guest.duration_hours == null
+        ? getDurationHours(guest.appointment_type)
+        : Number(guest.duration_hours) || 0;
+    return sum + hours;
+  }, 0);
+  const main =
+    mainHours === '' || mainHours == null ? 0 : Number(mainHours) || 0;
+  return main + guestHours;
 }
 
 export function getTotalPrice(mainPrice, guests = []) {
@@ -73,6 +86,14 @@ export function formatDuration(hours) {
   if (minutes === 0) return `${whole} ч`;
   if (whole === 0) return `${minutes} мин`;
   return `${whole} ч ${minutes} мин`;
+}
+
+export function formatTimeRange(startsAt, endsAt) {
+  const start = new Date(startsAt);
+  const end = new Date(endsAt);
+  const pad = (n) => String(n).padStart(2, '0');
+  const fmt = (d) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${fmt(start)}–${fmt(end)}`;
 }
 
 export function sourceLabel(value) {

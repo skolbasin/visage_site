@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -10,7 +10,7 @@ from app.models.calendar_appointment import (
     AppointmentStatus,
     CalendarAppointment,
     ClientSource,
-    duration_for_types,
+    resolve_duration_minutes,
 )
 from app.schemas.calendar_appointment import (
     AppointmentGuestIn,
@@ -23,12 +23,6 @@ from app.schemas.calendar_appointment import (
 router = APIRouter(prefix="/admin/calendar", tags=["admin-calendar"])
 
 
-def _types_for_duration(main_type, guests: List[AppointmentGuestIn]):
-    types = [main_type]
-    types.extend(guest.appointment_type for guest in guests)
-    return types
-
-
 def _replace_guests(appointment: CalendarAppointment, guests: List[AppointmentGuestIn]):
     appointment.guests.clear()
     for guest in guests:
@@ -37,14 +31,16 @@ def _replace_guests(appointment: CalendarAppointment, guests: List[AppointmentGu
                 name=guest.name.strip(),
                 appointment_type=guest.appointment_type,
                 price=guest.price,
+                duration_minutes=resolve_duration_minutes(
+                    guest.appointment_type, guest.duration_minutes
+                ),
             )
         )
 
 
 def _recalc_ends_at(appointment: CalendarAppointment):
-    guest_types = [g.appointment_type for g in appointment.guests]
-    appointment.ends_at = appointment.starts_at + duration_for_types(
-        [appointment.appointment_type, *guest_types]
+    appointment.ends_at = appointment.starts_at + timedelta(
+        minutes=appointment.total_duration_minutes
     )
 
 
@@ -82,6 +78,11 @@ def _apply_update_validation(
     for key, value in payload.items():
         setattr(appointment, key, value)
 
+    if "duration_minutes" in payload or "appointment_type" in payload:
+        appointment.duration_minutes = resolve_duration_minutes(
+            appointment.appointment_type, appointment.duration_minutes
+        )
+
     has_prepayment = appointment.has_prepayment
     if has_prepayment:
         amount = appointment.prepayment_amount
@@ -98,6 +99,7 @@ def _apply_update_validation(
     if (
         "appointment_type" in payload
         or "starts_at" in payload
+        or "duration_minutes" in payload
         or guests_payload is not None
     ):
         _recalc_ends_at(appointment)
@@ -141,8 +143,8 @@ def create_appointment(
     db: Session = Depends(get_db),
     admin=Depends(get_current_admin_user),
 ):
-    ends_at = body.starts_at + duration_for_types(
-        _types_for_duration(body.appointment_type, body.guests)
+    duration_minutes = resolve_duration_minutes(
+        body.appointment_type, body.duration_minutes
     )
     appointment = CalendarAppointment(
         name=body.name.strip(),
@@ -151,8 +153,9 @@ def create_appointment(
         appointment_type=body.appointment_type,
         contact=body.contact.strip(),
         price=body.price,
+        duration_minutes=duration_minutes,
         starts_at=body.starts_at,
-        ends_at=ends_at,
+        ends_at=body.starts_at,
         has_prepayment=body.has_prepayment,
         prepayment_amount=body.prepayment_amount,
         workplace=body.workplace,
@@ -160,6 +163,7 @@ def create_appointment(
         status=body.status,
     )
     _replace_guests(appointment, body.guests)
+    _recalc_ends_at(appointment)
     db.add(appointment)
     db.commit()
     return _get_appointment_or_404(db, appointment.id)

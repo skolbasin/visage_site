@@ -7,8 +7,11 @@ import {
   WORKPLACES,
   formatDuration,
   formatMoney,
-  getTotalDurationHours,
+  getDurationHours,
+  getTotalDurationHoursFromValues,
   getTotalPrice,
+  hoursToMinutes,
+  minutesToHours,
   toLocalInputValue,
 } from '../../data/calendarConstants';
 
@@ -17,6 +20,7 @@ function emptyGuest() {
     name: '',
     appointment_type: 'makeup',
     price: '',
+    duration_hours: String(getDurationHours('makeup')),
   };
 }
 
@@ -29,6 +33,11 @@ function buildInitialForm(initial, defaultStartsAt) {
       appointment_type: initial.appointment_type || 'makeup',
       contact: initial.contact || '',
       price: initial.price != null ? String(initial.price) : '',
+      duration_hours: String(
+        initial.duration_minutes != null
+          ? minutesToHours(initial.duration_minutes)
+          : getDurationHours(initial.appointment_type || 'makeup')
+      ),
       starts_at: toLocalInputValue(initial.starts_at),
       has_prepayment: Boolean(initial.has_prepayment),
       prepayment_amount:
@@ -40,6 +49,11 @@ function buildInitialForm(initial, defaultStartsAt) {
         name: guest.name || '',
         appointment_type: guest.appointment_type || 'makeup',
         price: guest.price != null ? String(guest.price) : '',
+        duration_hours: String(
+          guest.duration_minutes != null
+            ? minutesToHours(guest.duration_minutes)
+            : getDurationHours(guest.appointment_type || 'makeup')
+        ),
       })),
     };
   }
@@ -50,6 +64,7 @@ function buildInitialForm(initial, defaultStartsAt) {
     appointment_type: 'makeup',
     contact: '',
     price: '',
+    duration_hours: String(getDurationHours('makeup')),
     starts_at: toLocalInputValue(defaultStartsAt || new Date()),
     has_prepayment: false,
     prepayment_amount: '',
@@ -72,8 +87,8 @@ function AppointmentForm({
   const [error, setError] = useState('');
 
   const durationHours = useMemo(
-    () => getTotalDurationHours(form.appointment_type, form.guests),
-    [form.appointment_type, form.guests]
+    () => getTotalDurationHoursFromValues(form.duration_hours, form.guests),
+    [form.duration_hours, form.guests]
   );
 
   const totalPrice = useMemo(
@@ -85,12 +100,28 @@ function AppointmentForm({
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
+  const changeMainType = (type) => {
+    setForm((prev) => ({
+      ...prev,
+      appointment_type: type,
+      duration_hours: String(getDurationHours(type)),
+    }));
+  };
+
   const updateGuest = (index, field, value) => {
     setForm((prev) => ({
       ...prev,
-      guests: prev.guests.map((guest, i) =>
-        i === index ? { ...guest, [field]: value } : guest
-      ),
+      guests: prev.guests.map((guest, i) => {
+        if (i !== index) return guest;
+        if (field === 'appointment_type') {
+          return {
+            ...guest,
+            appointment_type: value,
+            duration_hours: String(getDurationHours(value)),
+          };
+        }
+        return { ...guest, [field]: value };
+      }),
     }));
   };
 
@@ -142,6 +173,14 @@ function AppointmentForm({
         setError('Стоимость доп. клиента не может быть отрицательной');
         return;
       }
+      if (!guest.duration_hours || Number(guest.duration_hours) <= 0) {
+        setError('Укажите длительность для каждого доп. клиента');
+        return;
+      }
+    }
+    if (!form.duration_hours || Number(form.duration_hours) <= 0) {
+      setError('Укажите длительность записи');
+      return;
     }
     if (form.has_prepayment) {
       const amount = Number(form.prepayment_amount);
@@ -163,6 +202,7 @@ function AppointmentForm({
       appointment_type: form.appointment_type,
       contact: form.contact.trim(),
       price: form.price === '' ? null : Number(form.price),
+      duration_minutes: hoursToMinutes(form.duration_hours),
       starts_at: new Date(form.starts_at).toISOString(),
       has_prepayment: form.has_prepayment,
       prepayment_amount: form.has_prepayment ? Number(form.prepayment_amount) : null,
@@ -173,6 +213,7 @@ function AppointmentForm({
         name: guest.name.trim(),
         appointment_type: guest.appointment_type,
         price: guest.price === '' ? null : Number(guest.price),
+        duration_minutes: hoursToMinutes(guest.duration_hours),
       })),
     };
 
@@ -259,7 +300,7 @@ function AppointmentForm({
             <span className="text-sm text-gray-600 mb-1 block">Тип записи *</span>
             <select
               value={form.appointment_type}
-              onChange={(e) => update('appointment_type', e.target.value)}
+              onChange={(e) => changeMainType(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4a7c59]"
               required
             >
@@ -269,9 +310,22 @@ function AppointmentForm({
                 </option>
               ))}
             </select>
+          </label>
+
+          <label className="block">
+            <span className="text-sm text-gray-600 mb-1 block">Длительность, ч *</span>
+            <input
+              type="number"
+              min="0.5"
+              step="0.5"
+              value={form.duration_hours}
+              onChange={(e) => update('duration_hours', e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4a7c59]"
+              required
+            />
             <span className="text-xs text-gray-500 mt-1 block">
-              Длительность записи: {formatDuration(durationHours)}
-              {form.guests.length > 0 ? ' (с учётом доп. клиентов)' : ''}
+              По умолчанию для типа: {formatDuration(getDurationHours(form.appointment_type))}.
+              Итого со всеми клиентами: {formatDuration(durationHours)}
             </span>
           </label>
 
@@ -429,17 +483,31 @@ function AppointmentForm({
                     ))}
                   </select>
                 </label>
-                <label className="block">
-                  <span className="text-sm text-gray-600 mb-1 block">Стоимость, ₽</span>
-                  <input
-                    type="number"
-                    min="0"
-                    step="1"
-                    value={guest.price}
-                    onChange={(e) => updateGuest(index, 'price', e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#4a7c59]"
-                  />
-                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <label className="block">
+                    <span className="text-sm text-gray-600 mb-1 block">Длительность, ч *</span>
+                    <input
+                      type="number"
+                      min="0.5"
+                      step="0.5"
+                      value={guest.duration_hours}
+                      onChange={(e) => updateGuest(index, 'duration_hours', e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#4a7c59]"
+                      required
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="text-sm text-gray-600 mb-1 block">Стоимость, ₽</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={guest.price}
+                      onChange={(e) => updateGuest(index, 'price', e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#4a7c59]"
+                    />
+                  </label>
+                </div>
               </div>
             ))}
 
