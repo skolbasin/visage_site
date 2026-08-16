@@ -45,6 +45,14 @@ class AppointmentStatus(str, enum.Enum):
     no_show = "no_show"
 
 
+class CancelReason(str, enum.Enum):
+    client_cancelled = "client_cancelled"
+    feeling_unwell = "feeling_unwell"
+    schedule_conflict = "schedule_conflict"
+    force_majeure = "force_majeure"
+    other = "other"
+
+
 class Workplace(str, enum.Enum):
     studio = "studio"
     apartment = "apartment"
@@ -114,6 +122,12 @@ class CalendarAppointment(Base):
         nullable=False,
         index=True,
     )
+    cancel_reason = Column(Enum(CancelReason), nullable=True)
+    cancel_reason_other = Column(String, nullable=True)
+    cancelled_at = Column(DateTime(timezone=True), nullable=True)
+    reschedule_count = Column(Integer, nullable=False, default=0, server_default="0")
+    last_reschedule_reason = Column(Text, nullable=True)
+    last_rescheduled_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 

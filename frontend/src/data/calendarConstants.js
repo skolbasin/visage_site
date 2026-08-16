@@ -29,6 +29,14 @@ export const APPOINTMENT_STATUSES = [
   { value: 'no_show', label: 'Не пришли' },
 ];
 
+export const CANCEL_REASONS = [
+  { value: 'client_cancelled', label: 'Клиент отменил' },
+  { value: 'feeling_unwell', label: 'Плохое самочувствие' },
+  { value: 'schedule_conflict', label: 'Несовпадение по времени' },
+  { value: 'force_majeure', label: 'Форс-мажор' },
+  { value: 'other', label: 'Другое' },
+];
+
 export const TYPE_COLORS = {
   hair: '#4a7c59',
   makeup: '#6b8f71',
@@ -110,6 +118,10 @@ export function workplaceLabel(value) {
 
 export function statusLabel(value) {
   return APPOINTMENT_STATUSES.find((s) => s.value === value)?.label || value;
+}
+
+export function cancelReasonLabel(value) {
+  return CANCEL_REASONS.find((r) => r.value === value)?.label || value;
 }
 
 export function toLocalInputValue(date) {

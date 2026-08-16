@@ -3,8 +3,10 @@ import { Plus, Trash2, X } from 'lucide-react';
 import {
   APPOINTMENT_STATUSES,
   APPOINTMENT_TYPES,
+  CANCEL_REASONS,
   CLIENT_SOURCES,
   WORKPLACES,
+  cancelReasonLabel,
   formatDuration,
   formatMoney,
   getDurationHours,
@@ -80,11 +82,20 @@ function AppointmentForm({
   defaultStartsAt,
   onClose,
   onSubmit,
+  onCancelAppointment,
+  onReschedule,
   onDelete,
   saving,
 }) {
   const [form, setForm] = useState(() => buildInitialForm(initial, defaultStartsAt));
   const [error, setError] = useState('');
+  const [actionMode, setActionMode] = useState(null); // 'cancel' | 'reschedule' | null
+  const [cancelReason, setCancelReason] = useState('client_cancelled');
+  const [cancelReasonOther, setCancelReasonOther] = useState('');
+  const [rescheduleAt, setRescheduleAt] = useState(() =>
+    toLocalInputValue(initial?.starts_at || defaultStartsAt || new Date())
+  );
+  const [rescheduleReason, setRescheduleReason] = useState('');
 
   const durationHours = useMemo(
     () => getTotalDurationHoursFromValues(form.duration_hours, form.guests),
@@ -228,6 +239,44 @@ function AppointmentForm({
       } else {
         setError('Не удалось сохранить запись');
       }
+    }
+  };
+
+  const handleCancelConfirm = async () => {
+    setError('');
+    if (cancelReason === 'other' && !cancelReasonOther.trim()) {
+      setError('Укажите причину отмены');
+      return;
+    }
+    try {
+      await onCancelAppointment({
+        reason: cancelReason,
+        reason_other: cancelReason === 'other' ? cancelReasonOther.trim() : null,
+      });
+    } catch (err) {
+      const detail = err.response?.data?.detail;
+      setError(typeof detail === 'string' ? detail : 'Не удалось отменить запись');
+    }
+  };
+
+  const handleRescheduleConfirm = async () => {
+    setError('');
+    if (!rescheduleAt) {
+      setError('Укажите новое время');
+      return;
+    }
+    if (!rescheduleReason.trim()) {
+      setError('Укажите причину переноса');
+      return;
+    }
+    try {
+      await onReschedule({
+        starts_at: new Date(rescheduleAt).toISOString(),
+        reason: rescheduleReason.trim(),
+      });
+    } catch (err) {
+      const detail = err.response?.data?.detail;
+      setError(typeof detail === 'string' ? detail : 'Не удалось перенести запись');
     }
   };
 
@@ -536,6 +585,22 @@ function AppointmentForm({
             </label>
           )}
 
+          {initial?.status === 'cancelled' && initial.cancel_reason && (
+            <div className="rounded-lg bg-red-50 border border-red-100 px-3 py-2 text-sm text-red-800">
+              Отменена: {cancelReasonLabel(initial.cancel_reason)}
+              {initial.cancel_reason_other ? ` — ${initial.cancel_reason_other}` : ''}
+            </div>
+          )}
+
+          {initial?.reschedule_count > 0 && (
+            <div className="rounded-lg bg-amber-50 border border-amber-100 px-3 py-2 text-sm text-amber-900">
+              Переносов: {initial.reschedule_count}
+              {initial.last_reschedule_reason
+                ? ` · последняя причина: ${initial.last_reschedule_reason}`
+                : ''}
+            </div>
+          )}
+
           <label className="block">
             <span className="text-sm text-gray-600 mb-1 block">Доп. комментарии</span>
             <textarea
@@ -546,31 +611,149 @@ function AppointmentForm({
             />
           </label>
 
-          <div className="flex flex-col-reverse sm:flex-row gap-2 pt-2">
-            {initial && onDelete && (
+          {initial && actionMode === 'cancel' && (
+            <div className="rounded-lg border border-red-200 bg-red-50/50 p-3 space-y-3">
+              <p className="text-sm font-medium text-gray-800">Причина отмены</p>
+              <select
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white"
+              >
+                {CANCEL_REASONS.map((r) => (
+                  <option key={r.value} value={r.value}>
+                    {r.label}
+                  </option>
+                ))}
+              </select>
+              {cancelReason === 'other' && (
+                <input
+                  type="text"
+                  value={cancelReasonOther}
+                  onChange={(e) => setCancelReasonOther(e.target.value)}
+                  placeholder="Укажите причину"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                />
+              )}
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActionMode(null)}
+                  className="px-3 py-2 rounded-lg border border-gray-300 text-sm"
+                >
+                  Назад
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancelConfirm}
+                  disabled={saving}
+                  className="px-3 py-2 rounded-lg bg-red-600 text-white text-sm disabled:opacity-50"
+                >
+                  Подтвердить отмену
+                </button>
+              </div>
+            </div>
+          )}
+
+          {initial && actionMode === 'reschedule' && (
+            <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-3 space-y-3">
+              <p className="text-sm font-medium text-gray-800">Перенос записи</p>
+              <label className="block">
+                <span className="text-xs text-gray-600 mb-1 block">Новое время</span>
+                <input
+                  type="datetime-local"
+                  value={rescheduleAt}
+                  onChange={(e) => setRescheduleAt(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white"
+                />
+              </label>
+              <label className="block">
+                <span className="text-xs text-gray-600 mb-1 block">Причина переноса</span>
+                <input
+                  type="text"
+                  value={rescheduleReason}
+                  onChange={(e) => setRescheduleReason(e.target.value)}
+                  placeholder="Например: клиент попросил позже"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white"
+                />
+              </label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActionMode(null)}
+                  className="px-3 py-2 rounded-lg border border-gray-300 text-sm"
+                >
+                  Назад
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRescheduleConfirm}
+                  disabled={saving}
+                  className="px-3 py-2 rounded-lg bg-amber-600 text-white text-sm disabled:opacity-50"
+                >
+                  Перенести
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="flex flex-col gap-3 pt-2">
+            {initial && !actionMode && (onCancelAppointment || onReschedule || onDelete) && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                {onCancelAppointment && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setError('');
+                      setActionMode('cancel');
+                    }}
+                    disabled={saving || form.status === 'cancelled'}
+                    className="px-3 py-2.5 rounded-lg border border-red-200 text-red-700 hover:bg-red-50 transition disabled:opacity-50 text-sm"
+                  >
+                    Отменена
+                  </button>
+                )}
+                {onReschedule && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setError('');
+                      setActionMode('reschedule');
+                    }}
+                    disabled={saving}
+                    className="px-3 py-2.5 rounded-lg border border-amber-200 text-amber-800 hover:bg-amber-50 transition disabled:opacity-50 text-sm"
+                  >
+                    Перенос
+                  </button>
+                )}
+                {onDelete && (
+                  <button
+                    type="button"
+                    onClick={onDelete}
+                    disabled={saving}
+                    className="px-3 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition disabled:opacity-50 text-sm"
+                  >
+                    Удалить
+                  </button>
+                )}
+              </div>
+            )}
+
+            <div className="flex flex-col-reverse sm:flex-row gap-2">
               <button
                 type="button"
-                onClick={onDelete}
-                disabled={saving}
-                className="sm:mr-auto px-4 py-2.5 rounded-lg text-red-600 hover:bg-red-50 transition disabled:opacity-50"
+                onClick={onClose}
+                className="sm:ml-auto px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition"
               >
-                Удалить
+                Закрыть
               </button>
-            )}
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition"
-            >
-              Отмена
-            </button>
-            <button
-              type="submit"
-              disabled={saving}
-              className="px-4 py-2.5 rounded-lg bg-[#4a7c59] text-white hover:bg-[#3d6849] transition disabled:opacity-50"
-            >
-              {saving ? 'Сохранение...' : 'Сохранить'}
-            </button>
+              <button
+                type="submit"
+                disabled={saving || Boolean(actionMode)}
+                className="px-4 py-2.5 rounded-lg bg-[#4a7c59] text-white hover:bg-[#3d6849] transition disabled:opacity-50"
+              >
+                {saving ? 'Сохранение...' : 'Сохранить'}
+              </button>
+            </div>
           </div>
         </form>
       </div>
@@ -584,13 +767,15 @@ export default function AppointmentFormModal({
   defaultStartsAt,
   onClose,
   onSubmit,
+  onCancelAppointment,
+  onReschedule,
   onDelete,
   saving,
 }) {
   if (!open) return null;
 
   const formKey = initial
-    ? `edit-${initial.id}-${(initial.guests || []).length}`
+    ? `edit-${initial.id}-${(initial.guests || []).length}-${initial.status}-${initial.reschedule_count || 0}`
     : `create-${defaultStartsAt ? new Date(defaultStartsAt).getTime() : 'now'}`;
 
   return (
@@ -600,6 +785,8 @@ export default function AppointmentFormModal({
       defaultStartsAt={defaultStartsAt}
       onClose={onClose}
       onSubmit={onSubmit}
+      onCancelAppointment={onCancelAppointment}
+      onReschedule={onReschedule}
       onDelete={onDelete}
       saving={saving}
     />

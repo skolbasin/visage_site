@@ -6,6 +6,7 @@ const TABS = [
   { to: 'overview', label: 'Сводка' },
   { to: 'sources', label: 'Источники' },
   { to: 'funnel', label: 'Воронка' },
+  { to: 'outcomes', label: 'Отмены' },
   { to: 'quality', label: 'Качество' },
   { to: 'revenue', label: 'Выручка' },
   { to: 'services', label: 'Услуги' },

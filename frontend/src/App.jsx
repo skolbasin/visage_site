@@ -25,6 +25,7 @@ import AdminAnalyticsLayout from './pages/admin/AdminAnalyticsLayout';
 import AnalyticsOverview from './pages/admin/analytics/AnalyticsOverview';
 import AnalyticsSources from './pages/admin/analytics/AnalyticsSources';
 import AnalyticsFunnel from './pages/admin/analytics/AnalyticsFunnel';
+import AnalyticsOutcomes from './pages/admin/analytics/AnalyticsOutcomes';
 import AnalyticsQuality from './pages/admin/analytics/AnalyticsQuality';
 import AnalyticsRevenue from './pages/admin/analytics/AnalyticsRevenue';
 import AnalyticsServices from './pages/admin/analytics/AnalyticsServices';
@@ -60,6 +61,7 @@ function App() {
             <Route path="overview" element={<AnalyticsOverview />} />
             <Route path="sources" element={<AnalyticsSources />} />
             <Route path="funnel" element={<AnalyticsFunnel />} />
+            <Route path="outcomes" element={<AnalyticsOutcomes />} />
             <Route path="quality" element={<AnalyticsQuality />} />
             <Route path="revenue" element={<AnalyticsRevenue />} />
             <Route path="services" element={<AnalyticsServices />} />

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -14,8 +14,10 @@ from app.models.calendar_appointment import (
 )
 from app.schemas.calendar_appointment import (
     AppointmentGuestIn,
+    CalendarAppointmentCancel,
     CalendarAppointmentCreate,
     CalendarAppointmentOut,
+    CalendarAppointmentReschedule,
     CalendarAppointmentStatusUpdate,
     CalendarAppointmentUpdate,
 )
@@ -203,6 +205,52 @@ def update_appointment_status(
 ):
     appointment = _get_appointment_or_404(db, appointment_id)
     appointment.status = body.status
+    db.commit()
+    return _get_appointment_or_404(db, appointment_id)
+
+
+@router.post(
+    "/appointments/{appointment_id}/cancel",
+    response_model=CalendarAppointmentOut,
+)
+def cancel_appointment(
+    appointment_id: int,
+    body: CalendarAppointmentCancel,
+    db: Session = Depends(get_db),
+    admin=Depends(get_current_admin_user),
+):
+    appointment = _get_appointment_or_404(db, appointment_id)
+    appointment.status = AppointmentStatus.cancelled
+    appointment.cancel_reason = body.reason
+    appointment.cancel_reason_other = (
+        body.reason_other.strip() if body.reason_other else None
+    )
+    appointment.cancelled_at = datetime.now(timezone.utc)
+    db.commit()
+    return _get_appointment_or_404(db, appointment_id)
+
+
+@router.post(
+    "/appointments/{appointment_id}/reschedule",
+    response_model=CalendarAppointmentOut,
+)
+def reschedule_appointment(
+    appointment_id: int,
+    body: CalendarAppointmentReschedule,
+    db: Session = Depends(get_db),
+    admin=Depends(get_current_admin_user),
+):
+    appointment = _get_appointment_or_404(db, appointment_id)
+    appointment.starts_at = body.starts_at
+    _recalc_ends_at(appointment)
+    appointment.status = AppointmentStatus.scheduled
+    appointment.reschedule_count = int(appointment.reschedule_count or 0) + 1
+    appointment.last_reschedule_reason = body.reason.strip()
+    appointment.last_rescheduled_at = datetime.now(timezone.utc)
+    # clear cancel fields if restoring from cancelled
+    appointment.cancel_reason = None
+    appointment.cancel_reason_other = None
+    appointment.cancelled_at = None
     db.commit()
     return _get_appointment_or_404(db, appointment_id)
 

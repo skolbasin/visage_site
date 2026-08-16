@@ -35,6 +35,7 @@ export default function AdminCalendar() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [loadError, setLoadError] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [defaultStartsAt, setDefaultStartsAt] = useState(null);
@@ -42,6 +43,7 @@ export default function AdminCalendar() {
 
   const fetchAppointments = useCallback(async (from, to) => {
     setLoading(true);
+    setLoadError('');
     try {
       const params = {};
       if (from) params.from = from;
@@ -50,6 +52,11 @@ export default function AdminCalendar() {
       setAppointments(data);
     } catch (err) {
       console.error(err);
+      setAppointments([]);
+      setLoadError(
+        err.response?.data?.detail ||
+          'Не удалось загрузить записи. Проверьте, что миграции применены.'
+      );
     } finally {
       setLoading(false);
     }
@@ -65,14 +72,21 @@ export default function AdminCalendar() {
     () =>
       appointments.map((a) => {
         const people = a.people_count || 1 + (a.guests?.length || 0);
+        const cancelled = a.status === 'cancelled';
         const suffix = people > 1 ? ` · ${people} чел.` : '';
+        const titlePrefix = cancelled ? '✗ ' : '';
         return {
           id: String(a.id),
-          title: `${a.name} · ${typeLabel(a.appointment_type)}${suffix}`,
+          title: `${titlePrefix}${a.name} · ${typeLabel(a.appointment_type)}${suffix}`,
           start: a.starts_at,
           end: a.ends_at,
-          backgroundColor: TYPE_COLORS[a.appointment_type] || '#4a7c59',
-          borderColor: TYPE_COLORS[a.appointment_type] || '#4a7c59',
+          backgroundColor: cancelled
+            ? '#9ca3af'
+            : TYPE_COLORS[a.appointment_type] || '#4a7c59',
+          borderColor: cancelled
+            ? '#9ca3af'
+            : TYPE_COLORS[a.appointment_type] || '#4a7c59',
+          classNames: cancelled ? ['fc-event-cancelled'] : [],
           extendedProps: { appointment: a },
         };
       }),
@@ -91,6 +105,11 @@ export default function AdminCalendar() {
     setModalOpen(true);
   };
 
+  const refreshAndClose = async () => {
+    setModalOpen(false);
+    if (range) await fetchAppointments(range.from, range.to);
+  };
+
   const handleSubmit = async (payload) => {
     setSaving(true);
     try {
@@ -99,8 +118,29 @@ export default function AdminCalendar() {
       } else {
         await api.post('/admin/calendar/appointments', payload);
       }
-      setModalOpen(false);
-      if (range) await fetchAppointments(range.from, range.to);
+      await refreshAndClose();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCancelAppointment = async (payload) => {
+    if (!editing) return;
+    setSaving(true);
+    try {
+      await api.post(`/admin/calendar/appointments/${editing.id}/cancel`, payload);
+      await refreshAndClose();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleReschedule = async (payload) => {
+    if (!editing) return;
+    setSaving(true);
+    try {
+      await api.post(`/admin/calendar/appointments/${editing.id}/reschedule`, payload);
+      await refreshAndClose();
     } finally {
       setSaving(false);
     }
@@ -108,12 +148,17 @@ export default function AdminCalendar() {
 
   const handleDelete = async () => {
     if (!editing) return;
-    if (!confirm('Удалить запись? Это действие нельзя отменить.')) return;
+    if (
+      !confirm(
+        'Удалить запись как созданную по ошибке? Данные не попадут в статистику отмен.'
+      )
+    ) {
+      return;
+    }
     setSaving(true);
     try {
       await api.delete(`/admin/calendar/appointments/${editing.id}`);
-      setModalOpen(false);
-      if (range) await fetchAppointments(range.from, range.to);
+      await refreshAndClose();
     } catch (err) {
       console.error(err);
       alert('Не удалось удалить запись');
@@ -161,6 +206,12 @@ export default function AdminCalendar() {
           Новая запись
         </button>
       </div>
+
+      {loadError && (
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+          {loadError}
+        </div>
+      )}
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-2 sm:p-4 relative admin-calendar">
         {loading && (
@@ -210,12 +261,18 @@ export default function AdminCalendar() {
             const timeRange = formatTimeRange(a.starts_at, a.ends_at);
             const price = a.total_price ?? a.price;
             const people = a.people_count || 1 + (a.guests?.length || 0);
+            const cancelled = a.status === 'cancelled';
             return (
-              <div className="px-1 py-0.5 overflow-hidden text-[11px] sm:text-xs leading-tight">
+              <div
+                className={`px-1 py-0.5 overflow-hidden text-[11px] sm:text-xs leading-tight ${
+                  cancelled ? 'opacity-80 line-through' : ''
+                }`}
+              >
                 <div className="font-medium truncate">{timeRange}</div>
                 <div className="truncate">
                   {a.name} · {typeLabel(a.appointment_type)}
                   {people > 1 ? ` · ${people} чел.` : ''}
+                  {cancelled ? ' · отмена' : ''}
                 </div>
                 {price != null && Number(price) > 0 && (
                   <div className="opacity-90 truncate">{formatMoney(price)}</div>
@@ -232,6 +289,8 @@ export default function AdminCalendar() {
         defaultStartsAt={defaultStartsAt}
         onClose={() => setModalOpen(false)}
         onSubmit={handleSubmit}
+        onCancelAppointment={editing ? handleCancelAppointment : undefined}
+        onReschedule={editing ? handleReschedule : undefined}
         onDelete={editing ? handleDelete : undefined}
         saving={saving}
       />
@@ -287,6 +346,9 @@ export default function AdminCalendar() {
         }
         .admin-calendar .fc-timegrid-event .fc-event-main {
           padding: 2px 0;
+        }
+        .admin-calendar .fc-event-cancelled {
+          opacity: 0.75;
         }
       `}</style>
     </div>

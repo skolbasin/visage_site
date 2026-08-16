@@ -50,7 +50,8 @@ jobs:
             git pull
             docker compose down
             docker compose build --no-cache
+            # DB first, then migrate before serving traffic with new schema
+            docker compose up -d postgres
+            sleep 5
+            docker compose run --rm backend alembic upgrade head
             docker compose up -d
-            # wait for backend to be ready, then apply DB migrations
-            sleep 8
-            docker compose exec -T backend alembic upgrade head

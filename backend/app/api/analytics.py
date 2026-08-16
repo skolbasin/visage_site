@@ -12,6 +12,7 @@ from app.models.calendar_appointment import (
     AppointmentStatus,
     AppointmentType,
     CalendarAppointment,
+    CancelReason,
     ClientSource,
     DURATION_HOURS,
 )
@@ -491,4 +492,109 @@ def analytics_timeline(
         "period": {"from": start, "to": end},
         "granularity": granularity,
         "points": points,
+    }
+
+
+def _cancel_reason_label(reason: Optional[CancelReason]) -> str:
+    labels = {
+        CancelReason.client_cancelled: "Клиент отменил",
+        CancelReason.feeling_unwell: "Плохое самочувствие",
+        CancelReason.schedule_conflict: "Несовпадение по времени",
+        CancelReason.force_majeure: "Форс-мажор",
+        CancelReason.other: "Другое",
+    }
+    if reason is None:
+        return "Не указана"
+    return labels.get(reason, reason.value)
+
+
+@router.get("/outcomes")
+def analytics_outcomes(
+    date_from: Optional[datetime] = Query(None, alias="from"),
+    date_to: Optional[datetime] = Query(None, alias="to"),
+    db: Session = Depends(get_db),
+    admin=Depends(get_current_admin_user),
+):
+    start, end = _parse_period(date_from, date_to)
+    items = _appointments_in_range(db, start, end)
+
+    cancelled = [a for a in items if a.status == AppointmentStatus.cancelled]
+    rescheduled = [a for a in items if int(a.reschedule_count or 0) > 0]
+    total = len(items)
+    cancelled_count = len(cancelled)
+    rescheduled_count = len(rescheduled)
+    total_reschedules = sum(int(a.reschedule_count or 0) for a in items)
+
+    reason_counts: Dict[str, int] = defaultdict(int)
+    for a in cancelled:
+        key = a.cancel_reason.value if a.cancel_reason else "unknown"
+        reason_counts[key] += 1
+
+    by_reason = []
+    for key in sorted(reason_counts.keys(), key=lambda k: -reason_counts[k]):
+        if key == "unknown":
+            label = "Не указана"
+        else:
+            label = _cancel_reason_label(CancelReason(key))
+        by_reason.append(
+            {
+                "reason": key,
+                "label": label,
+                "count": reason_counts[key],
+                "share": round(reason_counts[key] / cancelled_count * 100, 1)
+                if cancelled_count
+                else 0.0,
+            }
+        )
+
+    recent_cancellations = sorted(
+        cancelled,
+        key=lambda a: a.cancelled_at or a.starts_at,
+        reverse=True,
+    )[:20]
+
+    recent_reschedules = sorted(
+        rescheduled,
+        key=lambda a: a.last_rescheduled_at or a.updated_at or a.starts_at,
+        reverse=True,
+    )[:20]
+
+    return {
+        "period": {"from": start, "to": end},
+        "total": total,
+        "cancelled_count": cancelled_count,
+        "cancel_rate": round(cancelled_count / total * 100, 1) if total else 0.0,
+        "rescheduled_count": rescheduled_count,
+        "reschedule_rate": round(rescheduled_count / total * 100, 1) if total else 0.0,
+        "total_reschedules": total_reschedules,
+        "average_reschedules_per_rescheduled": round(
+            total_reschedules / rescheduled_count, 2
+        )
+        if rescheduled_count
+        else 0.0,
+        "by_reason": by_reason,
+        "recent_cancellations": [
+            {
+                "id": a.id,
+                "name": a.name,
+                "starts_at": a.starts_at,
+                "cancelled_at": a.cancelled_at,
+                "reason": a.cancel_reason.value if a.cancel_reason else None,
+                "reason_label": _cancel_reason_label(a.cancel_reason),
+                "reason_other": a.cancel_reason_other,
+                "total_price": float(a.total_price),
+            }
+            for a in recent_cancellations
+        ],
+        "recent_reschedules": [
+            {
+                "id": a.id,
+                "name": a.name,
+                "starts_at": a.starts_at,
+                "reschedule_count": int(a.reschedule_count or 0),
+                "last_reschedule_reason": a.last_reschedule_reason,
+                "last_rescheduled_at": a.last_rescheduled_at,
+            }
+            for a in recent_reschedules
+        ],
     }

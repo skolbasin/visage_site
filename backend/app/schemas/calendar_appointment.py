@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field, model_validator
 from app.models.calendar_appointment import (
     AppointmentStatus,
     AppointmentType,
+    CancelReason,
     ClientSource,
     Workplace,
     money_or_zero,
@@ -105,6 +106,25 @@ class CalendarAppointmentStatusUpdate(BaseModel):
     status: AppointmentStatus
 
 
+class CalendarAppointmentCancel(BaseModel):
+    reason: CancelReason
+    reason_other: Optional[str] = None
+
+    @model_validator(mode="after")
+    def validate_other(self):
+        if self.reason == CancelReason.other:
+            if not self.reason_other or not self.reason_other.strip():
+                raise ValueError("Укажите причину отмены")
+        else:
+            self.reason_other = None
+        return self
+
+
+class CalendarAppointmentReschedule(BaseModel):
+    starts_at: datetime
+    reason: str = Field(..., min_length=1)
+
+
 class CalendarAppointmentOut(BaseModel):
     id: int
     name: str
@@ -125,6 +145,12 @@ class CalendarAppointmentOut(BaseModel):
     workplace: Workplace
     comment: Optional[str] = None
     status: AppointmentStatus
+    cancel_reason: Optional[CancelReason] = None
+    cancel_reason_other: Optional[str] = None
+    cancelled_at: Optional[datetime] = None
+    reschedule_count: int = 0
+    last_reschedule_reason: Optional[str] = None
+    last_rescheduled_at: Optional[datetime] = None
     guests: List[AppointmentGuestOut] = Field(default_factory=list)
     created_at: datetime
     updated_at: Optional[datetime] = None

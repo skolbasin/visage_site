@@ -200,3 +200,90 @@ def test_list_appointments_date_filter(client, admin_headers):
     )
     assert empty.status_code == 200
     assert empty.json() == []
+
+
+def test_cancel_appointment_with_reason(client, admin_headers):
+    created = client.post(
+        "/api/v1/admin/calendar/appointments",
+        headers=admin_headers,
+        json=_appointment_payload(),
+    ).json()
+
+    bad = client.post(
+        f"/api/v1/admin/calendar/appointments/{created['id']}/cancel",
+        headers=admin_headers,
+        json={"reason": "other", "reason_other": ""},
+    )
+    assert bad.status_code == 422
+
+    cancelled = client.post(
+        f"/api/v1/admin/calendar/appointments/{created['id']}/cancel",
+        headers=admin_headers,
+        json={"reason": "client_cancelled"},
+    )
+    assert cancelled.status_code == 200
+    data = cancelled.json()
+    assert data["status"] == "cancelled"
+    assert data["cancel_reason"] == "client_cancelled"
+    assert data["cancelled_at"] is not None
+
+
+def test_reschedule_appointment(client, admin_headers):
+    created = client.post(
+        "/api/v1/admin/calendar/appointments",
+        headers=admin_headers,
+        json=_appointment_payload(appointment_type="look"),
+    ).json()
+
+    new_start = datetime.now(timezone.utc) + timedelta(days=5)
+    moved = client.post(
+        f"/api/v1/admin/calendar/appointments/{created['id']}/reschedule",
+        headers=admin_headers,
+        json={"starts_at": new_start.isoformat(), "reason": "Клиент попросил позже"},
+    )
+    assert moved.status_code == 200
+    data = moved.json()
+    assert data["status"] == "scheduled"
+    assert data["reschedule_count"] == 1
+    assert data["last_reschedule_reason"] == "Клиент попросил позже"
+    start = datetime.fromisoformat(data["starts_at"].replace("Z", "+00:00"))
+    end = datetime.fromisoformat(data["ends_at"].replace("Z", "+00:00"))
+    assert (end - start) == timedelta(hours=2, minutes=30)
+
+
+def test_analytics_outcomes_tracks_cancel_and_reschedule(client, admin_headers):
+    created = client.post(
+        "/api/v1/admin/calendar/appointments",
+        headers=admin_headers,
+        json=_appointment_payload(name="Отмена"),
+    ).json()
+    client.post(
+        f"/api/v1/admin/calendar/appointments/{created['id']}/cancel",
+        headers=admin_headers,
+        json={"reason": "feeling_unwell"},
+    )
+
+    moved = client.post(
+        "/api/v1/admin/calendar/appointments",
+        headers=admin_headers,
+        json=_appointment_payload(name="Перенос"),
+    ).json()
+    new_start = datetime.now(timezone.utc) + timedelta(days=2)
+    client.post(
+        f"/api/v1/admin/calendar/appointments/{moved['id']}/reschedule",
+        headers=admin_headers,
+        json={"starts_at": new_start.isoformat(), "reason": "Сдвиг"},
+    )
+
+    period_from = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
+    period_to = (datetime.now(timezone.utc) + timedelta(days=10)).isoformat()
+    outcomes = client.get(
+        "/api/v1/admin/analytics/outcomes",
+        headers=admin_headers,
+        params={"from": period_from, "to": period_to},
+    )
+    assert outcomes.status_code == 200
+    data = outcomes.json()
+    assert data["cancelled_count"] >= 1
+    assert data["rescheduled_count"] >= 1
+    assert any(item["reason"] == "feeling_unwell" for item in data["by_reason"])
