@@ -29,10 +29,11 @@ def main():
     print("=" * 50)
     print(f"ОС: {platform.system()} {platform.release()}")
 
+    # IMPORTANT: never run `docker volume prune` — it can wipe postgres_data
+    # between `docker compose down` and `up` (volume looks unused briefly).
     commands = [
         ("docker container prune -f", "Удаление остановленных контейнеров"),
         ("docker image prune -a -f", "Удаление неиспользуемых образов"),
-        ("docker volume prune -f", "Удаление неиспользуемых томов"),
         ("docker network prune -f", "Удаление неиспользуемых сетей"),
         ("docker builder prune -f", "Очистка кэша сборки"),
     ]

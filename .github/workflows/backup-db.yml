@@ -1,0 +1,32 @@
+name: Monthly DB backup
+
+on:
+  schedule:
+    # 1st day of each month at 03:00 UTC
+    - cron: "0 3 1 * *"
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Backup PostgreSQL on server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.Server_Host }}
+          username: ${{ secrets.Server_User }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            cd /opt/visage_site
+            if [[ ! -x scripts/backup_db.sh ]]; then
+              chmod +x scripts/backup_db.sh scripts/restore_db.sh 2>/dev/null || true
+            fi
+            if [[ ! -f scripts/backup_db.sh ]]; then
+              echo "ERROR: scripts/backup_db.sh missing — deploy latest master first" >&2
+              exit 1
+            fi
+            ./scripts/backup_db.sh
+            echo "=== backups on disk ==="
+            ls -lh backups/ || true
