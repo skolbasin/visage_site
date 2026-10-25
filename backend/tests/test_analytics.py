@@ -79,6 +79,38 @@ def test_analytics_sources_funnel_services(client, admin_headers):
     assert "by_source" in quality.json()
 
 
+def test_planned_revenue_includes_scheduled_excludes_cancelled(client, admin_headers):
+    _create_completed(client, admin_headers, price=8000)
+    _create_completed(
+        client,
+        admin_headers,
+        name="Анна",
+        price=4000,
+        status="scheduled",
+        has_prepayment=False,
+        prepayment_amount=None,
+    )
+    _create_completed(
+        client,
+        admin_headers,
+        name="Ольга",
+        price=9000,
+        status="cancelled",
+        has_prepayment=False,
+        prepayment_amount=None,
+    )
+
+    overview = client.get("/api/v1/admin/analytics/overview", headers=admin_headers)
+    assert overview.status_code == 200
+    data = overview.json()
+    assert data["completed"] == 1
+    assert data["scheduled"] == 1
+    assert data["cancelled"] == 1
+    assert data["revenue"] == 8000
+    assert data["planned_revenue"] == 12000
+    assert data["planned_count"] == 2
+
+
 def test_analytics_groups(client, admin_headers):
     _create_completed(client, admin_headers)
     _create_completed(

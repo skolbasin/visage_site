@@ -102,6 +102,47 @@ def test_recurring_materializes_monthly_with_clamp(client, admin_headers):
     assert len(listed_again.json()["items"]) == 1
 
 
+def test_cannot_delete_system_category(client, admin_headers):
+    categories = client.get("/api/v1/admin/expenses/categories", headers=admin_headers)
+    system_id = next(c["id"] for c in categories.json() if c["is_system"])
+    response = client.delete(
+        f"/api/v1/admin/expenses/categories/{system_id}", headers=admin_headers
+    )
+    assert response.status_code == 400
+
+
+def test_custom_category_create_and_update_expense(client, admin_headers):
+    created = client.post(
+        "/api/v1/admin/expenses/categories",
+        headers=admin_headers,
+        json={"name": "Цветы"},
+    )
+    assert created.status_code == 200
+    category_id = created.json()["id"]
+    assert created.json()["is_system"] is False
+
+    expense = client.post(
+        "/api/v1/admin/expenses",
+        headers=admin_headers,
+        json={
+            "spent_on": "2026-10-25",
+            "amount": "1200",
+            "category_id": category_id,
+            "paid_by": "nastya",
+            "is_shared": True,
+        },
+    )
+    assert expense.status_code == 200
+    updated = client.patch(
+        f"/api/v1/admin/expenses/{expense.json()['id']}",
+        headers=admin_headers,
+        json={"amount": "1500", "is_shared": False},
+    )
+    assert updated.status_code == 200
+    assert updated.json()["amount"] == "1500.00"
+    assert updated.json()["is_shared"] is False
+
+
 def test_custom_category_and_add_calendar_months():
     assert add_calendar_months(date(2026, 1, 31), 1) == date(2026, 2, 28)
     assert add_calendar_months(date(2026, 1, 31), 3) == date(2026, 4, 30)
