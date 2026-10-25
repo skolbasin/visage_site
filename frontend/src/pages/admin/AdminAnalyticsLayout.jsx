@@ -13,6 +13,13 @@ const TABS = [
   { to: 'groups', label: 'Группы' },
 ];
 
+const PRESETS = [
+  { id: 'week', label: '+ неделя' },
+  { id: 'month', label: '+ месяц' },
+  { id: 'quarter', label: '+ квартал' },
+  { id: 'year', label: '+ год' },
+];
+
 export default function AdminAnalyticsLayout() {
   const { from, to, setPeriod, applyPreset } = useAnalyticsPeriod();
 
@@ -29,25 +36,8 @@ export default function AdminAnalyticsLayout() {
       </div>
 
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 mb-4">
-        <div className="flex flex-col lg:flex-row lg:items-end gap-3">
-          <div className="flex flex-wrap gap-2">
-            {[
-              { days: 7, label: '7 дней' },
-              { days: 30, label: '30 дней' },
-              { days: 90, label: '90 дней' },
-              { days: 365, label: 'Год' },
-            ].map((p) => (
-              <button
-                key={p.days}
-                type="button"
-                onClick={() => applyPreset(p.days)}
-                className="px-3 py-1.5 rounded-lg text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
-          <div className="flex flex-wrap items-end gap-2 lg:ml-auto">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3">
+          <div className="flex flex-wrap items-end gap-2">
             <label className="text-sm text-gray-600">
               С
               <input
@@ -66,6 +56,19 @@ export default function AdminAnalyticsLayout() {
                 className="mt-1 block border border-gray-300 rounded-lg px-3 py-1.5"
               />
             </label>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {PRESETS.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => applyPreset(p.id)}
+                className="px-3 py-1.5 rounded-lg text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
+                title="Конец периода считается от даты «С»"
+              >
+                {p.label}
+              </button>
+            ))}
           </div>
         </div>
       </div>
