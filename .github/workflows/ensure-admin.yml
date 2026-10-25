@@ -30,39 +30,7 @@ jobs:
             docker exec \
               -e ADMIN_EMAIL="$ADMIN_EMAIL" \
               -e ADMIN_PASSWORD="$ADMIN_PASSWORD" \
-              makeup_backend python -c '
-            import os
-            from app.core.security import get_password_hash
-            from app.db.session import SessionLocal
-            from app.models.user import User
-
-            email = (os.environ.get("ADMIN_EMAIL") or "").strip()
-            password = os.environ.get("ADMIN_PASSWORD") or ""
-            if not email or not password:
-                raise SystemExit("ADMIN_EMAIL and ADMIN_PASSWORD are required")
-
-            db = SessionLocal()
-            user = db.query(User).filter(User.email.ilike(email)).first()
-            if user:
-                user.email = email
-                user.hashed_password = get_password_hash(password)
-                user.is_admin = True
-                user.is_active = True
-                action = "updated"
-            else:
-                user = User(
-                    email=email,
-                    hashed_password=get_password_hash(password),
-                    full_name=email,
-                    is_active=True,
-                    is_admin=True,
-                )
-                db.add(user)
-                action = "created"
-            db.commit()
-            db.refresh(user)
-            print(f"{action} id={user.id} email={user.email} is_admin={user.is_admin} is_active={user.is_active}")
-            '
+              makeup_backend python scripts/ensure_admin.py
         env:
           ADMIN_EMAIL: ${{ inputs.email }}
           ADMIN_PASSWORD: ${{ inputs.password }}
