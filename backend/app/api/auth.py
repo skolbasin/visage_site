@@ -63,8 +63,12 @@ def register(user_data: UserCreate, request: Request, db: Session = Depends(get_
 def login(user_data: UserLogin, request: Request, db: Session = Depends(get_db)):
     logger.info(f"Login attempt: {user_data.email}")
 
-    # Ищем пользователя по email
-    user = db.query(User).filter((User.email == user_data.email)).first()
+    email = (user_data.email or "").strip()
+    user = (
+        db.query(User)
+        .filter(User.email.ilike(email))
+        .first()
+    )
 
     if not user or not verify_password(user_data.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Incorrect login or password")
