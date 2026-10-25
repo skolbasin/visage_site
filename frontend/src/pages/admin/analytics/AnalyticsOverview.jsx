@@ -32,7 +32,9 @@ export default function AnalyticsOverview() {
     (async () => {
       setLoading(true);
       try {
-        const { data: res } = await api.get('/admin/analytics/overview', { params: apiParams });
+        const { data: res } = await api.get('/admin/analytics/overview', {
+          params: { from: apiParams.from, to: apiParams.to },
+        });
         if (!cancelled) setData(res);
       } catch (err) {
         console.error(err);
@@ -43,9 +45,11 @@ export default function AnalyticsOverview() {
     return () => {
       cancelled = true;
     };
-  }, [apiParams]);
+  }, [apiParams.from, apiParams.to]);
 
-  if (loading) return <div className="text-center py-16 text-gray-500">Загрузка...</div>;
+  if (loading && !data) {
+    return <div className="text-center py-16 text-gray-500">Загрузка...</div>;
+  }
   if (!data) return <div className="text-center py-16 text-gray-500">Нет данных</div>;
 
   return (
@@ -53,10 +57,15 @@ export default function AnalyticsOverview() {
       <section>
         <h2 className="text-lg font-medium text-gray-800 mb-1">Ключевые показатели</h2>
         <p className="text-sm text-gray-500 mb-4">Сводка по выбранному периоду</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 bg-white rounded-xl border border-gray-100 p-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 bg-white rounded-xl border border-gray-100 p-5">
           <Kpi label="Всего записей" value={data.total} />
           <Kpi label="Завершено" value={data.completed} hint={`Отмен: ${data.cancelled}`} />
           <Kpi label="Выручка" value={formatMoney(data.revenue)} hint="Только завершённые" />
+          <Kpi
+            label="Планируемая выручка"
+            value={formatMoney(data.planned_revenue)}
+            hint={`Завершённые + запланированные (${data.planned_count ?? 0})`}
+          />
           <Kpi
             label="Средний чек"
             value={formatMoney(data.average_check)}
@@ -81,7 +90,7 @@ export default function AnalyticsOverview() {
         <p className="text-sm text-gray-500 mb-4">Количество новых записей по дням</p>
         <div className="bg-white rounded-xl border border-gray-100 p-4 h-72">
           {data.timeline?.length ? (
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={50}>
               <AreaChart data={data.timeline}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
                 <XAxis dataKey="date" tick={{ fontSize: 11 }} />

@@ -131,7 +131,7 @@ export default function AdminLayout() {
 
         {/* Аналитика */}
         <Link
-          to="/admin/analytics"
+          to="/admin/analytics/overview"
           className={`flex items-center gap-3 px-3 py-2 rounded-lg transition ${
             isActive('/admin/analytics') ? 'bg-[#4a7c59] text-white' : 'text-gray-700 hover:bg-gray-100'
           }`}

@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
 import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
@@ -32,6 +32,11 @@ import AnalyticsServices from './pages/admin/analytics/AnalyticsServices';
 import AnalyticsGroups from './pages/admin/analytics/AnalyticsGroups';
 import AdminExpenses from './pages/admin/AdminExpenses';
 
+function AnalyticsIndexRedirect() {
+  const location = useLocation();
+  return <Navigate to={{ pathname: 'overview', search: location.search }} replace />;
+}
+
 function App() {
   return (
     <>
@@ -58,7 +63,7 @@ function App() {
           <Route path="bookings" element={<AdminBookings />} />
           <Route path="calendar" element={<AdminCalendar />} />
           <Route path="analytics" element={<AdminAnalyticsLayout />}>
-            <Route index element={<Navigate to="overview" replace />} />
+            <Route index element={<AnalyticsIndexRedirect />} />
             <Route path="overview" element={<AnalyticsOverview />} />
             <Route path="sources" element={<AnalyticsSources />} />
             <Route path="funnel" element={<AnalyticsFunnel />} />

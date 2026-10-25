@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 const CACHE_KEY = 'analytics_period_v1';
@@ -126,7 +126,6 @@ export function useAnalyticsPeriod() {
   const [searchParams, setSearchParams] = useSearchParams();
   const urlFrom = searchParams.get('from');
   const urlTo = searchParams.get('to');
-  const syncedRef = useRef(false);
 
   const resolved = useMemo(
     () => resolvePeriod(urlFrom, urlTo),
@@ -146,19 +145,14 @@ export function useAnalyticsPeriod() {
     setSearchParams(params, { replace: true });
   };
 
-  // Put cache/default into the URL once so tabs and shareable links stay in sync
+  // Keep dates in the URL even after /analytics → /overview navigation.
   useEffect(() => {
-    if (syncedRef.current) {
+    if (parseInputDate(urlFrom) && parseInputDate(urlTo)) {
       return;
     }
-    if (!parseInputDate(urlFrom) || !parseInputDate(urlTo)) {
-      syncedRef.current = true;
-      setPeriod(from, to);
-    } else {
-      syncedRef.current = true;
-    }
+    setPeriod(from, to);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [urlFrom, urlTo, from, to]);
 
   /** Extend `to` from current `from` by a calendar period. */
   const applyPreset = (preset) => {

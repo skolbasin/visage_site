@@ -111,6 +111,12 @@ def analytics_overview(
     group_items = [a for a in items if a.is_group]
 
     revenue = sum(_total_money(a) for a in completed)
+    planned_items = [
+        a
+        for a in items
+        if a.status in (AppointmentStatus.completed, AppointmentStatus.scheduled)
+    ]
+    planned_revenue = sum(_total_money(a) for a in planned_items)
     avg_check = revenue / len(completed) if completed else 0.0
 
     source_counts: Dict[ClientSource, int] = defaultdict(int)
@@ -135,6 +141,8 @@ def analytics_overview(
         "no_show": len(no_show),
         "scheduled": len(scheduled),
         "revenue": revenue,
+        "planned_revenue": planned_revenue,
+        "planned_count": len(planned_items),
         "average_check": round(avg_check, 2),
         "prepayment_share": round(len(with_prepay) / len(items) * 100, 1) if items else 0.0,
         "group_share": round(len(group_items) / len(items) * 100, 1) if items else 0.0,

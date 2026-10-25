@@ -48,6 +48,8 @@ def test_analytics_overview_and_revenue(client, admin_headers):
     assert data["total"] >= 2
     assert data["completed"] >= 2
     assert data["revenue"] >= 13000
+    assert data["planned_revenue"] >= data["revenue"]
+    assert data["planned_count"] >= data["completed"]
     assert "group_share" in data
 
     revenue = client.get("/api/v1/admin/analytics/revenue", headers=admin_headers)
