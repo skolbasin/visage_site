@@ -30,6 +30,7 @@ import AnalyticsQuality from './pages/admin/analytics/AnalyticsQuality';
 import AnalyticsRevenue from './pages/admin/analytics/AnalyticsRevenue';
 import AnalyticsServices from './pages/admin/analytics/AnalyticsServices';
 import AnalyticsGroups from './pages/admin/analytics/AnalyticsGroups';
+import AdminExpenses from './pages/admin/AdminExpenses';
 
 function App() {
   return (
@@ -67,6 +68,7 @@ function App() {
             <Route path="services" element={<AnalyticsServices />} />
             <Route path="groups" element={<AnalyticsGroups />} />
           </Route>
+          <Route path="expenses" element={<AdminExpenses />} />
           <Route path="questions" element={<AdminQuestions />} />
           <Route path="certificates" element={<AdminCertificates />} />
           <Route path="promocodes" element={<AdminPromoCodes />} />

@@ -13,6 +13,7 @@ from app.api import (
     booking,
     calendar,
     certificates,
+    expenses,
     feedback,
     portfolio,
     posts,
@@ -70,6 +71,7 @@ app.include_router(ai.router, prefix=settings.API_V1_STR)
 app.include_router(admin.router, prefix=settings.API_V1_STR)
 app.include_router(calendar.router, prefix=settings.API_V1_STR)
 app.include_router(analytics.router, prefix=settings.API_V1_STR)
+app.include_router(expenses.router, prefix=settings.API_V1_STR)
 app.include_router(feedback.router, prefix=settings.API_V1_STR)
 app.include_router(question.router, prefix=settings.API_V1_STR)
 

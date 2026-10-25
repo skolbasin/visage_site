@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LogOut, Calendar, Image, Settings, MessageSquare, Gift, Users, Tag, FolderOpen, Menu, X, CalendarDays, BarChart3 } from 'lucide-react';
+import { LogOut, Calendar, Image, Settings, MessageSquare, Gift, Users, Tag, FolderOpen, Menu, X, CalendarDays, BarChart3, Wallet } from 'lucide-react';
 import api from '../../services/api';
 
 export default function AdminLayout() {
@@ -138,6 +138,16 @@ export default function AdminLayout() {
         >
           <BarChart3 size={20} />
           <span>Аналитика</span>
+        </Link>
+
+        <Link
+          to="/admin/expenses"
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg transition ${
+            isActive('/admin/expenses') ? 'bg-[#4a7c59] text-white' : 'text-gray-700 hover:bg-gray-100'
+          }`}
+        >
+          <Wallet size={20} />
+          <span>Расходы</span>
         </Link>
 
         {/* Промокоды */}
