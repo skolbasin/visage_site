@@ -10,6 +10,7 @@ from typing import Sequence, Union
 
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy.dialects.postgresql import ENUM
 
 revision: str = "20261025_expenses"
 down_revision: Union[str, None] = "20260816_outcomes"
@@ -31,23 +32,30 @@ SYSTEM_CATEGORIES = (
     "Прочее",
 )
 
-expense_payer_enum = sa.Enum("sereja", "nastya", name="expensepayer")
-recurring_interval_enum = sa.Enum(
-    "weekly", "monthly", "yearly", name="recurringinterval"
-)
-# PG enum CREATE TYPE survives a failed transaction; do not recreate it on tables.
-expense_payer_column = sa.Enum(
-    "sereja", "nastya", name="expensepayer", create_type=False
-)
-recurring_interval_column = sa.Enum(
+expense_payer_enum = ENUM("sereja", "nastya", name="expensepayer", create_type=False)
+recurring_interval_enum = ENUM(
     "weekly", "monthly", "yearly", name="recurringinterval", create_type=False
 )
 
 
+def _ensure_enum(name: str, values: str) -> None:
+    op.execute(
+        sa.text(
+            f"""
+            DO $$ BEGIN
+                CREATE TYPE {name} AS ENUM ({values});
+            EXCEPTION
+                WHEN duplicate_object THEN NULL;
+            END $$;
+            """
+        )
+    )
+
+
 def upgrade() -> None:
     bind = op.get_bind()
-    expense_payer_enum.create(bind, checkfirst=True)
-    recurring_interval_enum.create(bind, checkfirst=True)
+    _ensure_enum("expensepayer", "'sereja', 'nastya'")
+    _ensure_enum("recurringinterval", "'weekly', 'monthly', 'yearly'")
     existing = set(sa.inspect(bind).get_table_names())
 
     if "expense_categories" not in existing:
@@ -90,11 +98,11 @@ def upgrade() -> None:
             sa.Column("title", sa.String(length=160), nullable=False),
             sa.Column("amount", sa.Numeric(precision=10, scale=2), nullable=False),
             sa.Column("category_id", sa.Integer(), nullable=False),
-            sa.Column("paid_by", expense_payer_column, nullable=False),
+            sa.Column("paid_by", expense_payer_enum, nullable=False),
             sa.Column(
                 "is_shared", sa.Boolean(), nullable=False, server_default=sa.false()
             ),
-            sa.Column("interval", recurring_interval_column, nullable=False),
+            sa.Column("interval", recurring_interval_enum, nullable=False),
             sa.Column("start_date", sa.Date(), nullable=False),
             sa.Column("end_date", sa.Date(), nullable=True),
             sa.Column(
@@ -127,7 +135,7 @@ def upgrade() -> None:
             sa.Column("spent_on", sa.Date(), nullable=False),
             sa.Column("amount", sa.Numeric(precision=10, scale=2), nullable=False),
             sa.Column("category_id", sa.Integer(), nullable=False),
-            sa.Column("paid_by", expense_payer_column, nullable=False),
+            sa.Column("paid_by", expense_payer_enum, nullable=False),
             sa.Column(
                 "is_shared", sa.Boolean(), nullable=False, server_default=sa.false()
             ),
@@ -187,5 +195,5 @@ def downgrade() -> None:
         op.drop_index(op.f("ix_expense_categories_id"), table_name="expense_categories")
         op.drop_table("expense_categories")
 
-    recurring_interval_enum.drop(bind, checkfirst=True)
-    expense_payer_enum.drop(bind, checkfirst=True)
+    op.execute(sa.text("DROP TYPE IF EXISTS recurringinterval"))
+    op.execute(sa.text("DROP TYPE IF EXISTS expensepayer"))
