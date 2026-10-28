@@ -16,16 +16,6 @@ const CATEGORY_COLORS = [
   '#6b7c8a',
 ];
 
-const MODES = [
-  { id: 'people', label: 'Серёжа и Настя' },
-  { id: 'combined', label: 'Общая' },
-];
-
-const METRICS = [
-  { id: 'money', label: 'Сумма' },
-  { id: 'percent', label: 'Процент' },
-];
-
 function formatShare(part, total) {
   if (!total) return '0%';
   return new Intl.NumberFormat('ru-RU', {
@@ -284,32 +274,7 @@ function ExpenseDonutCard({ title, items, metric, colors, sliceTotal, layout }) 
   );
 }
 
-function Segmented({ value, options, onChange, label }) {
-  return (
-    <div className="inline-flex rounded-lg bg-gray-100 p-0.5" role="group" aria-label={label}>
-      {options.map((option) => {
-        const selected = value === option.id;
-        return (
-          <button
-            key={option.id}
-            type="button"
-            aria-pressed={selected}
-            onClick={() => onChange(option.id)}
-            className={`px-3 py-1.5 rounded-md text-sm transition ${
-              selected ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-800'
-            }`}
-          >
-            {option.label}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-export default function ExpenseDonuts({ items }) {
-  const [mode, setMode] = useState('people');
-  const [metric, setMetric] = useState('money');
+export default function ExpenseDonuts({ items, mode, metric }) {
   const { colors, sereja, nastya, sliceTotal } = useMemo(() => {
     const serejaItems = items.filter((item) => item.paid_by === 'sereja');
     const nastyaItems = items.filter((item) => item.paid_by === 'nastya');
@@ -323,14 +288,7 @@ export default function ExpenseDonuts({ items }) {
   }, [items]);
 
   return (
-    <div className="mb-4">
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-        <h2 className="text-sm font-medium text-gray-700">По категориям</h2>
-        <div className="flex flex-wrap gap-2">
-          <Segmented label="Состав диаграмм" value={mode} options={MODES} onChange={setMode} />
-          <Segmented label="Как показывать категории" value={metric} options={METRICS} onChange={setMetric} />
-        </div>
-      </div>
+    <div className="mb-6">
       {mode === 'people' ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <ExpenseDonutCard
@@ -360,7 +318,7 @@ export default function ExpenseDonuts({ items }) {
         </div>
       ) : (
         <ExpenseDonutCard
-          title="Всего"
+          title="Общее"
           items={items}
           metric={metric}
           colors={colors}

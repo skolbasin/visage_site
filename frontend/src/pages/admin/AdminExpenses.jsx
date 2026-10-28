@@ -25,12 +25,14 @@ const PERIOD_CHIPS = [
   { id: 'custom', label: 'Свой' },
 ];
 
-const FILTERS = [
-  { id: 'all', label: 'Все' },
-  { id: 'shared', label: 'Общие' },
-  { id: 'personal', label: 'Личные' },
-  { id: 'sereja', label: 'Серёжа' },
-  { id: 'nastya', label: 'Настя' },
+const VIEW_MODES = [
+  { id: 'people', label: 'Серёжа и Настя' },
+  { id: 'combined', label: 'Общее' },
+];
+
+const METRICS = [
+  { id: 'money', label: 'Цена' },
+  { id: 'percent', label: 'Процент' },
 ];
 
 const INTERVALS = [
@@ -76,11 +78,25 @@ function emptyRecurring(spentOn) {
   };
 }
 
-function Kpi({ label, value }) {
+function FilterChip({ active, onClick, children }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-100 p-3 sm:p-4">
-      <div className="text-xs sm:text-sm text-gray-500">{label}</div>
-      <div className="text-lg sm:text-xl font-semibold text-gray-900 mt-1">{value}</div>
+    <button
+      type="button"
+      onClick={onClick}
+      className={`px-3.5 py-2 rounded-lg text-sm font-medium transition ${
+        active ? 'bg-[#4a7c59] text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function FilterRow({ title, children }) {
+  return (
+    <div>
+      <div className="text-xs font-medium uppercase tracking-wide text-gray-400 mb-2">{title}</div>
+      <div className="flex flex-wrap gap-2">{children}</div>
     </div>
   );
 }
@@ -88,10 +104,8 @@ function Kpi({ label, value }) {
 export default function AdminExpenses() {
   const { period, from, to, setPeriodType, setCustomRange, shift, isSingleDay } =
     useExpensePeriod();
-  const [filter, setFilter] = useState('all');
   const [categories, setCategories] = useState([]);
   const [items, setItems] = useState([]);
-  const [summary, setSummary] = useState(null);
   const [recurring, setRecurring] = useState([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState(() => emptyForm(from));
@@ -102,18 +116,15 @@ export default function AdminExpenses() {
   const [showRecurring, setShowRecurring] = useState(false);
   const [recurringForm, setRecurringForm] = useState(() => emptyRecurring(from));
   const [saving, setSaving] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  const [chartMode, setChartMode] = useState('people');
+  const [metric, setMetric] = useState('money');
 
   useEffect(() => {
     setForm((prev) => ({ ...prev, spent_on: prev.spent_on || from }));
   }, [from]);
 
-  const queryParams = useMemo(() => {
-    const params = { from, to };
-    if (filter === 'shared') params.is_shared = true;
-    if (filter === 'personal') params.is_shared = false;
-    if (filter === 'sereja' || filter === 'nastya') params.paid_by = filter;
-    return params;
-  }, [from, to, filter]);
+  const queryParams = useMemo(() => ({ from, to }), [from, to]);
 
   const loadCategories = async () => {
     const { data } = await api.get('/admin/expenses/categories');
@@ -131,7 +142,6 @@ export default function AdminExpenses() {
   const loadExpenses = async () => {
     const { data } = await api.get('/admin/expenses', { params: queryParams });
     setItems(data.items);
-    setSummary(data.summary);
   };
 
   const loadRecurring = async () => {
@@ -152,7 +162,6 @@ export default function AdminExpenses() {
         if (cancelled) return;
         setCategories(cats.data);
         setItems(exp.data.items);
-        setSummary(exp.data.summary);
         setRecurring(rules.data);
         setForm((prev) => ({
           ...prev,
@@ -197,6 +206,7 @@ export default function AdminExpenses() {
         category_id: Number(form.category_id),
       });
       setForm((prev) => ({ ...emptyForm(from), category_id: prev.category_id, paid_by: prev.paid_by }));
+      setAddOpen(false);
       await loadExpenses();
     } catch (err) {
       console.error(err);
@@ -298,56 +308,93 @@ export default function AdminExpenses() {
       ? formatDayTitle(from)
       : `${formatDayTitle(from)} — ${formatDayTitle(to)}`;
 
+  const openAdd = () => {
+    setForm((prev) => ({ ...prev, spent_on: from }));
+    setAddingCategory(false);
+    setAddOpen(true);
+  };
+
+  useEffect(() => {
+    if (!addOpen) return undefined;
+    const onKey = (event) => {
+      if (event.key === 'Escape') setAddOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [addOpen]);
+
   return (
     <div>
-      <div className="mb-4">
-        <div className="flex items-center gap-2 mb-1">
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="flex items-center gap-2">
           <Wallet size={22} className="text-[#4a7c59]" />
           <h1 className="text-2xl font-serif text-gray-800">Расходы</h1>
         </div>
-        <p className="text-sm text-gray-500">Контроль трат Серёжи и Насти</p>
+        <button
+          type="button"
+          onClick={openAdd}
+          className="bg-[#4a7c59] text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#3d6b4a]"
+        >
+          <Plus size={18} />
+          Трата
+        </button>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 sm:p-4 mb-4">
-        <div className="flex items-center justify-between gap-2 mb-3">
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 mb-5 space-y-4">
+        <FilterRow title="Кто">
+          {VIEW_MODES.map((option) => (
+            <FilterChip
+              key={option.id}
+              active={chartMode === option.id}
+              onClick={() => setChartMode(option.id)}
+            >
+              {option.label}
+            </FilterChip>
+          ))}
+        </FilterRow>
+        <FilterRow title="Сумма">
+          {METRICS.map((option) => (
+            <FilterChip
+              key={option.id}
+              active={metric === option.id}
+              onClick={() => setMetric(option.id)}
+            >
+              {option.label}
+            </FilterChip>
+          ))}
+        </FilterRow>
+        <FilterRow title="Разрез">
           <button
             type="button"
             onClick={() => shift(-1)}
-            className="p-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200"
+            className="p-2 rounded-lg bg-gray-50 text-gray-600 hover:bg-gray-100"
             aria-label="Предыдущий период"
           >
             <ChevronLeft size={18} />
           </button>
-          <div className="text-sm sm:text-base font-medium text-gray-800 text-center capitalize">
+          <span className="px-1 self-center text-sm font-medium text-gray-800 capitalize">
             {periodLabel}
-          </div>
+          </span>
           <button
             type="button"
             onClick={() => shift(1)}
-            className="p-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200"
+            className="p-2 rounded-lg bg-gray-50 text-gray-600 hover:bg-gray-100"
             aria-label="Следующий период"
           >
             <ChevronRight size={18} />
           </button>
-        </div>
-        <div className="flex flex-wrap gap-2">
           {PERIOD_CHIPS.map((chip) => (
-            <button
+            <FilterChip
               key={chip.id}
-              type="button"
+              active={period === chip.id}
               onClick={() => setPeriodType(chip.id)}
-              className={`px-3 py-1.5 rounded-lg text-sm transition ${
-                period === chip.id
-                  ? 'bg-[#4a7c59] text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
             >
               {chip.label}
-            </button>
+            </FilterChip>
           ))}
-        </div>
+        </FilterRow>
         {period === 'custom' && (
-          <div className="flex flex-wrap gap-2 mt-3">
+          <div className="flex flex-wrap gap-2">
             <label className="text-sm text-gray-600">
               С
               <input
@@ -370,39 +417,35 @@ export default function AdminExpenses() {
         )}
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-4">
-        {FILTERS.map((chip) => (
-          <button
-            key={chip.id}
-            type="button"
-            onClick={() => setFilter(chip.id)}
-            className={`px-3 py-1.5 rounded-lg text-sm transition ${
-              filter === chip.id
-                ? 'bg-[#4a7c59] text-white'
-                : 'bg-white border border-gray-200 text-gray-700'
-            }`}
-          >
-            {chip.label}
-          </button>
-        ))}
-      </div>
-
-      {summary && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-4">
-          <Kpi label="Всего" value={formatMoney(summary.total)} />
-          <Kpi label="Общие" value={formatMoney(summary.shared)} />
-          <Kpi label="Личные Серёжи" value={formatMoney(summary.personal_sereja)} />
-          <Kpi label="Личные Насти" value={formatMoney(summary.personal_nastya)} />
-        </div>
+      {loading ? (
+        <div className="text-center py-16 text-gray-500">Загрузка...</div>
+      ) : (
+        <ExpenseDonuts items={items} mode={chartMode} metric={metric} />
       )}
 
-      {items.length > 0 && <ExpenseDonuts items={items} />}
-
-      <form
-        onSubmit={handleCreate}
-        className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 mb-4"
-      >
-        <h2 className="text-sm font-medium text-gray-700 mb-3">Добавить трату</h2>
+      {addOpen && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/40"
+            aria-label="Закрыть"
+            onClick={() => setAddOpen(false)}
+          />
+          <form
+            onSubmit={handleCreate}
+            className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-5"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-medium text-gray-800">Добавить трату</h2>
+              <button
+                type="button"
+                onClick={() => setAddOpen(false)}
+                className="p-2 rounded-lg text-gray-500 hover:bg-gray-100"
+                aria-label="Закрыть"
+              >
+                <X size={18} />
+              </button>
+            </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <label className="text-sm text-gray-600">
             Сумма
@@ -517,7 +560,9 @@ export default function AdminExpenses() {
           <Plus size={18} />
           Сохранить
         </button>
-      </form>
+          </form>
+        </div>
+      )}
 
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm mb-4">
         <button
@@ -684,9 +729,7 @@ export default function AdminExpenses() {
         )}
       </div>
 
-      {loading ? (
-        <div className="text-center py-12 text-gray-500">Загрузка...</div>
-      ) : items.length === 0 ? (
+      {!loading && items.length === 0 ? (
         <div className="text-center py-12 text-gray-500">За этот период трат нет</div>
       ) : (
         <div className="space-y-4">
