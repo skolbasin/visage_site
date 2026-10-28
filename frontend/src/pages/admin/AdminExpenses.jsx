@@ -60,7 +60,6 @@ function emptyForm(spentOn) {
     amount: '',
     category_id: '',
     paid_by: 'sereja',
-    is_shared: false,
     comment: '',
   };
 }
@@ -71,7 +70,6 @@ function emptyRecurring(spentOn) {
     amount: '',
     category_id: '',
     paid_by: 'sereja',
-    is_shared: true,
     interval: 'monthly',
     start_date: spentOn,
     end_date: '',
@@ -83,7 +81,7 @@ function FilterChip({ active, onClick, children }) {
     <button
       type="button"
       onClick={onClick}
-      className={`px-3.5 py-2 rounded-lg text-sm font-medium transition ${
+      className={`px-2.5 py-1 rounded-md text-xs font-medium transition ${
         active ? 'bg-[#4a7c59] text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
       }`}
     >
@@ -94,9 +92,9 @@ function FilterChip({ active, onClick, children }) {
 
 function FilterRow({ title, children }) {
   return (
-    <div>
-      <div className="text-xs font-medium uppercase tracking-wide text-gray-400 mb-2">{title}</div>
-      <div className="flex flex-wrap gap-2">{children}</div>
+    <div className="flex flex-col items-center">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-gray-400 mb-1">{title}</div>
+      <div className="flex flex-wrap justify-center gap-1.5">{children}</div>
     </div>
   );
 }
@@ -201,9 +199,12 @@ export default function AdminExpenses() {
     setSaving(true);
     try {
       await api.post('/admin/expenses', {
-        ...form,
+        spent_on: form.spent_on,
         amount: Number(form.amount),
         category_id: Number(form.category_id),
+        paid_by: form.paid_by,
+        is_shared: false,
+        comment: form.comment,
       });
       setForm((prev) => ({ ...emptyForm(from), category_id: prev.category_id, paid_by: prev.paid_by }));
       setAddOpen(false);
@@ -247,7 +248,6 @@ export default function AdminExpenses() {
       amount: String(item.amount),
       category_id: String(item.category_id),
       paid_by: item.paid_by,
-      is_shared: item.is_shared,
       comment: item.comment || '',
     });
   };
@@ -255,9 +255,12 @@ export default function AdminExpenses() {
   const saveEdit = async (id) => {
     try {
       await api.patch(`/admin/expenses/${id}`, {
-        ...editForm,
+        spent_on: editForm.spent_on,
         amount: Number(editForm.amount),
         category_id: Number(editForm.category_id),
+        paid_by: editForm.paid_by,
+        is_shared: false,
+        comment: editForm.comment,
       });
       setEditingId(null);
       setEditForm(null);
@@ -272,9 +275,13 @@ export default function AdminExpenses() {
     if (!recurringForm.title || !recurringForm.amount || !recurringForm.category_id) return;
     try {
       await api.post('/admin/expenses/recurring', {
-        ...recurringForm,
+        title: recurringForm.title,
         amount: Number(recurringForm.amount),
         category_id: Number(recurringForm.category_id),
+        paid_by: recurringForm.paid_by,
+        is_shared: false,
+        interval: recurringForm.interval,
+        start_date: recurringForm.start_date,
         end_date: recurringForm.end_date || null,
       });
       setRecurringForm(emptyRecurring(from));
@@ -335,12 +342,12 @@ export default function AdminExpenses() {
           onClick={openAdd}
           className="bg-[#4a7c59] text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#3d6b4a]"
         >
-          <Plus size={18} />
-          Трата
+          <Plus size={16} />
+          Новая
         </button>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 mb-5 space-y-4">
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-3 py-2.5 mb-4 space-y-2">
         <FilterRow title="Кто">
           {VIEW_MODES.map((option) => (
             <FilterChip
@@ -367,18 +374,18 @@ export default function AdminExpenses() {
           <button
             type="button"
             onClick={() => shift(-1)}
-            className="p-2 rounded-lg bg-gray-50 text-gray-600 hover:bg-gray-100"
+            className="p-1 rounded-md bg-gray-50 text-gray-600 hover:bg-gray-100"
             aria-label="Предыдущий период"
           >
             <ChevronLeft size={18} />
           </button>
-          <span className="px-1 self-center text-sm font-medium text-gray-800 capitalize">
+          <span className="px-1 self-center text-xs font-medium text-gray-800 capitalize">
             {periodLabel}
           </span>
           <button
             type="button"
             onClick={() => shift(1)}
-            className="p-2 rounded-lg bg-gray-50 text-gray-600 hover:bg-gray-100"
+            className="p-1 rounded-md bg-gray-50 text-gray-600 hover:bg-gray-100"
             aria-label="Следующий период"
           >
             <ChevronRight size={18} />
@@ -394,7 +401,7 @@ export default function AdminExpenses() {
           ))}
         </FilterRow>
         {period === 'custom' && (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap justify-center gap-2">
             <label className="text-sm text-gray-600">
               С
               <input
@@ -532,15 +539,6 @@ export default function AdminExpenses() {
               ))}
             </div>
           </div>
-          <label className="flex items-center gap-2 text-sm text-gray-700 mt-6">
-            <input
-              type="checkbox"
-              checked={form.is_shared}
-              onChange={(e) => setForm({ ...form, is_shared: e.target.checked })}
-              className="w-4 h-4"
-            />
-            Общая трата
-          </label>
           <label className="text-sm text-gray-600 sm:col-span-2">
             Комментарий
             <input
@@ -667,17 +665,6 @@ export default function AdminExpenses() {
                   ))}
                 </div>
               </div>
-              <label className="flex items-center gap-2 text-sm text-gray-700 mt-6">
-                <input
-                  type="checkbox"
-                  checked={recurringForm.is_shared}
-                  onChange={(e) =>
-                    setRecurringForm({ ...recurringForm, is_shared: e.target.checked })
-                  }
-                  className="w-4 h-4"
-                />
-                Общая
-              </label>
               <button
                 type="submit"
                 className="sm:col-span-2 bg-[#4a7c59] text-white px-4 py-2.5 rounded-lg"
@@ -698,8 +685,7 @@ export default function AdminExpenses() {
                   <div>
                     <div className="font-medium text-gray-800">{rule.title}</div>
                     <div className="text-sm text-gray-500">
-                      {formatMoney(rule.amount)} · {rule.category_name} · {payerLabel(rule.paid_by)}
-                      {rule.is_shared ? ' · общая' : ' · личная'} ·{' '}
+                      {formatMoney(rule.amount)} · {rule.category_name} · {payerLabel(rule.paid_by)} ·{' '}
                       {INTERVALS.find((i) => i.id === rule.interval)?.label}
                     </div>
                     {!rule.is_active && (
@@ -729,23 +715,26 @@ export default function AdminExpenses() {
         )}
       </div>
 
-      {!loading && items.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">За этот период трат нет</div>
-      ) : (
-        <div className="space-y-4">
-          {groupedItems.map((group) => (
-            <section key={group.date}>
-              {!isSingleDay && (
-                <h3 className="text-sm font-medium text-gray-500 mb-2 capitalize">
-                  {formatDayTitle(group.date)}
-                </h3>
-              )}
-              <div className="space-y-2">
-                {group.items.map((item) => (
-                  <div
-                    key={item.id}
-                    className="bg-white rounded-xl border border-gray-100 p-3 sm:p-4"
-                  >
+      {!loading && (
+        <section>
+          <h2 className="text-sm font-medium text-gray-700 mb-2">История</h2>
+          {items.length === 0 ? (
+            <div className="text-center py-6 text-sm text-gray-400">За этот период трат нет</div>
+          ) : (
+            <div className="space-y-3">
+              {groupedItems.map((group) => (
+                <div key={group.date}>
+                  {!isSingleDay && (
+                    <h3 className="text-xs font-medium text-gray-400 mb-1 capitalize">
+                      {formatDayTitle(group.date)}
+                    </h3>
+                  )}
+                  <div className="space-y-1">
+                    {group.items.map((item) => (
+                      <div
+                        key={item.id}
+                        className="bg-white rounded-lg border border-gray-100 px-3 py-1.5"
+                      >
                     {editingId === item.id ? (
                       <div className="space-y-2">
                         <div className="grid grid-cols-2 gap-2">
@@ -783,16 +772,6 @@ export default function AdminExpenses() {
                             <option value="nastya">Настя</option>
                           </select>
                         </div>
-                        <label className="flex items-center gap-2 text-sm">
-                          <input
-                            type="checkbox"
-                            checked={editForm.is_shared}
-                            onChange={(e) =>
-                              setEditForm({ ...editForm, is_shared: e.target.checked })
-                            }
-                          />
-                          Общая
-                        </label>
                         <input
                           type="text"
                           value={editForm.comment}
@@ -818,43 +797,41 @@ export default function AdminExpenses() {
                         </div>
                       </div>
                     ) : (
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <div className="font-semibold text-gray-900">
-                            {formatMoney(item.amount)}
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            {item.category_name} · {payerLabel(item.paid_by)}
-                            {item.is_shared ? ' · общая' : ' · личная'}
-                          </div>
-                          {item.comment && (
-                            <div className="text-sm text-gray-500 mt-1">{item.comment}</div>
-                          )}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="min-w-0 text-sm leading-5 truncate">
+                          <span className="font-medium text-gray-900">{formatMoney(item.amount)}</span>
+                          <span className="text-gray-500">
+                            {' '}
+                            · {item.category_name} · {payerLabel(item.paid_by)}
+                          </span>
+                          {item.comment && <span className="text-gray-400"> · {item.comment}</span>}
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex shrink-0">
                           <button
                             type="button"
                             onClick={() => startEdit(item)}
-                            className="p-2 text-gray-500 hover:text-gray-800"
+                            className="p-1 text-gray-400 hover:text-gray-800"
                           >
-                            <Pencil size={16} />
+                            <Pencil size={14} />
                           </button>
                           <button
                             type="button"
                             onClick={() => handleDelete(item.id)}
-                            className="p-2 text-red-500 hover:text-red-700"
+                            className="p-1 text-red-400 hover:text-red-700"
                           >
-                            <Trash2 size={16} />
+                            <Trash2 size={14} />
                           </button>
                         </div>
                       </div>
                     )}
                   </div>
-                ))}
-              </div>
-            </section>
-          ))}
-        </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       )}
     </div>
   );

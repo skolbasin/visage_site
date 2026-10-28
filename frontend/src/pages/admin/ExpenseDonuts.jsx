@@ -186,7 +186,7 @@ function Donut({ slices, total, metric, activeId, onHover, sliceTotal, size = 17
         className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center"
         style={{ paddingLeft: size * 0.22, paddingRight: size * 0.22 }}
       >
-        <div className={`${size < 160 ? 'text-xs' : 'text-sm'} font-semibold text-gray-900 leading-tight`}>
+        <div className={`${size >= 220 ? 'text-base' : 'text-sm'} font-semibold text-gray-900 leading-tight`}>
           {centerValue}
         </div>
         <div className="text-[11px] text-gray-400 mt-0.5 truncate max-w-full">{centerCaption}</div>
@@ -217,13 +217,13 @@ function ExpenseDonutCard({ title, items, metric, colors, sliceTotal, layout }) 
       activeId={activeId}
       onHover={setActiveId}
       sliceTotal={sliceTotal}
-      size={layout === 'compact' ? 148 : 176}
+      size={layout === 'compact' ? 228 : 280}
     />
   );
 
   return (
-    <section className="bg-white rounded-xl border border-gray-100 p-4 min-w-0">
-      <h3 className="text-sm font-medium text-gray-800 mb-3 text-center md:text-left">{title}</h3>
+    <section className="bg-white rounded-xl border border-gray-100 p-3 min-w-0">
+      <h3 className="text-sm font-medium text-gray-800 mb-2 text-center">{title}</h3>
       {slices.length === 0 ? (
         <div className="py-8 text-center text-sm text-gray-400">Нет трат</div>
       ) : layout === 'compact' ? (
@@ -290,7 +290,7 @@ export default function ExpenseDonuts({ items, mode, metric }) {
   return (
     <div className="mb-6">
       {mode === 'people' ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-3">
           <ExpenseDonutCard
             title="Серёжа"
             items={sereja}
