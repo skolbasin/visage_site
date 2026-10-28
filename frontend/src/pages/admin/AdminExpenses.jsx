@@ -81,7 +81,7 @@ function FilterChip({ active, onClick, children }) {
     <button
       type="button"
       onClick={onClick}
-      className={`px-2.5 py-1 rounded-md text-xs font-medium transition ${
+      className={`px-2.5 py-1 rounded-md text-sm font-medium font-sans transition ${
         active ? 'bg-[#4a7c59] text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
       }`}
     >
@@ -93,7 +93,7 @@ function FilterChip({ active, onClick, children }) {
 function FilterRow({ title, children }) {
   return (
     <div className="flex flex-col items-center">
-      <div className="text-[11px] font-medium uppercase tracking-wide text-gray-400 mb-1">{title}</div>
+      <div className="text-sm font-sans font-semibold text-[#4a7c59] mb-1">{title}</div>
       <div className="flex flex-wrap justify-center gap-1.5">{children}</div>
     </div>
   );
@@ -335,12 +335,12 @@ export default function AdminExpenses() {
       <div className="flex items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-2">
           <Wallet size={22} className="text-[#4a7c59]" />
-          <h1 className="text-2xl font-serif text-gray-800">Расходы</h1>
+          <h1 className="text-2xl font-sans font-semibold tracking-tight text-gray-900">Расходы</h1>
         </div>
         <button
           type="button"
           onClick={openAdd}
-          className="bg-[#4a7c59] text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#3d6b4a]"
+          className="bg-[#4a7c59] text-white px-4 py-2 rounded-lg text-sm font-sans font-medium flex items-center gap-2 hover:bg-[#3d6b4a]"
         >
           <Plus size={16} />
           Новая
@@ -348,28 +348,6 @@ export default function AdminExpenses() {
       </div>
 
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-3 py-2.5 mb-4 space-y-2">
-        <FilterRow title="Кто">
-          {VIEW_MODES.map((option) => (
-            <FilterChip
-              key={option.id}
-              active={chartMode === option.id}
-              onClick={() => setChartMode(option.id)}
-            >
-              {option.label}
-            </FilterChip>
-          ))}
-        </FilterRow>
-        <FilterRow title="Сумма">
-          {METRICS.map((option) => (
-            <FilterChip
-              key={option.id}
-              active={metric === option.id}
-              onClick={() => setMetric(option.id)}
-            >
-              {option.label}
-            </FilterChip>
-          ))}
-        </FilterRow>
         <FilterRow title="Разрез">
           <button
             type="button"
@@ -379,7 +357,7 @@ export default function AdminExpenses() {
           >
             <ChevronLeft size={18} />
           </button>
-          <span className="px-1 self-center text-xs font-medium text-gray-800 capitalize">
+          <span className="px-1 self-center text-sm font-sans font-medium text-gray-800 capitalize">
             {periodLabel}
           </span>
           <button
@@ -402,7 +380,7 @@ export default function AdminExpenses() {
         </FilterRow>
         {period === 'custom' && (
           <div className="flex flex-wrap justify-center gap-2">
-            <label className="text-sm text-gray-600">
+            <label className="text-sm font-sans text-gray-600">
               С
               <input
                 type="date"
@@ -411,17 +389,39 @@ export default function AdminExpenses() {
                 className="mt-1 block border border-gray-300 rounded-lg px-3 py-1.5"
               />
             </label>
-            <label className="text-sm text-gray-600">
+            <label className="text-sm font-sans text-gray-600">
               По
               <input
                 type="date"
                 value={to}
                 onChange={(e) => setCustomRange(from, e.target.value)}
-                className="mt-1 block border border-gray-300 rounded-lg px-3 py-1.5"
+                className="mt-1 block border border-gray-300 rounded-lg px-3 py-1.5 text-sm font-sans"
               />
             </label>
           </div>
         )}
+        <FilterRow title="Кто">
+          {VIEW_MODES.map((option) => (
+            <FilterChip
+              key={option.id}
+              active={chartMode === option.id}
+              onClick={() => setChartMode(option.id)}
+            >
+              {option.label}
+            </FilterChip>
+          ))}
+        </FilterRow>
+        <FilterRow title="Сумма">
+          {METRICS.map((option) => (
+            <FilterChip
+              key={option.id}
+              active={metric === option.id}
+              onClick={() => setMetric(option.id)}
+            >
+              {option.label}
+            </FilterChip>
+          ))}
+        </FilterRow>
       </div>
 
       {loading ? (
@@ -717,7 +717,7 @@ export default function AdminExpenses() {
 
       {!loading && (
         <section>
-          <h2 className="text-sm font-medium text-gray-700 mb-2">История</h2>
+          <h2 className="text-base font-sans font-semibold text-gray-900 mb-2">История</h2>
           {items.length === 0 ? (
             <div className="text-center py-6 text-sm text-gray-400">За этот период трат нет</div>
           ) : (
@@ -725,7 +725,7 @@ export default function AdminExpenses() {
               {groupedItems.map((group) => (
                 <div key={group.date}>
                   {!isSingleDay && (
-                    <h3 className="text-xs font-medium text-gray-400 mb-1 capitalize">
+                    <h3 className="text-sm font-sans font-medium text-gray-500 mb-1 capitalize">
                       {formatDayTitle(group.date)}
                     </h3>
                   )}
@@ -798,8 +798,8 @@ export default function AdminExpenses() {
                       </div>
                     ) : (
                       <div className="flex items-center justify-between gap-2">
-                        <div className="min-w-0 text-sm leading-5 truncate">
-                          <span className="font-medium text-gray-900">{formatMoney(item.amount)}</span>
+                        <div className="min-w-0 text-sm font-sans leading-5 truncate">
+                          <span className="font-medium tabular-nums text-gray-900">{formatMoney(item.amount)}</span>
                           <span className="text-gray-500">
                             {' '}
                             · {item.category_name} · {payerLabel(item.paid_by)}

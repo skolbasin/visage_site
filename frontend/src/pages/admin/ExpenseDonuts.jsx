@@ -108,7 +108,7 @@ function CategoryColumn({ slices, total, metric, activeId, onHover }) {
               onMouseLeave={() => onHover(null)}
               onFocus={() => onHover(slice.id)}
               onBlur={() => onHover(null)}
-              className={`w-full flex items-center gap-2 text-left text-sm rounded-md px-1.5 py-1 ${
+              className={`w-full flex items-center gap-2 text-left text-sm font-sans rounded-md px-1.5 py-1 ${
                 active ? 'bg-gray-50' : ''
               }`}
             >
@@ -186,10 +186,10 @@ function Donut({ slices, total, metric, activeId, onHover, sliceTotal, size = 17
         className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center"
         style={{ paddingLeft: size * 0.22, paddingRight: size * 0.22 }}
       >
-        <div className={`${size >= 220 ? 'text-base' : 'text-sm'} font-semibold text-gray-900 leading-tight`}>
+        <div className={`${size >= 220 ? 'text-base' : 'text-sm'} font-sans font-semibold tabular-nums text-gray-900 leading-tight`}>
           {centerValue}
         </div>
-        <div className="text-[11px] text-gray-400 mt-0.5 truncate max-w-full">{centerCaption}</div>
+        <div className="text-xs font-sans text-gray-500 mt-0.5 truncate max-w-full">{centerCaption}</div>
       </div>
     </div>
   );
@@ -223,7 +223,7 @@ function ExpenseDonutCard({ title, items, metric, colors, sliceTotal, layout }) 
 
   return (
     <section className="bg-white rounded-xl border border-gray-100 p-3 min-w-0">
-      <h3 className="text-sm font-medium text-gray-800 mb-2 text-center">{title}</h3>
+      <h3 className="text-sm font-sans font-semibold text-gray-900 mb-2 text-center">{title}</h3>
       {slices.length === 0 ? (
         <div className="py-8 text-center text-sm text-gray-400">Нет трат</div>
       ) : layout === 'compact' ? (
