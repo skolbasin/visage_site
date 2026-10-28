@@ -14,6 +14,7 @@ import {
 import api from '../../services/api';
 import { formatMoney } from '../../data/calendarConstants';
 import { useExpensePeriod } from '../../hooks/useExpensePeriod';
+import ExpenseDonuts from './ExpenseDonuts';
 
 const PERIOD_CHIPS = [
   { id: 'day', label: 'День' },
@@ -395,21 +396,7 @@ export default function AdminExpenses() {
         </div>
       )}
 
-      {summary?.by_category?.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-100 p-4 mb-4">
-          <h2 className="text-sm font-medium text-gray-700 mb-3">По категориям</h2>
-          <div className="space-y-2">
-            {summary.by_category.map((row) => (
-              <div key={row.id} className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">
-                  {row.name} <span className="text-gray-400">×{row.count}</span>
-                </span>
-                <span className="font-medium text-gray-900">{formatMoney(row.total)}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {items.length > 0 && <ExpenseDonuts items={items} />}
 
       <form
         onSubmit={handleCreate}
