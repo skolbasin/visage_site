@@ -16,6 +16,7 @@ export default function Layout() {
         <html lang="ru" />
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="p:domain_verify" content="7fa46468df3daea347e2b48432743b63" />
 
         <title>Анастасия | Визажист-стилист в Санкт-Петербурге</title>
         <meta name="description" content="Визажист-стилист в Санкт-Петербурге. Свадебный, вечерний, дневной макияж, прически, обучение. Запись онлайн." />
