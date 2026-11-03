@@ -31,6 +31,9 @@ import AnalyticsRevenue from './pages/admin/analytics/AnalyticsRevenue';
 import AnalyticsServices from './pages/admin/analytics/AnalyticsServices';
 import AnalyticsGroups from './pages/admin/analytics/AnalyticsGroups';
 import AdminExpenses from './pages/admin/AdminExpenses';
+import AdminMarketingLayout from './pages/admin/AdminMarketingLayout';
+import MarketingHome from './pages/admin/marketing/MarketingHome';
+import { MARKETING_TOOLS } from './pages/admin/marketing/tools';
 
 function AnalyticsIndexRedirect() {
   const location = useLocation();
@@ -74,6 +77,13 @@ function App() {
             <Route path="groups" element={<AnalyticsGroups />} />
           </Route>
           <Route path="expenses" element={<AdminExpenses />} />
+          <Route path="marketing" element={<AdminMarketingLayout />}>
+            <Route index element={<MarketingHome />} />
+            {MARKETING_TOOLS.map((tool) => {
+              const Page = tool.Page;
+              return <Route key={tool.id} path={tool.path} element={<Page />} />;
+            })}
+          </Route>
           <Route path="questions" element={<AdminQuestions />} />
           <Route path="certificates" element={<AdminCertificates />} />
           <Route path="promocodes" element={<AdminPromoCodes />} />

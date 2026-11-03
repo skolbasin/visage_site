@@ -12,3 +12,11 @@ from app.models.promo import PromoCode
 from app.models.user import User
 from app.models.question import Question
 from app.models.expense import Expense, ExpenseCategory, ExpenseRecurring
+from app.models.marketing import (
+    MarketingQuarter,
+    MarketingQuarterBlock,
+    MarketingQuarterReview,
+    MarketingQuarterTask,
+    MarketingTop5Task,
+    MarketingTop5Week,
+)
