@@ -72,3 +72,23 @@ def test_login_is_case_insensitive(client, admin_user):
 
 def test_me_requires_auth(client):
     assert client.get("/api/v1/auth/me").status_code == 401
+
+
+def test_update_profile_name(client, admin_headers):
+    updated = client.patch(
+        "/api/v1/auth/me",
+        headers=admin_headers,
+        json={"full_name": "  Анастасия  "},
+    )
+    assert updated.status_code == 200
+    assert updated.json()["full_name"] == "Анастасия"
+
+    me = client.get("/api/v1/auth/me", headers=admin_headers)
+    assert me.json()["full_name"] == "Анастасия"
+
+    empty = client.patch(
+        "/api/v1/auth/me",
+        headers=admin_headers,
+        json={"full_name": "   "},
+    )
+    assert empty.status_code == 422

@@ -19,7 +19,7 @@ from sqlalchemy.sql import func
 from app.db.base_class import Base
 
 TOP5_MIN_TASKS = 2
-TOP5_MAX_TASKS = 7
+TOP5_MAX_TASKS = 5
 TOP5_WEEKDAY_MIN = 0
 TOP5_WEEKDAY_MAX = 4
 

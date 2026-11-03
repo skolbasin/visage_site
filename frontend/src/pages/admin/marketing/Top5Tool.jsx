@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router-dom';
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Trash2 } from 'lucide-react';
 import api from '../../../services/api';
 import {
-  WEEKDAY_LABELS,
   currentMondayIso,
   formatWeekChip,
   formatWeekTitle,
@@ -50,35 +49,10 @@ function streakCount(history, todayMonday) {
   return count;
 }
 
-function WeekdayPicker({ value, onChange, disabled }) {
-  return (
-    <div className="flex gap-1">
-      {WEEKDAY_LABELS.map((label, index) => {
-        const active = value === index;
-        return (
-          <button
-            key={label}
-            type="button"
-            disabled={disabled}
-            aria-pressed={active}
-            onClick={() => onChange(active ? null : index)}
-            className={`px-2 py-1 rounded-md text-xs transition ${
-              active ? 'bg-[#4a7c59] text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
-            }`}
-          >
-            {label}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
 function TaskRow({ task, isFirst, isLast, disabled, onToggle, onMove, onDelete, onSave }) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(task.title);
   const [owner, setOwner] = useState(task.owner || '');
-  const [weekday, setWeekday] = useState(task.weekday);
 
   const save = () => {
     const nextTitle = title.trim();
@@ -86,7 +60,6 @@ function TaskRow({ task, isFirst, isLast, disabled, onToggle, onMove, onDelete, 
     onSave(task, {
       title: nextTitle,
       owner: owner.trim(),
-      weekday,
     });
     setEditing(false);
   };
@@ -111,16 +84,13 @@ function TaskRow({ task, isFirst, isLast, disabled, onToggle, onMove, onDelete, 
                 maxLength={300}
                 className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm"
               />
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                <input
-                  value={owner}
-                  onChange={(event) => setOwner(event.target.value)}
-                  maxLength={80}
-                  placeholder="Кто"
-                  className="sm:w-40 border border-gray-300 rounded-lg px-3 py-1.5 text-sm"
-                />
-                <WeekdayPicker value={weekday} onChange={setWeekday} />
-              </div>
+              <input
+                value={owner}
+                onChange={(event) => setOwner(event.target.value)}
+                maxLength={80}
+                placeholder="Кто"
+                className="sm:w-40 border border-gray-300 rounded-lg px-3 py-1.5 text-sm"
+              />
               <div className="flex gap-2">
                 <button
                   type="button"
@@ -149,12 +119,7 @@ function TaskRow({ task, isFirst, isLast, disabled, onToggle, onMove, onDelete, 
               >
                 {task.title}
               </button>
-              <div className="mt-1 flex flex-wrap gap-2 text-xs text-gray-500">
-                {task.owner && <span>{task.owner}</span>}
-                {task.weekday !== null && task.weekday !== undefined && (
-                  <span>{WEEKDAY_LABELS[task.weekday]}</span>
-                )}
-              </div>
+              {task.owner && <div className="mt-1 text-xs text-gray-500">{task.owner}</div>}
             </>
           )}
         </div>
@@ -205,7 +170,6 @@ export default function Top5Tool() {
   const [error, setError] = useState('');
   const [title, setTitle] = useState('');
   const [owner, setOwner] = useState('');
-  const [weekday, setWeekday] = useState(null);
 
   const openWeek = (iso) => {
     if (iso === week) return;
@@ -270,21 +234,19 @@ export default function Top5Tool() {
           week,
           title: nextTitle,
           owner: owner.trim() || null,
-          weekday,
         }),
       'Не удалось добавить задачу',
     );
     if (!saved) return;
     setTitle('');
     setOwner('');
-    setWeekday(null);
   };
 
   const current = plan?.week_start === week ? plan : null;
   const tasks = current?.tasks || [];
   const total = current?.total || 0;
   const done = current?.done || 0;
-  const maxTasks = current?.max_tasks || 7;
+  const maxTasks = current?.max_tasks || 5;
   const atLimit = total >= maxTasks;
   const progress = total ? Math.round((done / total) * 100) : 0;
   const gaps = missedWeeks(history, todayMonday);
@@ -293,7 +255,7 @@ export default function Top5Tool() {
   return (
     <div className="max-w-3xl">
       <p className="text-sm text-gray-500 mb-4">
-        Короткий список на пять рабочих дней. От двух до семи задач: составьте его в понедельник и вычёркивайте сделанное.
+        Пять дел на неделю, одним списком. День внутри недели не задаётся: составьте список и вычёркивайте сделанное.
       </p>
 
       <div className="overflow-x-auto mb-4 -mx-1 px-1">
@@ -384,9 +346,6 @@ export default function Top5Tool() {
                   : 'На эту неделю списка нет.'}
               </p>
             )}
-            {total > 0 && total < 2 && (
-              <p className="text-sm text-gray-600 mb-3">Обычно в списке от двух задач.</p>
-            )}
             {total > 0 && done === total && (
               <p className="text-sm text-[#3d6b4a] mb-3">Всё, что было в плане на эту неделю, закрыто.</p>
             )}
@@ -394,7 +353,7 @@ export default function Top5Tool() {
             <ul>
               {tasks.map((task, index) => (
                 <TaskRow
-                  key={`${task.id}:${task.title}:${task.owner || ''}:${task.weekday ?? ''}`}
+                  key={`${task.id}:${task.title}:${task.owner || ''}`}
                   task={task}
                   isFirst={index === 0}
                   isLast={index === tasks.length - 1}
@@ -430,7 +389,7 @@ export default function Top5Tool() {
 
             {atLimit ? (
               <p className="text-sm text-gray-600 mt-4">
-                Семь задач — потолок. Если добавить ещё, в списке окажется не самое важное или неделя не закроется.
+                В списке уже пять дел. Новое добавится, когда какое-то из них будет убрано.
               </p>
             ) : (
               <form onSubmit={addTask} className="mt-4 space-y-2">
@@ -449,7 +408,6 @@ export default function Top5Tool() {
                     placeholder="Кто делает"
                     className="lg:w-44 border border-[#e4dcc8] rounded-lg px-3 py-2 text-sm bg-white"
                   />
-                  <WeekdayPicker value={weekday} onChange={setWeekday} disabled={saving} />
                   <button
                     type="submit"
                     disabled={saving || !title.trim()}

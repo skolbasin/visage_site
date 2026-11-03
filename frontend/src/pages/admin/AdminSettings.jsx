@@ -7,18 +7,28 @@ export default function AdminSettings() {
   const [fullName, setFullName] = useState(user?.full_name || '');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [failed, setFailed] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const nextName = fullName.trim();
+    if (!nextName) {
+      setFailed(true);
+      setMessage('Введите имя');
+      return;
+    }
     setLoading(true);
     setMessage('');
+    setFailed(false);
     try {
-      // Пример: эндпоинт для обновления профиля (можно добавить на бэкенде)
-      const { data } = await api.put('/users/profile', { full_name: fullName });
+      const { data } = await api.patch('/auth/me', { full_name: nextName });
       updateUser(data);
+      setFullName(data.full_name || nextName);
       setMessage('Профиль обновлён');
     } catch (err) {
-      setMessage('Ошибка обновления');
+      setFailed(true);
+      const detail = err.response?.data?.detail;
+      setMessage(typeof detail === 'string' ? detail : 'Не удалось сохранить имя');
     } finally {
       setLoading(false);
     }
@@ -47,7 +57,9 @@ export default function AdminSettings() {
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-gray-100"
             />
           </div>
-          {message && <p className="text-sm text-green-600">{message}</p>}
+          {message && (
+            <p className={`text-sm ${failed ? 'text-red-600' : 'text-green-600'}`}>{message}</p>
+          )}
           <button type="submit" disabled={loading} className="bg-[#4a7c59] text-white px-4 py-2 rounded hover:bg-[#2d5a3b]">
             Сохранить
           </button>

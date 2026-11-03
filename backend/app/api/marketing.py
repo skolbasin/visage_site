@@ -186,7 +186,7 @@ def create_top5_task(
     if task_count >= TOP5_MAX_TASKS:
         raise HTTPException(
             status_code=400,
-            detail="В Топ-5 не больше 7 задач: иначе неделя перестаёт быть выполнимой",
+            detail="В Топ-5 пять дел на неделю: шестое уже не входит в список",
         )
 
     last_position = (

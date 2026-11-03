@@ -27,7 +27,7 @@ def test_top5_week_normalizes_to_monday_and_limits_tasks(client, admin_headers):
     assert body["tasks"][0]["weekday"] == 0
 
     task_id = body["tasks"][0]["id"]
-    for index in range(2, 8):
+    for index in range(2, 6):
         extra = client.post(
             "/api/v1/admin/marketing/top5/tasks",
             headers=admin_headers,
@@ -45,7 +45,7 @@ def test_top5_week_normalizes_to_monday_and_limits_tasks(client, admin_headers):
     updated = client.patch(
         f"/api/v1/admin/marketing/top5/tasks/{task_id}",
         headers=admin_headers,
-        json={"is_done": True, "position": 7, "owner": "Настя"},
+        json={"is_done": True, "position": 5, "owner": "Настя"},
     )
     assert updated.status_code == 200
     tasks = updated.json()["tasks"]
@@ -53,7 +53,7 @@ def test_top5_week_normalizes_to_monday_and_limits_tasks(client, admin_headers):
     assert tasks[-1]["is_done"] is True
     assert tasks[-1]["owner"] == "Настя"
     assert tasks[-1]["done_at"] is not None
-    assert [item["position"] for item in tasks] == [1, 2, 3, 4, 5, 6, 7]
+    assert [item["position"] for item in tasks] == [1, 2, 3, 4, 5]
 
     cleared = client.patch(
         f"/api/v1/admin/marketing/top5/tasks/{task_id}",
@@ -112,5 +112,5 @@ def test_current_top5_week_starts_on_monday(client, admin_headers):
     assert response.status_code == 200
     week_start = date.fromisoformat(response.json()["week_start"])
     assert week_start.weekday() == 0
-    assert response.json()["max_tasks"] == 7
+    assert response.json()["max_tasks"] == 5
     assert response.json()["min_tasks"] == 2

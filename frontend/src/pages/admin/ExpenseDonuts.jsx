@@ -274,7 +274,55 @@ function ExpenseDonutCard({ title, items, metric, colors, sliceTotal, layout }) 
   );
 }
 
-export default function ExpenseDonuts({ items, mode, metric }) {
+function ExpenseBarCard({ title, items, metric, colors }) {
+  const slices = useMemo(
+    () =>
+      groupByCategory(items).map((row) => ({
+        ...row,
+        color: colors[row.name] || '#9ca3af',
+      })),
+    [items, colors],
+  );
+  const total = slices.reduce((sum, slice) => sum + slice.total, 0);
+  const max = slices.reduce((peak, slice) => Math.max(peak, slice.total), 0);
+
+  return (
+    <section className="bg-white rounded-xl border border-gray-100 p-4 min-w-0">
+      <h3 className="text-sm font-sans font-semibold text-gray-900 mb-3">{title}</h3>
+      {slices.length === 0 ? (
+        <div className="py-8 text-center text-sm text-gray-400">Нет трат</div>
+      ) : (
+        <div className="flex items-end gap-2 h-56 overflow-x-auto">
+          {slices.map((slice) => {
+            const height = max ? Math.max(6, Math.round((slice.total / max) * 100)) : 0;
+            return (
+              <div
+                key={slice.id}
+                className="flex flex-col items-center justify-end h-full min-w-[4.25rem] flex-1"
+                title={`${slice.name}: ${sliceValue(slice, total, metric)}`}
+              >
+                <div className="text-[11px] font-sans text-gray-700 tabular-nums mb-1 text-center">
+                  {sliceValue(slice, total, metric)}
+                </div>
+                <div className="w-full flex items-end h-36">
+                  <div
+                    className="w-full rounded-t-md"
+                    style={{ height: `${height}%`, backgroundColor: slice.color }}
+                  />
+                </div>
+                <div className="mt-2 h-8 text-[11px] font-sans leading-tight text-gray-600 text-center overflow-hidden">
+                  {slice.name}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  );
+}
+
+export default function ExpenseDonuts({ items, mode, metric, chart = 'donut' }) {
   const { colors, sereja, nastya, sliceTotal } = useMemo(() => {
     const serejaItems = items.filter((item) => item.paid_by === 'sereja');
     const nastyaItems = items.filter((item) => item.paid_by === 'nastya');
@@ -286,6 +334,29 @@ export default function ExpenseDonuts({ items, mode, metric }) {
       sliceTotal: total,
     };
   }, [items]);
+
+  const people = [
+    { title: 'Серёжа', rows: sereja, layout: 'compact' },
+    { title: 'Всего', rows: items, layout: 'compact' },
+    { title: 'Настя', rows: nastya, layout: 'compact' },
+  ];
+
+  if (chart === 'bar') {
+    const cards = mode === 'people' ? people : [{ title: 'Общее', rows: items, layout: 'sides' }];
+    return (
+      <div className={`mb-6 grid gap-3 ${cards.length > 1 ? 'grid-cols-1 xl:grid-cols-3' : 'grid-cols-1'}`}>
+        {cards.map((card) => (
+          <ExpenseBarCard
+            key={card.title}
+            title={card.title}
+            items={card.rows}
+            metric={metric}
+            colors={colors}
+          />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="mb-6">

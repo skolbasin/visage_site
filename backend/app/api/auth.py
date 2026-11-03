@@ -16,7 +16,14 @@ from app.core.rate_limiting import limiter
 from app.core.security import get_password_hash
 from app.models.user import User
 from app.models.promo import PromoCode
-from app.schemas.user import UserCreate, UserLogin, Token, UserOut, RefreshToken
+from app.schemas.user import (
+    ProfileUpdate,
+    RefreshToken,
+    Token,
+    UserCreate,
+    UserLogin,
+    UserOut,
+)
 from app.services.promo_service import generate_promo_code
 from app.core.dependencies import oauth2_scheme
 
@@ -64,11 +71,7 @@ def login(user_data: UserLogin, request: Request, db: Session = Depends(get_db))
     logger.info(f"Login attempt: {user_data.email}")
 
     email = (user_data.email or "").strip()
-    user = (
-        db.query(User)
-        .filter(User.email.ilike(email))
-        .first()
-    )
+    user = db.query(User).filter(User.email.ilike(email)).first()
 
     if not user or not verify_password(user_data.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Incorrect login or password")
@@ -134,3 +137,15 @@ def get_me(
         is_admin=user.is_admin,
         created_at=user.created_at,
     )
+
+
+@router.patch("/me", response_model=UserOut)
+def update_me(
+    payload: ProfileUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+) -> UserOut:
+    current_user.full_name = payload.full_name.strip()
+    db.commit()
+    db.refresh(current_user)
+    return current_user
