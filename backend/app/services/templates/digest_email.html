@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Утренний отчёт</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f0eb;
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 580px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+        }
+        .header {
+            background: linear-gradient(135deg, #4a7c59 0%, #3a6346 100%);
+            padding: 32px 24px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #ffffff;
+            font-size: 26px;
+            font-weight: 400;
+            font-family: Georgia, 'Times New Roman', serif;
+            margin: 0;
+            letter-spacing: 1px;
+        }
+        .header p {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 14px;
+            margin-top: 8px;
+        }
+        .content { padding: 32px 28px; }
+        .greeting {
+            font-size: 18px;
+            color: #2c2c2c;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .lead { color: #5c5c5c; margin-bottom: 8px; }
+        .info-block {
+            background: #faf8f6;
+            border-left: 4px solid #4a7c59;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .info-block h2 {
+            color: #4a7c59;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .info-block p { color: #2c2c2c; }
+        .info-block ul { margin: 12px 0 0 18px; color: #2c2c2c; }
+        .info-block li { margin: 6px 0; }
+        .button {
+            display: inline-block;
+            background: #4a7c59;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 12px 28px;
+            border-radius: 40px;
+            margin-top: 16px;
+            font-weight: 500;
+        }
+        .footer {
+            background: #faf8f6;
+            padding: 20px 28px;
+            text-align: center;
+            font-size: 12px;
+            color: #aaa;
+            border-top: 1px solid #ece8e4;
+        }
+    </style>
+</head>
+<body>
+    <div style="padding: 20px;">
+        <div class="container">
+            <div class="header">
+                <h1>Анастасия Романча</h1>
+                <p>Утренний отчёт</p>
+            </div>
+            <div class="content">
+                <div class="greeting">{{ name }}, добрый день.</div>
+                <p class="lead">На {{ report_date }} есть что закрыть.</p>
+                {% for section in sections %}
+                <div class="info-block">
+                    <h2>{{ section.title }}</h2>
+                    <p>{{ section.text }}</p>
+                    {% if section.items %}
+                    <ul>
+                        {% for item in section.items %}
+                        <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    <a href="{{ section.link }}" class="button">{{ section.link_label }}</a>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="footer">
+                <p>Это письмо отправлено автоматически.<br>Пожалуйста, не отвечайте на него.</p>
+                <p>© Анастасия Романча</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

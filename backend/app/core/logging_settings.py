@@ -14,6 +14,7 @@ def setup_logging():
     log_level = logging.DEBUG if settings.DEBUG else logging.INFO
     log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     date_format = "%Y-%m-%d %H:%M:%S"
+    formatter = logging.Formatter(log_format, date_format)
 
     # Создаём корневой логгер
     root_logger = logging.getLogger()
@@ -27,7 +28,6 @@ def setup_logging():
         # Разработка: выводим в stdout
         console_handler = logging.StreamHandler(sys.stdout)
         console_handler.setLevel(log_level)
-        formatter = logging.Formatter(log_format, date_format)
         console_handler.setFormatter(formatter)
         root_logger.addHandler(console_handler)
 
@@ -47,7 +47,7 @@ def setup_logging():
             encoding="utf-8",
         )
         info_handler.setLevel(logging.INFO)
-        info_handler.setFormatter(logging.Formatter(log_format, date_format))
+        info_handler.setFormatter(formatter)
         root_logger.addHandler(info_handler)
 
         # Файл для ошибок (только ERROR и CRITICAL)
@@ -59,9 +59,37 @@ def setup_logging():
             encoding="utf-8",
         )
         error_handler.setLevel(logging.ERROR)
-        error_handler.setFormatter(logging.Formatter(log_format, date_format))
+        error_handler.setFormatter(formatter)
         root_logger.addHandler(error_handler)
+
+    # Почта и утренний отчёт всегда в stdout: docker logs их показывает,
+    # даже когда остальные логи приложения пишутся только в файл.
+    _attach_mail_stdout(formatter)
 
     # Отдельные настройки для библиотек (меньше шума)
     logging.getLogger("uvicorn").setLevel(logging.WARNING)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
+
+
+_MAIL_LOGGERS = (
+    "app.services.email_service",
+    "app.services.digest_service",
+    "app.services.digest_scheduler",
+)
+
+
+def _attach_mail_stdout(formatter: logging.Formatter) -> None:
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.INFO)
+    handler.setFormatter(formatter)
+    for name in _MAIL_LOGGERS:
+        mail_logger = logging.getLogger(name)
+        mail_logger.setLevel(logging.INFO)
+        mail_logger.handlers = [
+            item
+            for item in mail_logger.handlers
+            if not getattr(item, "mail_stdout", False)
+        ]
+        handler.mail_stdout = True
+        mail_logger.addHandler(handler)
+        mail_logger.propagate = False

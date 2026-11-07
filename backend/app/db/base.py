@@ -6,6 +6,7 @@ from app.models.booking import Booking
 from app.models.calendar_appointment import AppointmentGuest, CalendarAppointment
 from app.models.category import Category
 from app.models.certificate import Certificate
+from app.models.digest import DigestDispatch
 from app.models.portfolio import PortfolioItem
 from app.models.post import Post
 from app.models.promo import PromoCode

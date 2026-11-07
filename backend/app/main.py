@@ -26,6 +26,7 @@ from app.core.config import settings
 from app.core.logging_settings import setup_logging
 from app.core.rate_limiting import setup_rate_limit
 from app.core.middleware import log_requests
+from app.services.digest_scheduler import start_digest_scheduler, stop_digest_scheduler
 
 # Настройка логирования (до создания приложения)
 setup_logging()
@@ -88,3 +89,9 @@ def root():
 async def startup_event():
     logger.info(f"Starting {settings.PROJECT_NAME} v{settings.VERSION}")
     logger.info(f"Debug mode: {settings.DEBUG}")
+    start_digest_scheduler()
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    await stop_digest_scheduler()

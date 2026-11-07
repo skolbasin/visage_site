@@ -30,11 +30,14 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
-    # SMTP настройки(EMAIL)
+    # Почта. ADMIN_EMAIL — Сергей, ANASTASIA_EMAIL — Анастасия.
     RESEND_API_KEY: Optional[str] = None
     RESEND_FROM: str = "noreply@resend.dev"
-    ADMIN_EMAIL: Optional[str] = None
+    ADMIN_EMAIL: str = "georgio1997@mail.ru"
+    ANASTASIA_EMAIL: str = "romancha.96@list.ru"
     SITE_URL: str = "https://anastasia-romancha.ru"
+    # Фоновый утренний отчёт. В тестах выключается, чтобы не слать письма.
+    DIGEST_ENABLED: bool = True
 
     # === Rate limiting ===
     RATE_LIMIT_ENABLED: bool = True

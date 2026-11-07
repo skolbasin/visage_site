@@ -2,6 +2,11 @@ import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 
+const MAIL_RECIPIENTS = [
+  { name: 'Сергей', email: 'georgio1997@mail.ru' },
+  { name: 'Анастасия', email: 'romancha.96@list.ru' },
+];
+
 export default function AdminSettings() {
   const { user, updateUser } = useAuth();
   const [fullName, setFullName] = useState(user?.full_name || '');
@@ -64,6 +69,21 @@ export default function AdminSettings() {
             Сохранить
           </button>
         </form>
+      </div>
+
+      <div className="bg-white p-6 rounded-lg shadow mt-6">
+        <h2 className="text-lg font-medium text-gray-800 mb-1">Куда приходят письма</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Записи, сертификаты, вопросы и утренний отчёт.
+        </p>
+        <ul className="space-y-3">
+          {MAIL_RECIPIENTS.map((recipient) => (
+            <li key={recipient.email} className="flex items-center justify-between gap-4 border border-gray-200 rounded-md px-3 py-2">
+              <span className="text-sm font-medium text-gray-800">{recipient.name}</span>
+              <span className="text-sm text-gray-600">{recipient.email}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
