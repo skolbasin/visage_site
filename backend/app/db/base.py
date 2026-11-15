@@ -22,3 +22,4 @@ from app.models.marketing import (
     MarketingTop5Week,
 )
 from app.models.plan import PlanItem
+from app.models.traffic_source import MarketingTrafficMetric

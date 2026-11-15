@@ -1,11 +1,32 @@
-import { CalendarRange, ListChecks } from 'lucide-react';
+import { CalendarRange, ChartNoAxesCombined, ListChecks } from 'lucide-react';
 import api from '../../../services/api';
 import QuarterTool from './QuarterTool';
 import Top5Tool from './Top5Tool';
+import TrafficSources from './TrafficSources';
 
 // Новый инструмент: страница + объект в этом списке.
 // Пункт в меню раздела и маршрут подхватятся сами.
 export const MARKETING_TOOLS = [
+  {
+    id: 'traffic-sources',
+    path: 'traffic-sources',
+    title: 'Источники трафика',
+    group: 'Аналитика',
+    summary:
+      'Месячные расходы, обращения и показатели Profi.ru, Instagram и Pinterest в одном месте.',
+    difficulty: 'Невысокая',
+    cost: 'Для мониторинга',
+    cadence: 'Раз в месяц',
+    icon: ChartNoAxesCombined,
+    Page: TrafficSources,
+    loadStatus: async () => {
+      const { data } = await api.get(`/admin/marketing/traffic-sources/${new Date().getFullYear()}`);
+      const total = Object.values(data.sources)
+        .flat()
+        .reduce((sum, month) => sum + month.applications, 0);
+      return `Заявок из источников за год: ${total}`;
+    },
+  },
   {
     id: 'top5',
     path: 'top-5',
