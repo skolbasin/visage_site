@@ -7,8 +7,26 @@ import { CheckCircle } from 'lucide-react';
 import ConsentCheckbox from '../components/ConsentCheckbox';
 import { bookingServices } from '../data/services';
 
+const BOOKING_SPAM_TERMS = new Set([
+  'blyad', 'debil', 'govno', 'hueta', 'hui', 'khuy', 'mudak', 'pidor', 'suka',
+  'бля', 'блядь', 'дебил', 'говно', 'мудак', 'пидор', 'сука',
+  'хуи', 'хуй', 'хуя', 'хуе', 'хую', 'хуем', 'хуями', 'хуев', 'хуёв',
+]);
+
+function containsBookingProfanity(...values) {
+  return values.some((value) => {
+    if (!value) return false;
+    const words = value.normalize('NFKC').toLocaleLowerCase('ru-RU').replace(/ё/g, 'е')
+      .match(/[a-zа-я0-9]+/g) || [];
+    return words.some((word) => BOOKING_SPAM_TERMS.has(word));
+  });
+}
+
 function validateBookingName(value) {
   const name = value.trim();
+  if (containsBookingProfanity(name)) {
+    return 'Имя содержит недопустимое слово. Укажите настоящее имя.';
+  }
   const parts = name.match(/\p{L}/gu) || [];
   if (name.length < 2 || name.length > 100 || parts.length < 2) {
     return 'Имя должно содержать от 2 до 100 букв.';
@@ -117,15 +135,27 @@ export default function BookingPage() {
     const invalidName = validateBookingName(formData.name);
     const phone = formData.phone.trim();
     const phoneDigits = phone.replace(/\D/g, '');
-    const invalidPhone =
+    const invalidPhoneFormat =
       !/^[+()0-9 .-]+$/.test(phone) || phoneDigits.length < 7 || phoneDigits.length > 15;
-    const phoneErrorText =
-      'Номер должен содержать от 7 до 15 цифр. Допустимы только цифры, пробелы, «+», скобки, дефис и точка.';
+    const invalidPhonePattern = /(\d)\1{6,}/.test(phoneDigits);
+    const invalidPhone = invalidPhoneFormat || invalidPhonePattern;
+    const phoneErrorText = invalidPhonePattern
+      ? 'Номер похож на фиктивный: в нём слишком много одинаковых цифр подряд.'
+      : 'Номер должен содержать от 7 до 15 цифр. Допустимы только цифры, пробелы, «+», скобки, дефис и точка.';
     setNameError(invalidName);
     setPhoneError(invalidPhone ? phoneErrorText : '');
 
-    if (invalidName || invalidPhone) {
-      const reasons = [invalidName, invalidPhone ? phoneErrorText : ''].filter(Boolean);
+    const hasProfanity = containsBookingProfanity(
+      formData.email,
+      formData.comment,
+      formData.promo_code,
+    );
+    if (invalidName || invalidPhone || hasProfanity) {
+      const reasons = [
+        invalidName,
+        invalidPhone ? phoneErrorText : '',
+        hasProfanity ? 'Удалите нецензурные слова из контактных данных или комментария.' : '',
+      ].filter(Boolean);
       setMessage({
         type: 'error',
         text: `${reasons.join(' ')} Заявка не оформлена. Исправьте данные и попробуйте отправить её повторно.`,

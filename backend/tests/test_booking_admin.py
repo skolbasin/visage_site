@@ -43,6 +43,13 @@ def test_create_booking_rejects_invalid_name(client, db, name):
     assert db.query(Booking).count() == 0
 
 
+@pytest.mark.parametrize("name", ["хуй", "ХУЙ", "Хуями"])
+def test_create_booking_rejects_profanity_in_name(client, db, name):
+    response = client.post("/api/v1/booking/", json=_booking_payload(name=name))
+    assert response.status_code == 400
+    assert db.query(Booking).count() == 0
+
+
 def test_create_booking_invalid_promo(client):
     response = client.post(
         "/api/v1/booking/",
@@ -74,10 +81,20 @@ def test_booking_rejects_abusive_content_without_saving(client, db):
     assert db.query(Booking).count() == 0
 
 
-def test_booking_rejects_invalid_phone(client, db):
+@pytest.mark.parametrize(
+    "phone",
+    [
+        "bez_negativa",
+        "89111111111",
+        "89999999999",
+        "80000000000",
+        "88888888888",
+    ],
+)
+def test_booking_rejects_invalid_phone(client, db, phone):
     response = client.post(
         "/api/v1/booking/",
-        json=_booking_payload(phone="bez_negativa"),
+        json=_booking_payload(phone=phone),
     )
     assert response.status_code == 422
     assert db.query(Booking).count() == 0

@@ -71,6 +71,10 @@ class BookingCreate(BookingBase):
             or not 7 <= len(digits) <= 15
         ):
             raise ValueError("Введите корректный номер телефона")
+        if re.search(r"(\d)\1{6,}", digits):
+            raise ValueError(
+                "Номер похож на фиктивный: слишком много одинаковых цифр подряд"
+            )
         return phone
 
 
