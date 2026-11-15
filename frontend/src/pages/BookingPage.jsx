@@ -7,6 +7,18 @@ import { CheckCircle } from 'lucide-react';
 import ConsentCheckbox from '../components/ConsentCheckbox';
 import { bookingServices } from '../data/services';
 
+function validateBookingName(value) {
+  const name = value.trim();
+  const parts = name.match(/\p{L}/gu) || [];
+  if (name.length < 2 || name.length > 100 || parts.length < 2) {
+    return 'Имя должно содержать от 2 до 100 букв.';
+  }
+  if (!/^\p{L}[\p{L}\p{M}]*(?:[ .'\u2019-]\p{L}[\p{L}\p{M}]*)*$/u.test(name)) {
+    return 'Укажите имя буквами. Можно использовать пробел, дефис или апостроф.';
+  }
+  return '';
+}
+
 function getBookingErrorMessage(error) {
   const status = error.response?.status;
   const detail = error.response?.data?.detail;
@@ -73,6 +85,7 @@ export default function BookingPage() {
   const [consent, setConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
+  const [nameError, setNameError] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [showConfetti, setShowConfetti] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -94,25 +107,32 @@ export default function BookingPage() {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     if (message) setMessage(null);
+    if (e.target.name === 'name') setNameError('');
     if (e.target.name === 'phone') setPhoneError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage(null);
+    const invalidName = validateBookingName(formData.name);
     const phone = formData.phone.trim();
     const phoneDigits = phone.replace(/\D/g, '');
-    if (!/^[+()0-9 .-]+$/.test(phone) || phoneDigits.length < 7 || phoneDigits.length > 15) {
-      const errorText = 'Номер должен содержать от 7 до 15 цифр. Допустимы только цифры, пробелы, «+», скобки, дефис и точка.';
-      setPhoneError(errorText);
+    const invalidPhone =
+      !/^[+()0-9 .-]+$/.test(phone) || phoneDigits.length < 7 || phoneDigits.length > 15;
+    const phoneErrorText =
+      'Номер должен содержать от 7 до 15 цифр. Допустимы только цифры, пробелы, «+», скобки, дефис и точка.';
+    setNameError(invalidName);
+    setPhoneError(invalidPhone ? phoneErrorText : '');
+
+    if (invalidName || invalidPhone) {
+      const reasons = [invalidName, invalidPhone ? phoneErrorText : ''].filter(Boolean);
       setMessage({
         type: 'error',
-        text: `${errorText} Заявка не оформлена. Исправьте номер и попробуйте отправить её повторно.`,
+        text: `${reasons.join(' ')} Заявка не оформлена. Исправьте данные и попробуйте отправить её повторно.`,
       });
       return;
     }
 
-    setPhoneError('');
     setLoading(true);
     try {
       const payload = {
@@ -335,8 +355,30 @@ export default function BookingPage() {
                   tabIndex={-1}
                 />
               </label>
-              <input type="text" name="name" required placeholder="Ваше имя" value={formData.name} onChange={handleChange}
-                className="w-full p-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:border-[#4a7c59] focus:ring-1 focus:ring-[#4a7c59] outline-none transition text-sm md:text-base" />
+              <div>
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  autoComplete="name"
+                  maxLength={100}
+                  placeholder="Ваше имя"
+                  value={formData.name}
+                  onChange={handleChange}
+                  onBlur={() => setNameError(validateBookingName(formData.name))}
+                  aria-invalid={Boolean(nameError)}
+                  aria-describedby={nameError ? 'booking-name-error' : 'booking-name-hint'}
+                  className="w-full p-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:border-[#4a7c59] focus:ring-1 focus:ring-[#4a7c59] outline-none transition text-sm md:text-base"
+                />
+                <p id="booking-name-hint" className="mt-1 text-xs text-gray-500">
+                  Укажите имя буквами; можно использовать пробел, дефис или апостроф.
+                </p>
+                {nameError && (
+                  <p id="booking-name-error" className="mt-1.5 text-sm text-red-700">
+                    {nameError}
+                  </p>
+                )}
+              </div>
               <div>
                 <input
                   type="tel"

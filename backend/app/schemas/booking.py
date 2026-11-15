@@ -1,5 +1,6 @@
 from datetime import datetime
 import re
+import unicodedata
 from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field, validator
@@ -26,6 +27,40 @@ class BookingBase(BaseModel):
 
 class BookingCreate(BookingBase):
     website: str = Field(default="", max_length=255)
+
+    @validator("name")
+    def validate_name(cls, value):
+        name = value.strip()
+        if not 2 <= len(name) <= 100:
+            raise ValueError("Имя должно содержать от 2 до 100 букв")
+
+        letter_count = 0
+        separators = {" ", ".", "'", "\u2019", "-"}
+        for index, character in enumerate(name):
+            category = unicodedata.category(character)
+            if category.startswith("L"):
+                letter_count += 1
+                continue
+            if category.startswith("M"):
+                if index == 0 or not unicodedata.category(name[index - 1]).startswith(
+                    ("L", "M")
+                ):
+                    raise ValueError("Укажите имя буквами")
+                continue
+            if (
+                character not in separators
+                or index == 0
+                or index == len(name) - 1
+                or not unicodedata.category(name[index - 1]).startswith(("L", "M"))
+                or not unicodedata.category(name[index + 1]).startswith("L")
+            ):
+                raise ValueError(
+                    "Имя может содержать буквы, пробелы, дефис или апостроф"
+                )
+
+        if letter_count < 2:
+            raise ValueError("Имя должно содержать не менее двух букв")
+        return name
 
     @validator("phone")
     def validate_phone(cls, value):

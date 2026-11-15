@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
 
+import pytest
+
 from app.models.booking import Booking
 
 
@@ -25,6 +27,20 @@ def test_create_booking(client):
     assert data["name"] == "Клиент"
     assert data["status"] == "new"
     assert data["id"] > 0
+
+
+@pytest.mark.parametrize("name", ["Анна-Мария", "Jean-Luc", "D’Angelo"])
+def test_create_booking_accepts_common_name_formats(client, name):
+    response = client.post("/api/v1/booking/", json=_booking_payload(name=name))
+    assert response.status_code == 200
+    assert response.json()["name"] == name
+
+
+@pytest.mark.parametrize("name", ["", "A", "123", "Имя_Клиента", "Имя 123"])
+def test_create_booking_rejects_invalid_name(client, db, name):
+    response = client.post("/api/v1/booking/", json=_booking_payload(name=name))
+    assert response.status_code == 422
+    assert db.query(Booking).count() == 0
 
 
 def test_create_booking_invalid_promo(client):
