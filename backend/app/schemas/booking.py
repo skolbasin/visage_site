@@ -1,7 +1,8 @@
 from datetime import datetime
+import re
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import BaseModel, EmailStr, Field, validator
 
 from app.models.booking import BookingStatus
 
@@ -24,7 +25,18 @@ class BookingBase(BaseModel):
 
 
 class BookingCreate(BookingBase):
-    pass
+    website: str = Field(default="", max_length=255)
+
+    @validator("phone")
+    def validate_phone(cls, value):
+        phone = value.strip()
+        digits = re.sub(r"\D", "", phone)
+        if (
+            not re.fullmatch(r"[+()\d\s.-]+", phone)
+            or not 7 <= len(digits) <= 15
+        ):
+            raise ValueError("Введите корректный номер телефона")
+        return phone
 
 
 class BookingOut(BookingBase):

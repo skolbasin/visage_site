@@ -18,7 +18,8 @@ export default function BookingPage() {
     phone: '',
     email: '',
     comment: '',
-    promo_code: ''
+    promo_code: '',
+    website: ''
   });
   const [consent, setConsent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -57,6 +58,7 @@ export default function BookingPage() {
         ready_by_date: `${date.toISOString().split('T')[0]}T${timeSlot}`,
         comment: formData.comment,
         promo_code: formData.promo_code || undefined,
+        website: formData.website,
       };
       await api.post('/booking/', payload);
 
@@ -252,6 +254,20 @@ export default function BookingPage() {
             </div>
 
             <div className="space-y-3 md:space-y-4">
+              <label
+                aria-hidden="true"
+                className="absolute -left-[10000px] top-auto h-px w-px overflow-hidden"
+              >
+                Оставьте это поле пустым
+                <input
+                  type="text"
+                  name="website"
+                  value={formData.website}
+                  onChange={handleChange}
+                  autoComplete="off"
+                  tabIndex={-1}
+                />
+              </label>
               <input type="text" name="name" required placeholder="Ваше имя" value={formData.name} onChange={handleChange}
                 className="w-full p-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:border-[#4a7c59] focus:ring-1 focus:ring-[#4a7c59] outline-none transition text-sm md:text-base" />
               <input type="tel" name="phone" required placeholder="Телефон" value={formData.phone} onChange={handleChange}

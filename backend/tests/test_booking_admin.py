@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
 
+from app.models.booking import Booking
+
 
 def _booking_payload(**overrides):
     start = datetime.utcnow() + timedelta(days=2)
@@ -32,6 +34,37 @@ def test_create_booking_invalid_promo(client):
     )
     assert response.status_code == 400
     assert "не существует" in response.json()["detail"]
+
+
+def test_booking_honeypot_rejects_submission_without_saving(client, db):
+    response = client.post(
+        "/api/v1/booking/",
+        json=_booking_payload(website="https://spam.example"),
+    )
+    assert response.status_code == 400
+    assert db.query(Booking).count() == 0
+
+
+def test_booking_rejects_abusive_content_without_saving(client, db):
+    response = client.post(
+        "/api/v1/booking/",
+        json=_booking_payload(
+            name="sorry",
+            email="durachok@mail.suka",
+            comment="debil razrabotal govno site, hueta",
+        ),
+    )
+    assert response.status_code == 400
+    assert db.query(Booking).count() == 0
+
+
+def test_booking_rejects_invalid_phone(client, db):
+    response = client.post(
+        "/api/v1/booking/",
+        json=_booking_payload(phone="bez_negativa"),
+    )
+    assert response.status_code == 422
+    assert db.query(Booking).count() == 0
 
 
 def test_admin_list_and_update_booking_status(client, admin_headers):

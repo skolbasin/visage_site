@@ -1,24 +1,47 @@
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.core.dependencies import get_db
+from app.core.rate_limiting import limiter
 from app.models.booking import Booking, BookingStatus
 from app.models.promo import PromoCode
 from app.schemas.booking import BookingCreate, BookingOut
 from app.services.email_service import send_booking_notification
+from app.services.spam_detection import contains_spam_language
 
 router = APIRouter(prefix="/booking", tags=["booking"])
 logger = logging.getLogger(__name__)
 
 
 @router.post("/", response_model=BookingOut)
+@limiter.limit(settings.RATE_LIMIT_BOOKING)
 def create_booking(
+    request: Request,
     booking: BookingCreate,
     db: Session = Depends(get_db),
 ):
     """Создание заявки на запись (доступно всем, без авторизации)"""
+    if booking.website.strip():
+        logger.warning("Rejected booking submission: honeypot field was filled")
+        raise HTTPException(status_code=400, detail="Не удалось отправить заявку")
+
+    if contains_spam_language(
+        booking.name,
+        booking.phone,
+        str(booking.email),
+        booking.service_name,
+        booking.comment,
+        booking.promo_code,
+    ):
+        logger.warning("Rejected booking submission: spam language detected")
+        raise HTTPException(
+            status_code=400,
+            detail="Проверьте контактные данные и текст заявки",
+        )
+
     promo_code_id = None
     promo_code_str = None
 
