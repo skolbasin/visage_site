@@ -69,6 +69,7 @@ lerna-debug.log*
 
 # --- Environment and secrets ---
 .env
+.env.dev
 .env.local
 .env.*.local
 *.pem

@@ -11,6 +11,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 
 from app.core.security import get_password_hash
+from app.db.base import Base  # noqa: F401
 from app.db.session import SessionLocal
 from app.models.user import User
 

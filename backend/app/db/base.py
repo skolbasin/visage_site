@@ -21,3 +21,4 @@ from app.models.marketing import (
     MarketingTop5Task,
     MarketingTop5Week,
 )
+from app.models.plan import PlanItem

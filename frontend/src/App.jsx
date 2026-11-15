@@ -31,6 +31,7 @@ import AnalyticsRevenue from './pages/admin/analytics/AnalyticsRevenue';
 import AnalyticsServices from './pages/admin/analytics/AnalyticsServices';
 import AnalyticsGroups from './pages/admin/analytics/AnalyticsGroups';
 import AdminExpenses from './pages/admin/AdminExpenses';
+import AdminPlans from './pages/admin/AdminPlans';
 import AdminMarketingLayout from './pages/admin/AdminMarketingLayout';
 import MarketingHome from './pages/admin/marketing/MarketingHome';
 import { MARKETING_TOOLS } from './pages/admin/marketing/tools';
@@ -77,6 +78,7 @@ function App() {
             <Route path="groups" element={<AnalyticsGroups />} />
           </Route>
           <Route path="expenses" element={<AdminExpenses />} />
+          <Route path="plans" element={<AdminPlans />} />
           <Route path="marketing" element={<AdminMarketingLayout />}>
             <Route index element={<MarketingHome />} />
             {MARKETING_TOOLS.map((tool) => {

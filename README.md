@@ -64,6 +64,11 @@
   - техники
   - подбор косметики
 
+### 🗂 Планы в админ-панели
+- Отдельные годовые и квартальные планы для Насти и Сережи
+- Редактирование, удаление и отметка выполнения
+- Прогресс по числовым целям (например, накопления или вес)
+
 ---
 
 ### ⭐ Отзывы
@@ -182,6 +187,19 @@ API Docs: http://localhost:8000/docs
 Frontend: http://localhost
 ```
 
+### 🧰 Локальный Docker-режим разработки
+Создайте локальный `.env.dev` с `SECRET_KEY` (только для разработки) и параметрами БД,
+совпадающими с `docker-compose.dev.yml` (`POSTGRES_SERVER=postgres`,
+`POSTGRES_USER=makeup_user`, `POSTGRES_PASSWORD=dev_password`,
+`POSTGRES_DB=makeup_db`), а также `ADMIN_EMAIL` и `ADMIN_PASSWORD` для локального входа
+в админку. Dev-режим создаст отсутствующие таблицы приложения и локальную учетную
+запись администратора. Этот файл исключен из Git.
+
+```bash
+docker compose -f docker-compose.dev.yml up --build
+```
+В режиме разработки миграции базы данных применяются перед запуском API.
+
 ## 🔧 Переменные окружения
 
 Создайте файл .env:
@@ -236,6 +254,10 @@ EMAILS_FROM_NAME=Makeup Artist
 | GET   | /api/v1/articles/{slug} | Статья               |
 | POST  | /api/v1/certificates    | Сертификаты          |
 | POST  | /api/v1/ai/analyze-face | AI анализ            |
+| GET   | /api/v1/admin/plans     | Планы (только администратор) |
+| POST  | /api/v1/admin/plans     | Создать план (только администратор) |
+| PATCH | /api/v1/admin/plans/{id} | Изменить план или прогресс (только администратор) |
+| DELETE | /api/v1/admin/plans/{id} | Удалить план (только администратор) |
 
 
 

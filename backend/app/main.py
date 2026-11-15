@@ -17,6 +17,7 @@ from app.api import (
     feedback,
     marketing,
     marketing_quarters,
+    plans,
     portfolio,
     posts,
     promo,
@@ -76,6 +77,7 @@ app.include_router(analytics.router, prefix=settings.API_V1_STR)
 app.include_router(expenses.router, prefix=settings.API_V1_STR)
 app.include_router(marketing.router, prefix=settings.API_V1_STR)
 app.include_router(marketing_quarters.router, prefix=settings.API_V1_STR)
+app.include_router(plans.router, prefix=settings.API_V1_STR)
 app.include_router(feedback.router, prefix=settings.API_V1_STR)
 app.include_router(question.router, prefix=settings.API_V1_STR)
 

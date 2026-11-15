@@ -27,7 +27,7 @@ services:
     env_file:
       - .env.dev
     ports:
-      - "8000:8000"
+      - "8001:8000"
     volumes:
       - ./backend:/app
       - ./backend/static:/app/static
@@ -37,7 +37,12 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - PYTHONDONTWRITEBYTECODE=1
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+      - BACKEND_CORS_ORIGINS=["http://localhost:5174"]
+    command: >-
+      sh -c "alembic upgrade head &&
+      python -c 'from app.db.base import Base; from app.db.session import engine; Base.metadata.create_all(bind=engine)' &&
+      python scripts/ensure_admin.py &&
+      uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
 
   frontend:
     build:
@@ -46,9 +51,9 @@ services:
     container_name: makeup_frontend_dev
     restart: unless-stopped
     ports:
-      - "5173:5173"
+      - "5174:5173"
     environment:
-      - VITE_API_URL=http://localhost:8000/api/v1
+      - VITE_API_URL=http://localhost:8001/api/v1
     volumes:
       - ./frontend:/app
       - /app/node_modules
