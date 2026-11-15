@@ -7,6 +7,55 @@ import { CheckCircle } from 'lucide-react';
 import ConsentCheckbox from '../components/ConsentCheckbox';
 import { bookingServices } from '../data/services';
 
+function getBookingErrorMessage(error) {
+  const status = error.response?.status;
+  const detail = error.response?.data?.detail;
+
+  if (status === 429) {
+    return 'Превышено допустимое количество попыток. Заявка не оформлена. Подождите немного и попробуйте отправить её повторно.';
+  }
+
+  if (status === 422) {
+    const invalidFields = Array.isArray(detail)
+      ? [...new Set(detail.map((issue) => issue.loc?.at(-1)).filter(Boolean))]
+      : [];
+    const fieldLabels = {
+      name: 'имя',
+      phone: 'номер телефона',
+      email: 'email',
+      appointment_date: 'дату записи',
+      ready_by_date: 'дату записи',
+      service_name: 'услугу',
+    };
+    const fields = invalidFields
+      .map((field) => fieldLabels[field])
+      .filter(Boolean);
+    const reason = fields.length
+      ? `Проверьте ${[...new Set(fields)].join(', ')}.`
+      : 'Проверьте правильность заполнения полей.';
+
+    return `${reason} Заявка не оформлена. Исправьте данные и попробуйте отправить её повторно.`;
+  }
+
+  if (typeof detail === 'string' && detail.includes('контактные данные и текст')) {
+    return 'Заявка не оформлена: проверьте имя, телефон, email и комментарий. Удалите оскорбления или подозрительный текст и попробуйте отправить заявку повторно.';
+  }
+
+  if (typeof detail === 'string' && detail.includes('не удалось отправить заявку')) {
+    return 'Форма не прошла автоматическую проверку, поэтому заявка не оформлена. Обновите страницу, заполните контактные данные вручную и попробуйте снова.';
+  }
+
+  if (typeof detail === 'string') {
+    return `Заявка не оформлена: ${detail}. Проверьте данные и попробуйте отправить её повторно.`;
+  }
+
+  if (status) {
+    return 'Не удалось оформить заявку. Проверьте подключение к интернету и корректность данных, затем попробуйте отправить её повторно.';
+  }
+
+  return 'Не удалось связаться с сервером, заявка не оформлена. Проверьте подключение к интернету и попробуйте отправить её повторно.';
+}
+
 export default function BookingPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -24,6 +73,7 @@ export default function BookingPage() {
   const [consent, setConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
+  const [phoneError, setPhoneError] = useState('');
   const [showConfetti, setShowConfetti] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
@@ -43,10 +93,26 @@ export default function BookingPage() {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (message) setMessage(null);
+    if (e.target.name === 'phone') setPhoneError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage(null);
+    const phone = formData.phone.trim();
+    const phoneDigits = phone.replace(/\D/g, '');
+    if (!/^[+()0-9 .-]+$/.test(phone) || phoneDigits.length < 7 || phoneDigits.length > 15) {
+      const errorText = 'Номер должен содержать от 7 до 15 цифр. Допустимы только цифры, пробелы, «+», скобки, дефис и точка.';
+      setPhoneError(errorText);
+      setMessage({
+        type: 'error',
+        text: `${errorText} Заявка не оформлена. Исправьте номер и попробуйте отправить её повторно.`,
+      });
+      return;
+    }
+
+    setPhoneError('');
     setLoading(true);
     try {
       const payload = {
@@ -72,10 +138,8 @@ export default function BookingPage() {
         setShowConfetti(false);
         navigate('/');
       }, 7000);
-
     } catch (error) {
-      setMessage({ type: 'error', text: error.response?.data?.detail || 'Ошибка отправки' });
-      setTimeout(() => setMessage(null), 7000);
+      setMessage({ type: 'error', text: getBookingErrorMessage(error) });
     } finally {
       setLoading(false);
     }
@@ -141,13 +205,6 @@ export default function BookingPage() {
             </div>
             <p className="text-gray-400 text-sm">Перенаправление на главную...</p>
           </div>
-        </div>
-      )}
-
-      {/* Сообщение об ошибке */}
-      {message && !showSuccessModal && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 p-3 md:p-4 rounded-xl text-sm md:text-base bg-red-50 text-red-700 border border-red-200">
-          {message.text}
         </div>
       )}
 
@@ -246,6 +303,16 @@ export default function BookingPage() {
           <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 md:p-6">
             <h2 className="text-lg md:text-xl font-semibold text-[#2c2c2c] mb-4 md:mb-6">Ваши контактные данные</h2>
 
+            {message && (
+              <div
+                role="alert"
+                className="mb-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"
+              >
+                <p className="font-semibold">Заявка не оформлена</p>
+                <p className="mt-1">{message.text}</p>
+              </div>
+            )}
+
             <div className="bg-[#faf8f6] rounded-xl p-3 md:p-4 mb-5 md:mb-6">
               <p className="text-xs md:text-sm text-gray-500">Выбранная услуга:</p>
               <p className="font-semibold text-[#2c2c2c] text-sm md:text-base">{selectedService.name}</p>
@@ -270,8 +337,30 @@ export default function BookingPage() {
               </label>
               <input type="text" name="name" required placeholder="Ваше имя" value={formData.name} onChange={handleChange}
                 className="w-full p-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:border-[#4a7c59] focus:ring-1 focus:ring-[#4a7c59] outline-none transition text-sm md:text-base" />
-              <input type="tel" name="phone" required placeholder="Телефон" value={formData.phone} onChange={handleChange}
-                className="w-full p-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:border-[#4a7c59] focus:ring-1 focus:ring-[#4a7c59] outline-none transition text-sm md:text-base" />
+              <div>
+                <input
+                  type="tel"
+                  name="phone"
+                  required
+                  inputMode="tel"
+                  autoComplete="tel"
+                  maxLength={30}
+                  placeholder="Телефон"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  aria-invalid={Boolean(phoneError)}
+                  aria-describedby={phoneError ? 'booking-phone-error' : undefined}
+                  className="w-full p-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:border-[#4a7c59] focus:ring-1 focus:ring-[#4a7c59] outline-none transition text-sm md:text-base"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  Укажите от 7 до 15 цифр; можно использовать «+», пробелы, скобки и дефисы.
+                </p>
+                {phoneError && (
+                  <p id="booking-phone-error" className="mt-1.5 text-sm text-red-700">
+                    {phoneError}
+                  </p>
+                )}
+              </div>
               <input type="email" name="email" required placeholder="Email" value={formData.email} onChange={handleChange}
                 className="w-full p-3 bg-white border border-gray-200 rounded-xl text-gray-700 focus:border-[#4a7c59] focus:ring-1 focus:ring-[#4a7c59] outline-none transition text-sm md:text-base" />
               <textarea name="comment" rows="3" placeholder="Комментарий (опционально)" value={formData.comment} onChange={handleChange}
