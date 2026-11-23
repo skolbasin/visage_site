@@ -49,7 +49,7 @@ jobs:
           host: ${{ secrets.Server_Host }}
           username: ${{ secrets.Server_User }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          command_timeout: 1800
+          command_timeout: 30m
           script: |
             set -e
             cd /opt/visage_site
