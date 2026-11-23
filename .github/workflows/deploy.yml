@@ -1,5 +1,9 @@
 name: Deploy to Server
 
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
 on:
   push:
     branches: [master]
@@ -45,13 +49,8 @@ jobs:
           host: ${{ secrets.Server_Host }}
           username: ${{ secrets.Server_User }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 1800
           script: |
+            set -e
             cd /opt/visage_site
-            git pull
-            docker compose down
-            docker compose build
-            # DB first, then migrate before serving traffic with new schema
-            docker compose up -d postgres
-            sleep 5
-            docker compose run --rm backend alembic upgrade head
-            docker compose up -d
+            timeout 25m ./scripts/deploy.sh

@@ -2,11 +2,9 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Копируем package.json (package-lock.json не нужен)
-COPY package*.json ./
+COPY package.json package-lock.json ./
 
-# Используем npm install вместо npm ci
-RUN npm install --registry=https://registry.npmmirror.com
+RUN npm ci --registry=https://registry.npmmirror.com
 
 COPY . .
 
