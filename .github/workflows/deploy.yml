@@ -44,13 +44,24 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - name: Check server SSH reachability
+      - name: Diagnose production reachability
         env:
           SERVER_HOST: ${{ secrets.Server_Host }}
         run: |
-          if ! timeout 15 bash -c 'exec 3<>/dev/tcp/"$SERVER_HOST"/22; true' 2>/dev/null; then
-            echo "Production server $SERVER_HOST is unreachable on SSH port 22"
-            echo "Check host/VM/provider console and network reachability, then rerun deployment"
+          set +e
+          echo "Server host: $SERVER_HOST"
+          echo "DNS:"
+          getent ahosts "$SERVER_HOST" | sort -u | head -n 10
+          echo "TCP 22:"
+          timeout 15 bash -c 'exec 3<>/dev/tcp/'"$SERVER_HOST"'/22' 2>&1
+          TCP_STATUS=$?
+          echo "tcp22_exit=$TCP_STATUS"
+          echo "HTTPS:"
+          curl -4 -Ivk --connect-timeout 10 --max-time 15 "https://$SERVER_HOST/" 2>&1 | head -n 30
+          HTTPS_STATUS=${PIPESTATUS[0]}
+          echo "https_exit=$HTTPS_STATUS"
+          if [[ $TCP_STATUS -ne 0 ]]; then
+            echo "Production server is unreachable on SSH port 22 from GitHub"
             exit 1
           fi
 
