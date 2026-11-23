@@ -43,6 +43,16 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
+      - name: Check server SSH reachability
+        env:
+          SERVER_HOST: ${{ secrets.Server_Host }}
+        run: |
+          if ! timeout 15 bash -c 'exec 3<>/dev/tcp/"$SERVER_HOST"/22; true' 2>/dev/null; then
+            echo "Production server $SERVER_HOST is unreachable on SSH port 22"
+            echo "Check host/VM/provider console and network reachability, then rerun deployment"
+            exit 1
+          fi
+
       - name: SSH and deploy
         uses: appleboy/ssh-action@v1.0.0
         with:
