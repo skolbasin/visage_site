@@ -34,6 +34,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
     volumes:
       - ./backend/static:/app/static
+      - ./backend/logs:/app/logs
       - ./frontend/public/images/portfolio:/app/frontend/public/images/portfolio
     expose:
       - "8000"

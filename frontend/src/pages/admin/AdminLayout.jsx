@@ -88,6 +88,15 @@ export default function AdminLayout() {
               )}
             </Link>
             <Link
+              to="/admin/clients"
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg transition ${
+                isActive('/admin/clients') ? 'bg-[#4a7c59] text-white' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <Users size={18} />
+              <span>База клиентов</span>
+            </Link>
+            <Link
               to="/admin/certificates"
               className={`flex items-center justify-between px-3 py-2 rounded-lg transition ${
                 isActive('/admin/certificates') ? 'bg-[#4a7c59] text-white' : 'text-gray-700 hover:bg-gray-100'

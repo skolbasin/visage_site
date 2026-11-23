@@ -25,6 +25,7 @@ def create_booking(
 ):
     """Создание заявки на запись (доступно всем, без авторизации)"""
     if booking.website.strip():
+        request.state.booking_rejection_reason = "honeypot_filled"
         logger.warning("Rejected booking submission: honeypot field was filled")
         raise HTTPException(status_code=400, detail="Не удалось отправить заявку")
 
@@ -36,6 +37,7 @@ def create_booking(
         booking.comment,
         booking.promo_code,
     ):
+        request.state.booking_rejection_reason = "spam_language_detected"
         logger.warning("Rejected booking submission: spam language detected")
         raise HTTPException(
             status_code=400,
@@ -50,12 +52,14 @@ def create_booking(
         promo = db.query(PromoCode).filter(PromoCode.code == booking.promo_code).first()
 
         if not promo:
+            request.state.booking_rejection_reason = "promo_code_not_found"
             # Промокод не найден в базе
             raise HTTPException(
                 status_code=400, detail=f"Промокод '{booking.promo_code}' не существует"
             )
 
         if promo.is_used:
+            request.state.booking_rejection_reason = "promo_code_already_used"
             # Промокод уже использован
             raise HTTPException(
                 status_code=400,
@@ -67,6 +71,7 @@ def create_booking(
             from datetime import datetime
 
             if promo.expires_at < datetime.utcnow():
+                request.state.booking_rejection_reason = "promo_code_expired"
                 raise HTTPException(
                     status_code=400, detail=f"Промокод '{booking.promo_code}' просрочен"
                 )
@@ -89,6 +94,7 @@ def create_booking(
     db.add(db_booking)
     db.commit()
     db.refresh(db_booking)
+    request.state.booking_id = db_booking.id
 
     send_booking_notification(
         {
@@ -117,5 +123,9 @@ def create_booking(
         created_at=db_booking.created_at,
     )
 
-    logger.info(f"Booking created: id={db_booking.id}, promo_code={promo_code_str}")
+    logger.info(
+        "Booking created: id=%s, promo_code=%s",
+        db_booking.id,
+        promo_code_str,
+    )
     return response

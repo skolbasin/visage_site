@@ -19,6 +19,7 @@ import AdminCertificates from './pages/admin/AdminCertificates';
 import AdminPromoCodes from './pages/admin/AdminPromoCodes';
 import AdminFeed from './pages/admin/AdminFeed';
 import AdminSettings from './pages/admin/AdminSettings';
+import AdminClients from './pages/admin/AdminClients';
 import AdminPortfolio from './pages/admin/AdminPortfolio';
 import AdminCalendar from './pages/admin/AdminCalendar';
 import AdminAnalyticsLayout from './pages/admin/AdminAnalyticsLayout';
@@ -66,6 +67,7 @@ function App() {
           <Route index element={<Navigate to="/admin/bookings" replace />} />
           <Route path="bookings" element={<AdminBookings />} />
           <Route path="calendar" element={<AdminCalendar />} />
+          <Route path="clients" element={<AdminClients />} />
           <Route path="analytics" element={<AdminAnalyticsLayout />}>
             <Route index element={<AnalyticsIndexRedirect />} />
             <Route path="overview" element={<AnalyticsOverview />} />

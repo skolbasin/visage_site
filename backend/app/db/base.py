@@ -4,6 +4,7 @@ from app.db.base_class import Base
 from app.models.article import Article
 from app.models.booking import Booking
 from app.models.calendar_appointment import AppointmentGuest, CalendarAppointment
+from app.models.client import Client, ClientEvent
 from app.models.category import Category
 from app.models.certificate import Certificate
 from app.models.digest import DigestDispatch

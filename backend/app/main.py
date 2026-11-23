@@ -23,6 +23,7 @@ from app.api import (
     promo,
     question,
     traffic_sources,
+    clients,
 )
 from app.core.config import settings
 from app.core.logging_settings import setup_logging
@@ -80,6 +81,7 @@ app.include_router(marketing.router, prefix=settings.API_V1_STR)
 app.include_router(marketing_quarters.router, prefix=settings.API_V1_STR)
 app.include_router(plans.router, prefix=settings.API_V1_STR)
 app.include_router(traffic_sources.router, prefix=settings.API_V1_STR)
+app.include_router(clients.router, prefix=settings.API_V1_STR)
 app.include_router(feedback.router, prefix=settings.API_V1_STR)
 app.include_router(question.router, prefix=settings.API_V1_STR)
 

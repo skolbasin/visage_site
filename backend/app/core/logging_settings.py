@@ -1,72 +1,133 @@
 import logging
+import re
 import sys
-from logging.handlers import TimedRotatingFileHandler
+import time
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
+
 from app.core.config import settings
 
 
+class ThreeDayFileHandler(logging.Handler):
+    def __init__(
+        self,
+        log_dir: Path,
+        filename: str,
+        retention_days: int = 183,
+    ):
+        super().__init__()
+        self.log_dir = log_dir
+        self.filename = filename
+        self.retention_days = retention_days
+        self.stream = None
+        self.current_path = None
+        self.last_cleanup_date = None
+        self._file_pattern = re.compile(
+            rf"^{re.escape(filename.removesuffix('.log'))}-(\d{{4}}-\d{{2}}-\d{{2}})\.log$"
+        )
+        self.log_dir.mkdir(parents=True, exist_ok=True)
+        self.last_cleanup_date = datetime.now(timezone.utc).date()
+        self._cleanup_old_files(self.last_cleanup_date)
+
+    def _path_for(self, current_date: date) -> Path:
+        period_start_day = ((current_date.day - 1) // 3) * 3 + 1
+        period_start = current_date.replace(day=period_start_day)
+        return (
+            self.log_dir
+            / f"{current_date.year:04d}"
+            / f"{current_date.month:02d}"
+            / f"{self.filename.removesuffix('.log')}-{period_start.isoformat()}.log"
+        )
+
+    def _cleanup_old_files(self, current_date: date) -> None:
+        cutoff_date = current_date - timedelta(days=self.retention_days)
+        for path in self.log_dir.glob("*/*/*.log"):
+            match = self._file_pattern.match(path.name)
+            if not match:
+                continue
+            try:
+                period_start = date.fromisoformat(match.group(1))
+            except ValueError:
+                continue
+            if (
+                path.parent.name != f"{period_start.month:02d}"
+                or path.parent.parent.name != f"{period_start.year:04d}"
+            ):
+                continue
+            if period_start + timedelta(days=2) < cutoff_date:
+                path.unlink(missing_ok=True)
+                try:
+                    path.parent.rmdir()
+                    path.parent.parent.rmdir()
+                except OSError:
+                    pass
+
+    def emit(self, record: logging.LogRecord) -> None:
+        try:
+            current_date = datetime.fromtimestamp(
+                record.created, tz=timezone.utc
+            ).date()
+            path = self._path_for(current_date)
+            with self.lock:
+                if path != self.current_path:
+                    if self.stream is not None:
+                        self.stream.close()
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    self.stream = path.open("a", encoding="utf-8")
+                    self.current_path = path
+
+                self.stream.write(f"{self.format(record)}{self.terminator}")
+                self.stream.flush()
+
+                if self.last_cleanup_date != current_date:
+                    self._cleanup_old_files(current_date)
+                    self.last_cleanup_date = current_date
+        except Exception:
+            self.handleError(record)
+
+    @property
+    def terminator(self) -> str:
+        return "\n"
+
+    def close(self) -> None:
+        with self.lock:
+            if self.stream is not None:
+                self.stream.close()
+                self.stream = None
+                self.current_path = None
+        super().close()
+
+
 def setup_logging():
-    """
-    Настройка логирования в зависимости от режима DEBUG.
-    - DEBUG=True: логи выводятся в stdout (консоль).
-    - DEBUG=False: логи пишутся в файлы logs/access.log и logs/error.log с ежедневной ротацией.
-    """
     log_level = logging.DEBUG if settings.DEBUG else logging.INFO
     log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    date_format = "%Y-%m-%d %H:%M:%S"
+    date_format = "%Y-%m-%d %H:%M:%S UTC"
     formatter = logging.Formatter(log_format, date_format)
+    formatter.converter = time.gmtime
 
-    # Создаём корневой логгер
     root_logger = logging.getLogger()
     root_logger.setLevel(log_level)
 
-    # Удаляем существующие обработчики, чтобы не дублировать
     for handler in root_logger.handlers[:]:
         root_logger.removeHandler(handler)
+        handler.close()
 
     if settings.DEBUG:
-        # Разработка: выводим в stdout
         console_handler = logging.StreamHandler(sys.stdout)
         console_handler.setLevel(log_level)
         console_handler.setFormatter(formatter)
         root_logger.addHandler(console_handler)
-
-        # Принудительный сброс буфера
         sys.stdout.reconfigure(line_buffering=True)
     else:
-        # Продакшн: пишем в файлы с ротацией по дням
         log_dir = Path("logs")
-        log_dir.mkdir(exist_ok=True)
+        for filename, level in (("access.log", logging.INFO), ("error.log", logging.ERROR)):
+            handler = ThreeDayFileHandler(log_dir, filename)
+            handler.setLevel(level)
+            handler.setFormatter(formatter)
+            root_logger.addHandler(handler)
 
-        # Файл для всех логов (уровень INFO и выше)
-        info_handler = TimedRotatingFileHandler(
-            filename=log_dir / "access.log",
-            when="midnight",
-            interval=1,
-            backupCount=30,
-            encoding="utf-8",
-        )
-        info_handler.setLevel(logging.INFO)
-        info_handler.setFormatter(formatter)
-        root_logger.addHandler(info_handler)
-
-        # Файл для ошибок (только ERROR и CRITICAL)
-        error_handler = TimedRotatingFileHandler(
-            filename=log_dir / "error.log",
-            when="midnight",
-            interval=1,
-            backupCount=30,
-            encoding="utf-8",
-        )
-        error_handler.setLevel(logging.ERROR)
-        error_handler.setFormatter(formatter)
-        root_logger.addHandler(error_handler)
-
-    # Почта и утренний отчёт всегда в stdout: docker logs их показывает,
-    # даже когда остальные логи приложения пишутся только в файл.
     _attach_mail_stdout(formatter)
 
-    # Отдельные настройки для библиотек (меньше шума)
     logging.getLogger("uvicorn").setLevel(logging.WARNING)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
 
